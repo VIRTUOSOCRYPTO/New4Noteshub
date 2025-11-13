@@ -53,7 +53,12 @@ export default function NotesList({ filters }: NotesListProps) {
     staleTime: 10000, // 10 seconds
     // Explicitly set the URL with query parameters
     queryFn: async () => {
-      const response = await fetch(`/api/notes?${queryString}`);
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`/api/notes?${queryString}`, {
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
+        } : {}
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch notes');
       }
