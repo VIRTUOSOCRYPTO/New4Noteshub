@@ -28,11 +28,38 @@ export default function NoteCard({ note }: NoteCardProps) {
       // Show download started toast
       showToast("Download started", "success");
       
-      // The download endpoint already increments the download count automatically
-      // No need for a separate API call here
+      // Fetch the file with authentication
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`/api/notes/${note.id}/download`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      // Start the actual download - using a sanitized URL
-      window.location.href = sanitizeUrl(`/api/notes/${note.id}/download`);
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+      
+      // Get the filename from the response headers or use a default
+      const contentDisposition = response.headers.get('content-disposition');
+      const filename = contentDisposition 
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+        : note.original_filename || 'download.pdf';
+      
+      // Create a blob from the response
+      const blob = await response.blob();
+      
+      // Create a temporary URL and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
       showToast("Failed to download file", "error");
       console.error("Download error:", error);
@@ -51,11 +78,13 @@ export default function NoteCard({ note }: NoteCardProps) {
     
     setFlagging(true);
     try {
+      const token = localStorage.getItem('auth_token');
       await fetch(sanitizeUrl(`/api/notes/${note.id}/flag`), {
         method: "POST",
         body: JSON.stringify({ reason: sanitizeText(flagReason) }),
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         }
       });
       
