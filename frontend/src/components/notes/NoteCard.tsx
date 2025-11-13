@@ -134,7 +134,7 @@ export default function NoteCard({ note }: NoteCardProps) {
               </p>
               {/* View and download counts removed temporarily */}
             </div>
-            <FileText className="h-5 w-5 text-primary" aria-hidden=\"true\" />
+            <FileText className="h-5 w-5 text-primary" aria-hidden="true" />
           </div>
         </div>
         
@@ -208,6 +208,6 @@ export default function NoteCard({ note }: NoteCardProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </article>
   );
 }
