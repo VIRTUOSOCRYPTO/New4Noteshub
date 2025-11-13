@@ -7,6 +7,7 @@ import { securityLogger, logSecurityEvent, SecurityEventType, LogSeverity } from
 import * as rateLimit from 'express-rate-limit';
 import { validateEnv, printEnvSummary, EnvValidationError } from './env-validator';
 import { logger } from './logger';
+import { setupSwagger } from './swagger';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -378,6 +379,9 @@ app.use((req, res, next) => {
 // Main application startup
 (async () => {
   try {
+    // Setup Swagger documentation
+    setupSwagger(app);
+    
     console.log('Registering API routes...');
     const server = await registerRoutes(app);
     console.log('API routes registered successfully');
