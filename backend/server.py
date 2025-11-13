@@ -32,6 +32,9 @@ from models import (
 )
 from bson import ObjectId
 
+# Import routers
+from routers import analytics, search as search_router
+
 # Lifespan context manager for startup and shutdown
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -42,6 +45,11 @@ async def lifespan(app: FastAPI):
     os.makedirs("uploads/notes", exist_ok=True)
     os.makedirs("uploads/profile", exist_ok=True)
     
+    # Initialize search indexes
+    from services.search_service import get_search_service
+    search_svc = get_search_service(db.db)
+    await search_svc.ensure_text_indexes()
+    
     print("NotesHub API started successfully!")
     
     yield
@@ -51,6 +59,10 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app
 app = FastAPI(title="NotesHub API", version="1.0.0", lifespan=lifespan)
+
+# Include routers
+app.include_router(analytics.router)
+app.include_router(search_router.router)
 
 # Rate limiter
 limiter = Limiter(key_func=get_remote_address)
