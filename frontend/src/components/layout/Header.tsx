@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert } from "lucide-react";
+import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert, BarChart3 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,12 @@ export default function Header() {
                 <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/upload' ? 'bg-primary/70' : 'hover:bg-primary/70'}`}>
                   <Upload className="h-4 w-4" />
                   <span className="hidden sm:inline">Upload</span>
+                </div>
+              </Link>
+              <Link href="/analytics">
+                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/analytics' ? 'bg-primary/70' : 'hover:bg-primary/70'}`}>
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Analytics</span>
                 </div>
               </Link>
               {isAdmin && (
