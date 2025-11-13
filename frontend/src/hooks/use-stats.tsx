@@ -18,7 +18,12 @@ export function useStats() {
   const { data: apiStats, isLoading, error } = useQuery<UserStats>({
     queryKey: ['/api/user/stats'],
     queryFn: async () => {
-      const response = await fetch('/api/user/stats');
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch('/api/user/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch stats');
       }
