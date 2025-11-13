@@ -34,7 +34,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
   
-  // Health check endpoints
+  /**
+   * @swagger
+   * /api/health:
+   *   get:
+   *     summary: Health check endpoint
+   *     description: Check if the API server is running and responsive
+   *     tags: [Health]
+   *     security: []
+   *     responses:
+   *       200:
+   *         description: Server is healthy
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: ok
+   *                 message:
+   *                   type: string
+   *                   example: API server is running
+   *                 timestamp:
+   *                   type: string
+   *                   format: date-time
+   *                 environment:
+   *                   type: string
+   *                   example: development
+   */
   const healthHandler = (req: any, res: any) => {
     res.json({ 
       status: 'ok', 
