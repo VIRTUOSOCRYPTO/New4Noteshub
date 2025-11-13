@@ -126,8 +126,13 @@ export default function Settings() {
     
     setIsUploading(true);
     
+    const token = localStorage.getItem('auth_token');
+    
     fetch('/api/user/profile-picture', {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
       body: formData,
     })
       .then(response => {
