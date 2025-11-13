@@ -12,6 +12,7 @@ import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
 import FlaggedContent from "@/pages/FlaggedContent";
 import CorsDebug from "@/pages/CorsDebug";
+import Analytics from "@/pages/Analytics";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ToastContainer from "@/components/ui/toast-container";
@@ -30,6 +31,7 @@ function Router() {
       <ProtectedRoute path="/profile" component={Profile} />
       <ProtectedRoute path="/settings" component={Settings} />
       <ProtectedRoute path="/flagged" component={FlaggedContent} />
+      <ProtectedRoute path="/analytics" component={Analytics} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/cors-debug" component={CorsDebug} />
