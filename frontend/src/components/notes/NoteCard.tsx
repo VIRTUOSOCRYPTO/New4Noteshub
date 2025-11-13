@@ -120,21 +120,21 @@ export default function NoteCard({ note }: NoteCardProps) {
   }, [note.id]); // Only run on mount and if note.id changes
 
   return (
-    <div className="relative">
+    <article className="relative" data-testid="note-card" aria-label={`Note: ${note.title}`}>
       <div className="file-card bg-card rounded-lg shadow-md overflow-hidden card-hover dark:border dark:border-secondary/40 relative">
         <div className="p-4 border-b border-muted">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-semibold text-foreground text-gradient">{sanitizeText(note.title)}</h3>
-              <p className="text-sm text-muted-foreground mt-1">
+              <h3 className="font-semibold text-foreground text-gradient" id={`note-title-${note.id}`}>{sanitizeText(note.title)}</h3>
+              <p className="text-sm text-muted-foreground mt-1" aria-label={`Department: ${getDepartmentLabel(note.department)}`}>
                 {sanitizeText(getDepartmentLabel(note.department))}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1" aria-label={`Subject: ${getSubjectLabel(note.subject)}`}>
                 Subject: {sanitizeText(getSubjectLabel(note.subject))}
               </p>
               {/* View and download counts removed temporarily */}
             </div>
-            <FileText className="h-5 w-5 text-primary" />
+            <FileText className="h-5 w-5 text-primary" aria-hidden=\"true\" />
           </div>
         </div>
         
@@ -145,27 +145,32 @@ export default function NoteCard({ note }: NoteCardProps) {
           </div>
           <div className="flex items-center gap-2">
             {isFlagged ? (
-              <div className="flex items-center space-x-1 text-amber-500 text-xs">
-                <Check className="h-3 w-3" />
+              <div className="flex items-center space-x-1 text-amber-500 text-xs" role="status" aria-label="Note has been reported">
+                <Check className="h-3 w-3" aria-hidden="true" />
                 <span>Reported</span>
               </div>
             ) : (
               <button
                 onClick={handleFlagClick}
-                className="text-red-500 hover:text-red-600 flex items-center space-x-1 text-xs hover:underline"
+                className="text-red-500 hover:text-red-600 flex items-center space-x-1 text-xs hover:underline focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded"
                 title="Report inappropriate content"
+                aria-label="Report inappropriate content"
+                data-testid="flag-button"
               >
-                <Flag className="h-3 w-3" />
+                <Flag className="h-3 w-3" aria-hidden="true" />
                 <span className="hidden sm:inline">Report</span>
               </button>
             )}
             <ShareOptions note={note} compact />
             <button 
               onClick={handleDownload}
-              className="text-primary hover:text-primary/80 flex items-center space-x-1 text-sm bg-secondary/50 hover:bg-secondary dark:hover:bg-secondary/80 px-2 py-1 rounded-full transition-colors"
-              title="Download"
+              className="text-primary hover:text-primary/80 flex items-center space-x-1 text-sm bg-secondary/50 hover:bg-secondary dark:hover:bg-secondary/80 px-2 py-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              title="Download note"
+              aria-label={`Download ${note.title}`}
+              aria-describedby={`note-title-${note.id}`}
+              data-testid="download-button"
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4" aria-hidden="true" />
               <span>Download</span>
             </button>
           </div>
