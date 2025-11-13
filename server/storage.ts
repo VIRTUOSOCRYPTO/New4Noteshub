@@ -43,6 +43,7 @@ export interface IStorage {
   
   // Notes related methods
   getNotes(params: SearchNotesParams): Promise<Note[]>;
+  getNotesWithPagination(params: SearchNotesParams): Promise<{ notes: Note[], total: number }>;
   getNoteById(id: number): Promise<Note | undefined>;
   createNote(note: InsertNote, userId: number): Promise<Note>;
   deleteNote(id: number): Promise<boolean>;
@@ -945,6 +946,99 @@ export class DatabaseStorage implements IStorage {
       console.error('Error in getNotes standard query:', error);
       // Return empty array if there's an error
       return [];
+    }
+  }
+
+
+  async getNotesWithPagination(params: SearchNotesParams): Promise<{ notes: Note[], total: number }> {
+    const { page = 1, limit = 20 } = params;
+    const offset = (page - 1) * limit;
+
+    console.log('Storage getNotesWithPagination params:', params);
+    
+    // Build conditions (reuse logic from getNotes)
+    let conditions: SQL[] = [];
+    
+    // Filter by specific userId if provided (for user stats)
+    if (params.userId !== undefined) {
+      conditions.push(eq(notes.userId, params.userId));
+    }
+    
+    // DEPARTMENT FILTERING
+    const showAllDepts = params.showAllDepartments === true;
+    if (!showAllDepts) {
+      if (params.department) {
+        conditions.push(eq(notes.department, params.department));
+      } else if (params.userDepartment) {
+        conditions.push(eq(notes.department, params.userDepartment));
+      }
+    } else if (params.department) {
+      conditions.push(eq(notes.department, params.department));
+    }
+    
+    // YEAR FILTERING
+    const showAllYears = params.showAllYears === true;
+    if (!showAllYears) {
+      if (params.year && params.year > 0) {
+        conditions.push(eq(notes.year, params.year));
+      } else if (params.userYear && params.userYear > 0) {
+        conditions.push(eq(notes.year, params.userYear));
+      }
+    }
+    
+    // SUBJECT FILTERING
+    if (params.subject) {
+      conditions.push(eq(notes.subject, params.subject));
+    }
+    
+    try {
+      // Execute queries for both data and count
+      let notesQuery;
+      let countQuery;
+      
+      if (conditions.length > 0) {
+        const whereClause = and(...conditions);
+        notesQuery = db
+          .select()
+          .from(notes)
+          .where(whereClause)
+          .orderBy(desc(notes.uploadedAt))
+          .limit(limit)
+          .offset(offset);
+        
+        countQuery = db
+          .select({ count: sql<number>`count(*)` })
+          .from(notes)
+          .where(whereClause);
+      } else {
+        notesQuery = db
+          .select()
+          .from(notes)
+          .orderBy(desc(notes.uploadedAt))
+          .limit(limit)
+          .offset(offset);
+        
+        countQuery = db
+          .select({ count: sql<number>`count(*)` })
+          .from(notes);
+      }
+      
+      const [notesResult, countResult] = await Promise.all([
+        notesQuery,
+        countQuery
+      ]);
+      
+      const total = Number(countResult[0]?.count || 0);
+      
+      console.log(`Pagination: page=${page}, limit=${limit}, offset=${offset}, total=${total}`);
+      
+      return {
+        notes: notesResult,
+        total
+      };
+    } catch (error) {
+      console.error('Error in getNotesWithPagination:', error);
+      return { notes: [], total: 0 };
     }
   }
 
