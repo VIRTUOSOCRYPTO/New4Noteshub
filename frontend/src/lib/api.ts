@@ -9,29 +9,25 @@ import { pinnedFetch } from "./certificate-pinning";
 
 // Determine the environment-specific API base URL
 const getApiBaseUrl = (): string => {
-  // Check for REACT_APP_BACKEND_URL (Emergent standard)
-  const reactAppBackendUrl = import.meta.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
-  
-  if (reactAppBackendUrl) {
-    console.log('Using REACT_APP_BACKEND_URL:', reactAppBackendUrl);
-    return reactAppBackendUrl;
-  }
-  
-  // Fallback to VITE_API_BASE_URL
   const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
   if (envApiBaseUrl) {
     console.log('Using API base URL from environment:', envApiBaseUrl);
     return envApiBaseUrl;
   }
 
-  // For development, use localhost backend
-  if (import.meta.env.DEV) {
-    console.log('Using development backend URL');
-    return 'http://localhost:8001';
+  // Check if we're running on Firebase hosting
+  const isFirebaseHosting = window.location.hostname.includes('web.app') || 
+                          window.location.hostname.includes('firebaseapp.com');
+
+  if (isFirebaseHosting || import.meta.env.PROD) {
+    // For production with Firebase hosting + Render backend
+    console.log('Using production Render backend URL');
+    return 'https://noteshubz.onrender.com';
   }
 
-  // For production, the default is empty string which means same-origin
-  console.log('Using same-origin API URL (production)');
+  // For development, the default is empty string which means same-origin
+  console.log('Using same-origin API URL (development)');
   return '';
 };
 
