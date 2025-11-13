@@ -24,7 +24,12 @@ export default function Home() {
     queryFn: async () => {
       if (!hasAccessToModeration) return [];
       
-      const response = await fetch('/api/notes/flagged');
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch('/api/notes/flagged', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         return [];
       }
