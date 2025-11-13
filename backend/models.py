@@ -1,0 +1,276 @@
+from pydantic import BaseModel, EmailStr, Field, field_validator
+from typing import Optional, List
+from datetime import datetime
+from enum import Enum
+import re
+
+# Department codes and mappings from original schema
+VALID_DEPARTMENTS = [
+    "NT", "EEE", "ECE", "CSE", "ISE", "AIML", "AIDS", "MECH",
+    "CH", "IEM", "ETE", "MBA", "MCA", "DOS"
+]
+
+DEPARTMENT_CODES = {
+    "CS": "CSE", "EC": "ECE", "IS": "ISE", "EE": "EEE",
+    "ME": "MECH", "CH": "CH", "NT": "NT", "IE": "IEM",
+    "ET": "ETE", "CI": "AIML", "AD": "AIDS", "MB": "MBA",
+    "MC": "MCA", "DO": "DOS"
+}
+
+KARNATAKA_COLLEGES = [
+    {"value": "rvce", "label": "R.V. College of Engineering, Bengaluru"},
+    {"value": "msrit", "label": "M.S. Ramaiah Institute of Technology, Bengaluru"},
+    {"value": "bmsce", "label": "B.M.S. College of Engineering, Bengaluru"},
+    {"value": "pesu", "label": "PES University, Bengaluru"},
+    {"value": "dsce", "label": "Dayananda Sagar College of Engineering, Bengaluru"},
+    {"value": "nie", "label": "National Institute of Engineering, Mysuru"},
+    {"value": "sit", "label": "Siddaganga Institute of Technology, Tumkuru"},
+    {"value": "other", "label": "Other Institution"}
+]
+
+VALID_YEARS = [1, 2, 3, 4]
+
+# User Models
+class UserBase(BaseModel):
+    usn: str
+    email: EmailStr
+    department: str
+    college: Optional[str] = None
+    year: int
+
+    @field_validator('usn')
+    @classmethod
+    def validate_usn(cls, v):
+        standard_format = re.compile(r'^[0-9][A-Za-z]{2}[0-9]{2}[A-Za-z]{2}[0-9]{3}$')
+        short_format = re.compile(r'^[0-9]{2}[A-Za-z]{2}[0-9]{3}$')
+        if not (standard_format.match(v) or short_format.match(v)):
+            raise ValueError('USN must be in format 1SI20CS045 or 22EC101')
+        return v.upper()
+
+    @field_validator('department')
+    @classmethod
+    def validate_department(cls, v):
+        if v not in VALID_DEPARTMENTS:
+            raise ValueError(f'Department must be one of {VALID_DEPARTMENTS}')
+        return v
+
+    @field_validator('year')
+    @classmethod
+    def validate_year(cls, v):
+        if v not in VALID_YEARS:
+            raise ValueError(f'Year must be one of {VALID_YEARS}')
+        return v
+
+class UserCreate(UserBase):
+    password: str
+    confirmPassword: str
+    customCollegeName: Optional[str] = None
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        if not re.search(r'[a-z]', v):
+            raise ValueError('Password must contain at least one lowercase letter')
+        if not re.search(r'[0-9]', v):
+            raise ValueError('Password must contain at least one number')
+        if not re.search(r'[^A-Za-z0-9]', v):
+            raise ValueError('Password must contain at least one special character')
+        return v
+
+class UserLogin(BaseModel):
+    usn: str
+    password: str
+
+class UserInDB(UserBase):
+    id: str
+    password_hash: str
+    profile_picture: Optional[str] = None
+    notify_new_notes: bool = True
+    notify_downloads: bool = False
+    reset_token: Optional[str] = None
+    reset_token_expiry: Optional[datetime] = None
+    created_at: datetime
+    two_factor_enabled: bool = False
+    two_factor_secret: Optional[str] = None
+    refresh_token: Optional[str] = None
+    refresh_token_expiry: Optional[datetime] = None
+
+class UserResponse(UserBase):
+    id: str
+    profile_picture: Optional[str] = None
+    notify_new_notes: bool = True
+    notify_downloads: bool = False
+    created_at: datetime
+    two_factor_enabled: bool = False
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+class TokenData(BaseModel):
+    usn: Optional[str] = None
+    user_id: Optional[str] = None
+
+# Note Models
+class NoteBase(BaseModel):
+    title: str
+    department: str
+    year: int
+    subject: str
+
+class NoteCreate(NoteBase):
+    pass
+
+class NoteInDB(NoteBase):
+    id: str
+    user_id: str
+    usn: str
+    filename: str
+    original_filename: str
+    uploaded_at: datetime
+    is_flagged: bool = False
+    flag_reason: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    is_approved: bool = True
+    download_count: int = 0
+    view_count: int = 0
+
+class NoteResponse(NoteBase):
+    id: str
+    user_id: str
+    usn: str
+    filename: str
+    original_filename: str
+    uploaded_at: datetime
+    is_flagged: bool = False
+    is_approved: bool = True
+    download_count: int = 0
+    view_count: int = 0
+
+# Search/Filter Models
+class NotesSearchParams(BaseModel):
+    department: Optional[str] = None
+    subject: Optional[str] = None
+    year: Optional[int] = None
+    userDepartment: Optional[str] = None
+    userCollege: Optional[str] = None
+    userYear: Optional[int] = None
+    showAllDepartments: bool = False
+    showAllColleges: bool = False
+    showAllYears: bool = False
+    userId: Optional[str] = None
+
+# Settings Models
+class UserSettingsUpdate(BaseModel):
+    notify_new_notes: Optional[bool] = None
+    notify_downloads: Optional[bool] = None
+
+class PasswordUpdate(BaseModel):
+    currentPassword: str
+    newPassword: str
+    confirmNewPassword: str
+
+    @field_validator('newPassword')
+    @classmethod
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        if not re.search(r'[a-z]', v):
+            raise ValueError('Password must contain at least one lowercase letter')
+        if not re.search(r'[0-9]', v):
+            raise ValueError('Password must contain at least one number')
+        if not re.search(r'[^A-Za-z0-9]', v):
+            raise ValueError('Password must contain at least one special character')
+        return v
+
+# Password Reset Models
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    newPassword: str
+    confirmPassword: str
+
+# Flag/Review Models
+class FlagNoteRequest(BaseModel):
+    reason: str
+
+class ReviewNoteRequest(BaseModel):
+    approved: bool
+
+# 2FA Models
+class TwoFactorSetup(BaseModel):
+    secret: str
+    qr_code: str
+
+class TwoFactorVerify(BaseModel):
+    token: str
+
+# Google Auth Model
+class GoogleAuthRequest(BaseModel):
+    idToken: str
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    photoURL: Optional[str] = None
+
+# Bookmark Models
+class BookmarkCreate(BaseModel):
+    note_id: str
+
+class BookmarkResponse(BaseModel):
+    id: str
+    user_id: str
+    note_id: str
+    created_at: datetime
+
+# Message Models
+class MessageCreate(BaseModel):
+    receiver_id: str
+    content: str
+    attachment: Optional[str] = None
+
+class MessageResponse(BaseModel):
+    id: str
+    sender_id: str
+    receiver_id: str
+    content: str
+    is_read: bool
+    sent_at: datetime
+    attachment: Optional[str] = None
+
+# Drawing Models
+class DrawingCreate(BaseModel):
+    note_id: Optional[str] = None
+    title: str
+    content: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    is_public: bool = False
+
+class DrawingResponse(BaseModel):
+    id: str
+    note_id: Optional[str] = None
+    user_id: str
+    title: str
+    content: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    is_public: bool = False
+
+# Stats Models
+class UserStats(BaseModel):
+    uploadCount: int
+    downloadCount: int
+    viewCount: int
+    daysSinceJoined: int
+    previewCount: int
+    uniqueSubjectsCount: int
+    pagesVisited: int
