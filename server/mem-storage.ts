@@ -446,6 +446,24 @@ export class MemStorage implements IStorage {
     });
   }
 
+  async getNotesWithPagination(params: SearchNotesParams): Promise<{ notes: Note[], total: number }> {
+    // Get all notes using existing logic
+    const allNotes = await this.getNotes(params);
+    
+    const page = params.page || 1;
+    const limit = params.limit || 20;
+    const offset = (page - 1) * limit;
+    
+    // Paginate the results
+    const paginatedNotes = allNotes.slice(offset, offset + limit);
+    
+    return {
+      notes: paginatedNotes,
+      total: allNotes.length
+    };
+  }
+
+
   async getNoteById(id: number): Promise<Note | undefined> {
     return this.notesMap.get(id);
   }
