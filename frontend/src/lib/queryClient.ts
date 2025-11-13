@@ -44,15 +44,29 @@ export async function apiRequest(
       ? `${API_BASE_URL}${url}` 
       : url;
   
+  // Get auth token if available
+  const token = localStorage.getItem('auth_token');
+  
+  // Build headers with auth token
+  const headers: HeadersInit = {};
+  
+  // Add Content-Type for non-FormData requests
+  if (data && !isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+  
+  // Always add Origin header
+  headers["Origin"] = window.location.origin;
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  
   // Use the secure fetch implementation with certificate pinning
   const res = await apiFetch(fullUrl, {
     method,
-    headers: data && !isFormData 
-      ? { 
-          "Content-Type": "application/json",
-          "Origin": window.location.origin
-        } 
-      : { "Origin": window.location.origin },
+    headers,
     body: data ? (isFormData ? data : JSON.stringify(data)) : undefined,
     credentials: "include",
     mode: "cors"
