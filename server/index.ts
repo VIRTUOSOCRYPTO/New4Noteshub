@@ -5,14 +5,25 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { securityLogger, logSecurityEvent, SecurityEventType, LogSeverity } from './security-logger';
 import * as rateLimit from 'express-rate-limit';
+import { validateEnv, printEnvSummary, EnvValidationError } from './env-validator';
+import { logger } from './logger';
 
 // Load environment variables from .env file
 dotenv.config();
 
-// Log startup information
-console.log('Starting NotesHub application...');
-console.log(`NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
-console.log(`Database environment variables: ${process.env.DATABASE_URL ? 'Present' : 'Missing'}`);
+// Validate environment variables on startup
+try {
+  logger.info('Starting NotesHub application...');
+  const envConfig = validateEnv();
+  printEnvSummary(envConfig);
+  logger.info('Environment validation successful');
+} catch (error) {
+  if (error instanceof EnvValidationError) {
+    console.error(error.message);
+    process.exit(1);
+  }
+  throw error;
+}
 
 const app = express();
 
@@ -373,11 +384,19 @@ app.use((req, res, next) => {
 
     // Global error handler
     app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
-      console.error('Unhandled error:', err);
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
       
-      // Log the error with our security logger
+      // Log the error with our new logger
+      logger.error(`Unhandled error on ${req.method} ${req.path}`, err, {
+        status,
+        path: req.path,
+        method: req.method,
+        ip: req.ip,
+        userId: req.session?.userId,
+      });
+      
+      // Also log with security logger
       logSecurityEvent(
         SecurityEventType.SUSPICIOUS_ACTIVITY,
         status >= 500 ? LogSeverity.ERROR : LogSeverity.WARNING,
@@ -390,10 +409,21 @@ app.use((req, res, next) => {
         }
       );
 
-      res.status(status).json({ 
-        error: message,
-        details: process.env.NODE_ENV === 'development' ? err.stack : undefined
-      });
+      // Send user-friendly error response
+      const errorResponse: any = {
+        error: status >= 500 ? 'An unexpected error occurred. Please try again later.' : message,
+        statusCode: status,
+      };
+
+      // Include details only in development
+      if (process.env.NODE_ENV === 'development') {
+        errorResponse.details = {
+          message: err.message,
+          stack: err.stack,
+        };
+      }
+
+      res.status(status).json(errorResponse);
     });
 
     // Setup frontend serving
