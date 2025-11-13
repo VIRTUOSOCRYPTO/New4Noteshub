@@ -46,7 +46,12 @@ export default function FlaggedContent() {
     queryFn: async () => {
       if (!hasAccess) return [];
       
-      const response = await fetch('/api/notes/flagged');
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch('/api/notes/flagged', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch flagged content');
       }
@@ -58,10 +63,12 @@ export default function FlaggedContent() {
   // Mutation to review a flagged note
   const reviewMutation = useMutation({
     mutationFn: async ({ noteId, approved }: { noteId: number, approved: boolean }) => {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(`/api/notes/${noteId}/review`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ approved }),
       });
@@ -117,6 +124,42 @@ export default function FlaggedContent() {
       noteId: selectedNote.id, 
       approved: reviewAction === "approve"
     });
+  };
+
+  // Handle file download with authentication
+  const handleDownload = async (noteId: string, filename: string) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`/api/notes/${noteId}/download`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+      
+      // Create a blob from the response
+      const blob = await response.blob();
+      
+      // Create a temporary URL and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      showToast("Download started", "success");
+    } catch (error) {
+      showToast("Failed to download file", "error");
+      console.error("Download error:", error);
+    }
   };
 
   if (!hasAccess) {
@@ -262,14 +305,12 @@ export default function FlaggedContent() {
                   </CardContent>
                   <CardFooter className="border-t bg-muted/30 flex justify-between">
                     <div>
-                      <a 
-                        href={`/api/notes/${note.id}/download`}
-                        className="text-primary hover:underline text-sm"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button 
+                        onClick={() => handleDownload(note.id, note.original_filename || 'download.pdf')}
+                        className="text-primary hover:underline text-sm cursor-pointer"
                       >
                         Download file to review
-                      </a>
+                      </button>
                     </div>
                     <div className="flex gap-2">
                       <Button 
