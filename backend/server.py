@@ -94,6 +94,24 @@ async def test_cors():
         "timestamp": datetime.utcnow().isoformat()
     }
 
+@app.get("/api/db-status")
+async def database_status(database = Depends(get_database)):
+    """Check database connection status"""
+    try:
+        # Try to ping the database
+        await database.command("ping")
+        return {
+            "status": "connected",
+            "message": "Database connection is healthy",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "disconnected",
+            "message": f"Database connection failed: {str(e)}",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
 # ============================================================================
 # AUTHENTICATION ROUTES
 # ============================================================================
