@@ -489,7 +489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GET /api/notes - Get notes with optional filters
+  // GET /api/notes - Get notes with optional filters and pagination
   app.get('/api/notes', async (req: Request, res: Response) => {
     try {
       // Get user information if authenticated
@@ -510,20 +510,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const showAllColleges = req.query.showAllColleges === 'true';
       const showAllYears = req.query.showAllYears === 'true';
       
-      // Debug the query parameters
-      console.log('Query Params:', {
-        department: req.query.department,
-        subject: req.query.subject,
-        showAllDepartments: req.query.showAllDepartments,
-        showAllDepartmentsParsed: showAllDepartments,
-        showAllColleges: req.query.showAllColleges,
-        showAllCollegesParsed: showAllColleges,
-        showAllYears: req.query.showAllYears,
-        showAllYearsParsed: showAllYears,
-        userDepartment,
-        userCollege,
-        userYear
-      });
+      // Parse pagination parameters
+      const page = req.query.page ? parseInt(req.query.page as string) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
       
       // Set up query parameters based on filter choices
       const queryParams = searchNotesSchema.parse({
@@ -540,11 +529,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userYear: !showAllYears ? userYear : undefined,
         showAllDepartments: showAllDepartments,
         showAllColleges: showAllColleges,
-        showAllYears: showAllYears || false // Default to not showing all years
+        showAllYears: showAllYears || false, // Default to not showing all years
+        // Pagination
+        page,
+        limit
       });
       
-      const notes = await storage.getNotes(queryParams);
-      res.json(notes);
+      // Use paginated query
+      const { notes: notesData, total } = await storage.getNotesWithPagination(queryParams);
+      
+      // Calculate pagination metadata
+      const totalPages = Math.ceil(total / limit);
+      
+      res.json({
+        data: notesData,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        }
+      });
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
