@@ -64,7 +64,12 @@ export function useNotifications() {
       if (!user || !user.department) return [];
       
       // Use the query with the user's specific department to get only department-specific notes
-      const response = await fetch(`/api/notes?department=${user.department}&showAllDepartments=false&showAllYears=false`);
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`/api/notes?department=${user.department}&showAllDepartments=false&showAllYears=false`, {
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
+        } : {}
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch notes');
       }
