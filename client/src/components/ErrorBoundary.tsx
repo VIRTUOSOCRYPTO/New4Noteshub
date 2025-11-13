@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
+import { logErrorToService } from '../lib/error-monitoring';
 
 interface Props {
   children: ReactNode;
@@ -15,6 +16,7 @@ interface State {
 /**
  * Error Boundary Component
  * Catches JavaScript errors anywhere in the child component tree
+ * Integrated with error monitoring service
  */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -33,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
 
@@ -43,8 +45,8 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // TODO: Log to error reporting service (e.g., Sentry)
-    // logErrorToService(error, errorInfo);
+    // Log to error monitoring service (Sentry or fallback)
+    logErrorToService(error, errorInfo);
   }
 
   handleReset = (): void => {
