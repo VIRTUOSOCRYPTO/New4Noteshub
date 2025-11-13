@@ -264,7 +264,7 @@ export const insertNoteSchema = createInsertSchema(notes).pick({
   originalFilename: true,
 });
 
-// Search schema with user-specific filters
+// Search schema with user-specific filters and pagination
 export const searchNotesSchema = z.object({
   department: z.string().optional(),
   subject: z.string().optional(),
@@ -276,7 +276,24 @@ export const searchNotesSchema = z.object({
   showAllColleges: z.boolean().optional(), // Added to control showing notes from all colleges
   showAllYears: z.boolean().optional(), // Kept for backward compatibility with DB
   userId: z.number().optional(), // Added to filter notes by a specific user ID
+  
+  // Pagination parameters
+  page: z.number().min(1).optional().default(1),
+  limit: z.number().min(1).max(100).optional().default(20),
 });
+
+// Pagination response type
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
 
 // User settings update schema
 export const updateUserSettingsSchema = z.object({
