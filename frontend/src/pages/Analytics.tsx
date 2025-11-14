@@ -96,7 +96,7 @@ export default function Analytics() {
       setUploadTrends(trendsData.trends);
 
       const predData = await apiRequest<{ predictions: Prediction[] }>(
-        "/api/analytics/predictions/uploads?days=7"
+        "/api/analytics/trends/predictions?days_ahead=7"
       );
       setPredictions(predData.predictions);
 
