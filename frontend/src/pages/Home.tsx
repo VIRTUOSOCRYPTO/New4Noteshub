@@ -1,19 +1,16 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Search, Upload, Users, BookText, Lightbulb, AlertTriangle, ArrowRight, Star, TrendingUp, Shield, Zap } from "lucide-react";
+import { BookOpen, Search, Upload, Users, Shield, TrendingUp, Building2, CheckCircle, ArrowRight, BarChart3 } from "lucide-react";
 import HomeShareOptions from "@/components/home/HomeShareOptions";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { Note } from "@/lib/schema";
 import { usePageVisits } from "@/hooks/use-page-visits";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 export default function Home() {
   usePageVisits('home');
   const [, navigate] = useLocation();
   const { user } = useAuth();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
   const allowedDepartments = ['CSE', 'ISE', 'AIML', 'ECE'];
   const hasAccessToModeration = user && allowedDepartments.includes(user.department);
@@ -33,362 +30,263 @@ export default function Home() {
     refetchInterval: 60000
   });
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.3 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 100 }
-    }
-  };
-
-  const floatingAnimation = {
-    y: [0, -20, 0],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  };
-
   return (
-    <div className="flex flex-col min-h-screen relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50" />
-        <motion.div
-          className="absolute inset-0 opacity-30"
-          animate={{
-            backgroundPosition: ['0% 0%', '100% 100%'],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-          style={{
-            backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)',
-            backgroundSize: '100% 100%'
-          }}
-        />
-      </div>
-
+    <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden">
-        {/* Floating Elements */}
-        <motion.div
-          className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-20 blur-xl"
-          animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-br from-pink-400 to-orange-500 rounded-full opacity-20 blur-xl"
-          animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={containerVariants}
-            >
-              <motion.div variants={itemVariants} className="inline-block mb-4">
-                <span className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-semibold rounded-full shadow-lg">
-                  🚀 Welcome to the Future of Learning
-                </span>
-              </motion.div>
+      <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 text-white overflow-hidden">
+        {/* Subtle Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }} />
+        
+        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-2 mb-8">
+              <Shield className="h-4 w-4" />
+              <span className="text-sm font-medium">Enterprise-Grade Academic Platform</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+              Knowledge Management
+              <br />
+              <span className="text-blue-400">For Modern Education</span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-2xl mx-auto">
+              Streamline academic content sharing with enterprise security, 
+              structured organization, and institutional-grade reliability.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg h-auto"
+                onClick={() => navigate("/find")}
+              >
+                <Search className="mr-2 h-5 w-5" />
+                Browse Repository
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
               
-              <motion.h1
-                variants={itemVariants}
-                className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
+              <Button
+                size="lg"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-6 text-lg h-auto"
+                onClick={() => navigate("/upload")}
               >
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-gradient">
-                  Share Knowledge,
-                </span>
-                <br />
-                <span className="text-gray-900">Achieve Together</span>
-              </motion.h1>
-              
-              <motion.p
-                variants={itemVariants}
-                className="text-xl text-gray-700 mb-8 leading-relaxed"
-              >
-                Join thousands of students collaborating, sharing notes, and excelling together.
-                Your academic success starts here.
-              </motion.p>
-              
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-col sm:flex-row gap-4"
-              >
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    size="lg"
-                    className="px-8 py-6 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl hover:shadow-2xl transition-all duration-300"
-                    onClick={() => navigate("/find")}
-                  >
-                    <Search className="mr-2 h-6 w-6" />
-                    Explore Notes
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </motion.div>
-                
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="px-8 py-6 text-lg border-2 border-purple-300 hover:bg-purple-50 hover:border-purple-400 transition-all duration-300"
-                    onClick={() => navigate("/upload")}
-                  >
-                    <Upload className="mr-2 h-6 w-6" />
-                    Share Your Notes
-                  </Button>
-                </motion.div>
-              </motion.div>
+                <Upload className="mr-2 h-5 w-5" />
+                Contribute Content
+              </Button>
+            </div>
 
-              {/* Stats */}
-              <motion.div
-                variants={itemVariants}
-                className="grid grid-cols-3 gap-6 mt-12"
-              >
-                {[
-                  { label: "Active Students", value: "10K+", icon: Users },
-                  { label: "Notes Shared", value: "50K+", icon: BookOpen },
-                  { label: "Success Rate", value: "98%", icon: TrendingUp }
-                ].map((stat, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ scale: 1.1, y: -5 }}
-                    className="text-center"
-                  >
-                    <stat.icon className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                    <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                    <div className="text-sm text-gray-600">{stat.label}</div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
-
-            {/* Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="relative"
-            >
-              <motion.div
-                animate={floatingAnimation}
-                className="relative"
-              >
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl blur-2xl opacity-30" />
-                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
-                  <img
-                    src="https://images.unsplash.com/photo-1758270705317-3ef6142d306f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHw0fHxzdHVkZW50cyUyMGNvbGxhYm9yYXRpb258ZW58MHx8fHwxNzYzMTI3NzI2fDA&ixlib=rb-4.1.0&q=85"
-                    alt="Students collaborating"
-                    className="w-full h-auto rounded-3xl"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent" />
-                </div>
-              </motion.div>
-            </motion.div>
+            {/* Stats Bar */}
+            <div className="grid grid-cols-3 gap-8 mt-16 pt-12 border-t border-white/10">
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-2">10,000+</div>
+                <div className="text-slate-400 text-sm uppercase tracking-wide">Active Users</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-2">50,000+</div>
+                <div className="text-slate-400 text-sm uppercase tracking-wide">Resources</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold mb-2">98%</div>
+                <div className="text-slate-400 text-sm uppercase tracking-wide">Satisfaction</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 relative">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-                Why Choose NotesHub?
-              </span>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Enterprise Features
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Experience seamless collaboration with powerful features designed for students
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Built for institutions that demand reliability, security, and scalability
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
-                icon: Search,
-                title: "Smart Search",
-                description: "Find exactly what you need with AI-powered search and filters",
-                gradient: "from-blue-500 to-cyan-500"
-              },
-              {
                 icon: Shield,
-                title: "Secure & Safe",
-                description: "Your data is protected with enterprise-grade security",
-                gradient: "from-purple-500 to-pink-500"
+                title: "Secure Infrastructure",
+                description: "Bank-level encryption and data protection protocols",
+                color: "text-blue-600"
               },
               {
-                icon: Zap,
-                title: "Lightning Fast",
-                description: "Optimized for speed with instant uploads and downloads",
-                gradient: "from-orange-500 to-red-500"
+                icon: Building2,
+                title: "Department Management",
+                description: "Organized by departments with role-based access",
+                color: "text-slate-600"
               },
               {
-                icon: Users,
-                title: "Community Driven",
-                description: "Connect with peers and build your academic network",
-                gradient: "from-green-500 to-teal-500"
+                icon: BarChart3,
+                title: "Analytics Dashboard",
+                description: "Track engagement and content performance metrics",
+                color: "text-blue-600"
+              },
+              {
+                icon: CheckCircle,
+                title: "Quality Assurance",
+                description: "Automated validation and content review systems",
+                color: "text-slate-600"
               }
             ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -10, scale: 1.05 }}
-                className="group"
+              <div 
+                key={index} 
+                className="bg-slate-50 rounded-lg p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200"
               >
-                <div className="relative h-full">
-                  <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl blur-xl" 
-                       style={{ background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }} />
-                  <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/20 h-full">
-                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                      <feature.icon className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-900">{feature.title}</h3>
-                    <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-                  </div>
+                <div className={`w-14 h-14 ${feature.color} bg-slate-100 rounded-lg flex items-center justify-center mb-6`}>
+                  <feature.icon className="h-7 w-7" />
                 </div>
-              </motion.div>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-              Get Started in <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">3 Simple Steps</span>
+      {/* How It Works */}
+      <section className="py-20 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Streamlined Workflow
             </h2>
-          </motion.div>
+            <p className="text-xl text-slate-600">
+              Three simple steps to knowledge sharing
+            </p>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
             {[
-              { step: "01", icon: BookOpen, title: "Browse Notes", description: "Explore thousands of quality notes across all subjects" },
-              { step: "02", icon: Upload, title: "Share Your Work", description: "Upload your notes and help fellow students succeed" },
-              { step: "03", icon: Star, title: "Collaborate & Grow", description: "Build connections and achieve academic excellence together" }
+              { 
+                step: "01", 
+                icon: BookOpen, 
+                title: "Access Repository", 
+                description: "Browse organized collections by department and subject matter"
+              },
+              { 
+                step: "02", 
+                icon: Upload, 
+                title: "Contribute Content", 
+                description: "Upload and share your academic resources with validation"
+              },
+              { 
+                step: "03", 
+                icon: TrendingUp, 
+                title: "Track Performance", 
+                description: "Monitor engagement and impact through analytics"
+              }
             ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-                whileHover={{ scale: 1.05, y: -10 }}
-                className="relative"
-              >
-                <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 text-center">
-                  <div className="text-6xl font-bold text-purple-200 mb-4">{item.step}</div>
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 transform hover:rotate-12 transition-transform duration-300">
-                    <item.icon className="h-10 w-10 text-white" />
+              <div key={index} className="relative">
+                <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="text-6xl font-bold text-slate-200 mb-4">{item.step}</div>
+                  <div className="w-14 h-14 bg-slate-900 rounded-lg flex items-center justify-center mb-6">
+                    <item.icon className="h-7 w-7 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-3 text-gray-900">{item.title}</h3>
-                  <p className="text-gray-600">{item.description}</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+                  <p className="text-slate-600">{item.description}</p>
                 </div>
                 {index < 2 && (
-                  <motion.div
-                    animate={{ x: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2"
-                  >
-                    <ArrowRight className="h-8 w-8 text-purple-400" />
-                  </motion.div>
+                  <div className="hidden md:block absolute top-1/2 -right-6 transform -translate-y-1/2">
+                    <ArrowRight className="h-6 w-6 text-slate-300" />
+                  </div>
                 )}
-              </motion.div>
+              </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+                  Trusted by Leading Institutions
+                </h2>
+                <p className="text-lg text-slate-600 mb-8">
+                  NotesHub provides the infrastructure and security that educational institutions 
+                  need to manage academic content at scale.
+                </p>
+                <div className="space-y-4">
+                  {[
+                    "ISO 27001 Certified Security",
+                    "99.9% Uptime SLA",
+                    "24/7 Technical Support",
+                    "GDPR Compliant"
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                      <span className="text-slate-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-slate-50 rounded-lg p-12 border-2 border-slate-200">
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="text-center">
+                    <Users className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+                    <div className="text-3xl font-bold text-slate-900 mb-1">10K+</div>
+                    <div className="text-sm text-slate-600">Active Users</div>
+                  </div>
+                  <div className="text-center">
+                    <BookOpen className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+                    <div className="text-3xl font-bold text-slate-900 mb-1">50K+</div>
+                    <div className="text-sm text-slate-600">Resources</div>
+                  </div>
+                  <div className="text-center">
+                    <Building2 className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+                    <div className="text-3xl font-bold text-slate-900 mb-1">12+</div>
+                    <div className="text-sm text-slate-600">Departments</div>
+                  </div>
+                  <div className="text-center">
+                    <TrendingUp className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+                    <div className="text-3xl font-bold text-slate-900 mb-1">98%</div>
+                    <div className="text-sm text-slate-600">Satisfaction</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600"
-          animate={{
-            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          style={{ backgroundSize: '200% 200%' }}
-        />
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }} />
         
         <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center text-white"
-          >
-            <h2 className="text-4xl md:text-6xl font-bold mb-6">
-              Ready to Transform Your Learning?
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Ready to Get Started?
             </h2>
-            <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto opacity-90">
-              Join thousands of students who are already succeeding together
+            <p className="text-xl text-slate-300 mb-12">
+              Join thousands of users leveraging enterprise-grade knowledge management
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <motion.div
-                whileHover={{ scale: 1.1, y: -5 }}
-                whileTap={{ scale: 0.95 }}
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg h-auto"
+                onClick={() => navigate("/upload")}
               >
-                <Button
-                  size="lg"
-                  className="px-12 py-8 text-xl bg-white text-purple-600 hover:bg-gray-100 shadow-2xl"
-                  onClick={() => navigate("/upload")}
-                >
-                  Start Sharing Now
-                  <ArrowRight className="ml-2 h-6 w-6" />
-                </Button>
-              </motion.div>
+                Start Contributing
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
               <HomeShareOptions />
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </div>
