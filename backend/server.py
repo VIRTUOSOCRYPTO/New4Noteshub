@@ -579,11 +579,33 @@ async def download_note(
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
     
-    return FileResponse(
+    # Determine correct MIME type based on file extension
+    original_filename = note.get("original_filename", "download.pdf")
+    file_ext = Path(original_filename).suffix.lower()
+    mime_types = {
+        '.pdf': 'application/pdf',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.ppt': 'application/vnd.ms-powerpoint',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.txt': 'text/plain',
+        '.md': 'text/markdown',
+        '.xls': 'application/vnd.ms-excel',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    }
+    media_type = mime_types.get(file_ext, 'application/octet-stream')
+    
+    # Create response with proper headers
+    response = FileResponse(
         path=file_path,
-        filename=note["original_filename"],
-        media_type="application/octet-stream"
+        filename=original_filename,
+        media_type=media_type
     )
+    
+    # Ensure content-disposition header is set correctly
+    response.headers["Content-Disposition"] = f'attachment; filename="{original_filename}"'
+    
+    return response
 
 @app.get("/api/notes/{note_id}/view")
 async def view_note(note_id: str, database = Depends(get_database)):
