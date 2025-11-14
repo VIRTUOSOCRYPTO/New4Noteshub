@@ -33,11 +33,18 @@ from models import (
 from bson import ObjectId
 
 # Import routers
-from routers import analytics, search as search_router
+from routers import analytics, search as search_router, admin
 
 # Import admin middleware and email verification
 from middleware.admin_auth import require_admin, get_admin_status
 from services.email_verification import email_verification_service
+
+# Import new services
+from services.log_aggregation import log_aggregation
+from services.feature_flags import feature_flags
+from services.ab_testing import ab_testing
+from services.performance_monitoring import performance_monitoring
+from services.virus_scanner import virus_scanner
 
 # Lifespan context manager for startup and shutdown
 @asynccontextmanager
@@ -48,13 +55,24 @@ async def lifespan(app: FastAPI):
     # Create upload directories
     os.makedirs("uploads/notes", exist_ok=True)
     os.makedirs("uploads/profile", exist_ok=True)
+    os.makedirs("backups", exist_ok=True)
+    os.makedirs("quarantine", exist_ok=True)
     
     # Initialize search indexes
     from services.search_service import get_search_service
     search_svc = get_search_service(db.db)
     await search_svc.ensure_text_indexes()
     
+    # Initialize feature flags and A/B testing with database
+    feature_flags.db = db.db
+    ab_testing.db = db.db
+    
     print("NotesHub API started successfully!")
+    print(f"✅ Feature flags initialized")
+    print(f"✅ A/B testing initialized")
+    print(f"✅ Performance monitoring active")
+    print(f"✅ Virus scanner ready")
+    print(f"✅ Log aggregation active")
     
     yield
     
@@ -67,6 +85,7 @@ app = FastAPI(title="NotesHub API", version="1.0.0", lifespan=lifespan)
 # Include routers
 app.include_router(analytics.router)
 app.include_router(search_router.router)
+app.include_router(admin.router)
 
 # Rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -321,6 +340,10 @@ async def reset_password(data: ResetPasswordRequest, database = Depends(get_data
             "password_hash": hashed_password,
             "reset_token": None,
             "reset_token_expiry": None
+        }}
+    )
+    
+    return {"message": "Password has been reset successfully"}
 
 # ============================================================================
 # EMAIL VERIFICATION ROUTES
@@ -414,11 +437,6 @@ async def check_admin_status(
     """Check if current user is admin"""
     return {"is_admin": is_admin}
 
-        }}
-    )
-    
-    return {"message": "Password has been reset successfully"}
-
 # ============================================================================
 # NOTES ROUTES
 # ============================================================================
@@ -490,9 +508,23 @@ async def upload_note(
     unique_filename = f"{secrets.token_urlsafe(16)}{file_ext}"
     file_path = f"uploads/notes/{unique_filename}"
     
-    # Save file
+    # Save file temporarily
     with open(file_path, "wb") as f:
         f.write(file_content)
+    
+    # Scan file for viruses
+    scan_result = await virus_scanner.scan_file(file_path)
+    
+    if not scan_result["safe"]:
+        # File is infected, remove it
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        threat_info = scan_result.get("threat_info", "Unknown threat")
+        raise HTTPException(
+            status_code=400,
+            detail=f"File contains threats and has been rejected: {threat_info}"
+        )
     
     # Create note document
     note_doc = {
@@ -709,9 +741,22 @@ async def upload_profile_picture(
     unique_filename = f"profile_{secrets.token_urlsafe(16)}{file_ext}"
     file_path = f"uploads/profile/{unique_filename}"
     
-    # Save file
+    # Save file temporarily
     with open(file_path, "wb") as f:
         f.write(file_content)
+    
+    # Scan file for viruses
+    scan_result = await virus_scanner.scan_file(file_path)
+    
+    if not scan_result["safe"]:
+        # File is infected, remove it
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        raise HTTPException(
+            status_code=400,
+            detail="File contains threats and has been rejected"
+        )
     
     # Update user
     await database.users.update_one(
