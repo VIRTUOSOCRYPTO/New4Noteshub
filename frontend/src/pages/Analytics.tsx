@@ -3,11 +3,12 @@ import { apiRequest } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart3, TrendingUp, Users, FileText, Download, Eye, Activity } from "lucide-react";
+import { BarChart3, TrendingUp, Users, FileText, Download, Eye, Activity, Award, Target } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { showToast } from "@/components/ui/toast-container";
 import { PageSkeleton } from "@/components/loading/SkeletonLoaders";
 import { DEPARTMENTS } from "@/lib/constants";
+import { motion } from "framer-motion";
 
 interface DashboardStats {
   total_notes: number;
@@ -54,6 +55,8 @@ interface Prediction {
   confidence: string;
 }
 
+const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
+
 export default function Analytics() {
   const [loading, setLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
@@ -72,40 +75,35 @@ export default function Analytics() {
     try {
       setLoading(true);
 
-      // Load dashboard stats
       const statsUrl = selectedDepartment 
         ? `/api/analytics/dashboard?department=${selectedDepartment}`
         : "/api/analytics/dashboard";
       const stats = await apiRequest<DashboardStats>(statsUrl);
       setDashboardStats(stats);
 
-      // Load popular notes
       const popularUrl = selectedDepartment
         ? `/api/analytics/popular-notes?limit=10&department=${selectedDepartment}`
         : "/api/analytics/popular-notes?limit=10";
       const popularData = await apiRequest<{ notes: Note[] }>(popularUrl);
       setPopularNotes(popularData.notes);
 
-      // Load department statistics
       const deptData = await apiRequest<{ departments: DepartmentStat[] }>("/api/analytics/departments");
       setDepartmentStats(deptData.departments);
 
-      // Load upload trends
       const trendsData = await apiRequest<{ trends: TrendData[] }>(
         `/api/analytics/trends/uploads?days=${trendDays}`
       );
       setUploadTrends(trendsData.trends);
 
-      // Load predictions
       const predData = await apiRequest<{ predictions: Prediction[] }>(
-        "/api/analytics/trends/predictions?days_ahead=7"
+        "/api/analytics/predictions/uploads?days=7"
       );
       setPredictions(predData.predictions);
 
-    } catch (error) {
-      console.error("Error loading analytics:", error);
-      showToast("Failed to load analytics data", "error");
-    } finally {
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Failed to load analytics:", error);
+      showToast(error.message || "Failed to load analytics", "error");
       setLoading(false);
     }
   };
@@ -114,279 +112,369 @@ export default function Analytics() {
     return <PageSkeleton />;
   }
 
-  const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d0ed57'];
-
   return (
-    <div className="container mx-auto px-4 py-8" data-testid="analytics-dashboard">
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800" data-testid="analytics-title">
-            Analytics Dashboard
-          </h1>
-          <p className="text-gray-600 mt-2">Comprehensive insights and trends</p>
-        </div>
-        <Select value={selectedDepartment || "all"} onValueChange={(val) => setSelectedDepartment(val === "all" ? undefined : val)}>
-          <SelectTrigger className="w-[200px]" aria-label="Filter by department">
-            <SelectValue placeholder="All Departments" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Departments</SelectItem>
-            {DEPARTMENTS.map((dept) => (
-              <SelectItem key={dept.value} value={dept.value}>
-                {dept.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 -z-10">
+        <motion.div
+          className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-20 blur-3xl"
+          animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-20 w-56 h-56 bg-gradient-to-br from-pink-400 to-orange-500 rounded-full opacity-20 blur-3xl"
+          animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
       </div>
 
-      {/* Stats Cards */}
-      {dashboardStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card data-testid="stat-card-notes">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Notes</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{dashboardStats.total_notes}</div>
-              <p className="text-xs text-muted-foreground">
-                {dashboardStats.uploads.last_7d} uploaded this week
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card data-testid="stat-card-downloads">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Downloads</CardTitle>
-              <Download className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{dashboardStats.total_downloads}</div>
-              <p className="text-xs text-muted-foreground">
-                {dashboardStats.avg_downloads_per_note.toFixed(1)} avg per note
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card data-testid="stat-card-views">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-              <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{dashboardStats.total_views}</div>
-              <p className="text-xs text-muted-foreground">
-                {dashboardStats.avg_views_per_note.toFixed(1)} avg per note
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card data-testid="stat-card-users">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{dashboardStats.active_users}</div>
-              <p className="text-xs text-muted-foreground">
-                of {dashboardStats.total_users} total users
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Tabs for different views */}
-      <Tabs defaultValue="trends" className="space-y-4">
-        <TabsList aria-label="Analytics sections">
-          <TabsTrigger value="trends" data-testid="tab-trends">Trends & Predictions</TabsTrigger>
-          <TabsTrigger value="popular" data-testid="tab-popular">Popular Notes</TabsTrigger>
-          <TabsTrigger value="departments" data-testid="tab-departments">Departments</TabsTrigger>
-        </TabsList>
-
-        {/* Trends Tab */}
-        <TabsContent value="trends" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" aria-hidden="true" />
-                  Upload Trends
-                </CardTitle>
-                <CardDescription>Last {trendDays} days</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={uploadTrends}>
-                    <defs>
-                      <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="uploads" stroke="#8884d8" fillOpacity={1} fill="url(#colorUploads)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" aria-hidden="true" />
-                  Predictions (7 days)
-                </CardTitle>
-                <CardDescription>AI-powered trend forecasting</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={predictions}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="predicted_uploads" stroke="#82ca9d" strokeWidth={2} dot={{ r: 4 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div className="flex items-center space-x-4 mb-4 md:mb-0">
+              <motion.div
+                whileHover={{ rotate: 360, scale: 1.1 }}
+                transition={{ duration: 0.5 }}
+                className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg"
+              >
+                <BarChart3 className="h-8 w-8 text-white" />
+              </motion.div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+                  Analytics Dashboard
+                </h1>
+                <p className="text-gray-600 text-lg mt-1">Real-time insights and performance metrics</p>
+              </div>
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-lg border border-white/20"
+            >
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Filter by Department</label>
+              <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="All Departments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  {DEPARTMENTS.map(dept => (
+                    <SelectItem key={dept.value} value={dept.value}>{dept.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </motion.div>
           </div>
-        </TabsContent>
+        </motion.div>
 
-        {/* Popular Notes Tab */}
-        <TabsContent value="popular">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top 10 Popular Notes</CardTitle>
-              <CardDescription>Ranked by downloads and views</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {popularNotes.map((note, index) => (
-                  <div key={note.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors" data-testid={`popular-note-${index}`}>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold">
-                        {index + 1}
+        {/* Stats Grid */}
+        {dashboardStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          >
+            {[
+              { 
+                label: "Total Notes", 
+                value: dashboardStats.total_notes.toLocaleString(), 
+                icon: FileText, 
+                color: "from-blue-500 to-cyan-500",
+                change: `+${dashboardStats.uploads.last_7d} this week`
+              },
+              { 
+                label: "Total Users", 
+                value: dashboardStats.total_users.toLocaleString(), 
+                icon: Users, 
+                color: "from-purple-500 to-pink-500",
+                change: `${dashboardStats.active_users} active`
+              },
+              { 
+                label: "Total Downloads", 
+                value: dashboardStats.total_downloads.toLocaleString(), 
+                icon: Download, 
+                color: "from-orange-500 to-red-500",
+                change: `Avg ${dashboardStats.avg_downloads_per_note.toFixed(1)} per note`
+              },
+              { 
+                label: "Total Views", 
+                value: dashboardStats.total_views.toLocaleString(), 
+                icon: Eye, 
+                color: "from-green-500 to-teal-500",
+                change: `Avg ${dashboardStats.avg_views_per_note.toFixed(1)} per note`
+              }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+              >
+                <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-lg hover:shadow-2xl transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center`}>
+                        <stat.icon className="h-6 w-6 text-white" />
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-800">{note.title}</h4>
-                        <p className="text-sm text-gray-600">
-                          {note.subject} • {note.department}
-                        </p>
-                      </div>
+                      <TrendingUp className="h-5 w-5 text-green-500" />
                     </div>
-                    <div className="flex gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Download className="h-4 w-4 text-gray-500" aria-hidden="true" />
-                        <span>{note.download_count}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4 text-gray-500" aria-hidden="true" />
-                        <span>{note.view_count}</span>
-                      </div>
+                    <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                    <div className="text-sm text-gray-600 mb-2">{stat.label}</div>
+                    <div className="text-xs text-gray-500">{stat.change}</div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Charts Section */}
+        <Tabs defaultValue="trends" className="space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg">
+            <TabsTrigger value="trends">Upload Trends</TabsTrigger>
+            <TabsTrigger value="popular">Popular Notes</TabsTrigger>
+            <TabsTrigger value="departments">Departments</TabsTrigger>
+            <TabsTrigger value="predictions">Predictions</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="trends">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-xl">
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-2xl">Upload Trends</CardTitle>
+                      <CardDescription>Track upload activity over time</CardDescription>
                     </div>
+                    <Select value={trendDays.toString()} onValueChange={(v) => setTrendDays(Number(v))}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="7">Last 7 Days</SelectItem>
+                        <SelectItem value="30">Last 30 Days</SelectItem>
+                        <SelectItem value="90">Last 90 Days</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                ))}
-                {popularNotes.length === 0 && (
-                  <p className="text-center text-gray-500 py-8">No popular notes yet</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <AreaChart data={uploadTrends}>
+                      <defs>
+                        <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="date" stroke="#6b7280" />
+                      <YAxis stroke="#6b7280" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                          backdropFilter: 'blur(10px)',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(139, 92, 246, 0.2)'
+                        }} 
+                      />
+                      <Area type="monotone" dataKey="uploads" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorUploads)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
 
-        {/* Departments Tab */}
-        <TabsContent value="departments">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Department Statistics</CardTitle>
-                <CardDescription>Notes distribution by department</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={departmentStats}
-                      dataKey="total_notes"
-                      nameKey="department"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label
-                    >
-                      {departmentStats.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Department Performance</CardTitle>
-                <CardDescription>Downloads by department</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={departmentStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="department" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="total_downloads" fill="#8884d8" />
-                    <Bar dataKey="total_views" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Department Details Table */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Department Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full" role="table">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-4" scope="col">Department</th>
-                      <th className="text-right p-4" scope="col">Notes</th>
-                      <th className="text-right p-4" scope="col">Downloads</th>
-                      <th className="text-right p-4" scope="col">Views</th>
-                      <th className="text-right p-4" scope="col">Avg Downloads</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {departmentStats.map((dept) => (
-                      <tr key={dept.department} className="border-b hover:bg-gray-50">
-                        <td className="p-4 font-medium">{dept.department}</td>
-                        <td className="p-4 text-right">{dept.total_notes}</td>
-                        <td className="p-4 text-right">{dept.total_downloads}</td>
-                        <td className="p-4 text-right">{dept.total_views}</td>
-                        <td className="p-4 text-right">{dept.avg_downloads.toFixed(1)}</td>
-                      </tr>
+          <TabsContent value="popular">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl flex items-center">
+                    <Award className="h-6 w-6 text-yellow-500 mr-2" />
+                    Top Performing Notes
+                  </CardTitle>
+                  <CardDescription>Most popular notes by engagement</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {popularNotes.map((note, index) => (
+                      <motion.div
+                        key={note.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        whileHover={{ scale: 1.02, x: 10 }}
+                        className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-purple-50 rounded-xl border border-purple-100 hover:shadow-lg transition-all duration-300"
+                      >
+                        <div className="flex items-center space-x-4 flex-1">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white ${
+                            index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
+                            index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-500' :
+                            index === 2 ? 'bg-gradient-to-br from-orange-400 to-red-500' :
+                            'bg-gradient-to-br from-purple-400 to-pink-500'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900">{note.title}</div>
+                            <div className="text-sm text-gray-600">{note.department} • {note.subject}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-6 text-sm">
+                          <div className="text-center">
+                            <div className="font-bold text-blue-600">{note.download_count}</div>
+                            <div className="text-gray-500 text-xs">Downloads</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="font-bold text-purple-600">{note.view_count}</div>
+                            <div className="text-gray-500 text-xs">Views</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="font-bold text-green-600">{note.popularity_score.toFixed(1)}</div>
+                            <div className="text-gray-500 text-xs">Score</div>
+                          </div>
+                        </div>
+                      </motion.div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="departments">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+            >
+              <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Notes by Department</CardTitle>
+                  <CardDescription>Distribution across departments</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <PieChart>
+                      <Pie
+                        data={departmentStats}
+                        dataKey="total_notes"
+                        nameKey="department"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={120}
+                        label
+                      >
+                        {departmentStats.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                          backdropFilter: 'blur(10px)',
+                          borderRadius: '12px'
+                        }} 
+                      />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Department Performance</CardTitle>
+                  <CardDescription>Downloads and views by department</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <BarChart data={departmentStats}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="department" stroke="#6b7280" />
+                      <YAxis stroke="#6b7280" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                          backdropFilter: 'blur(10px)',
+                          borderRadius: '12px'
+                        }} 
+                      />
+                      <Legend />
+                      <Bar dataKey="total_downloads" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="total_views" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="predictions">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-2xl flex items-center">
+                    <Target className="h-6 w-6 text-blue-500 mr-2" />
+                    Upload Predictions
+                  </CardTitle>
+                  <CardDescription>AI-powered forecast for next 7 days</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineChart data={predictions}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="date" stroke="#6b7280" />
+                      <YAxis stroke="#6b7280" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                          backdropFilter: 'blur(10px)',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(59, 130, 246, 0.2)'
+                        }} 
+                      />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="predicted_uploads" 
+                        stroke="#3b82f6" 
+                        strokeWidth={3}
+                        strokeDasharray="5 5"
+                        dot={{ fill: '#3b82f6', r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
