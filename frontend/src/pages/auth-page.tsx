@@ -9,7 +9,7 @@ import { loginUserSchema, registerUserSchema, forgotPasswordSchema, KARNATAKA_CO
 import { useAuth } from "@/hooks/use-auth";
 import { useState, useEffect } from "react";
 import { Redirect, Link } from "wouter";
-import { Loader2, GraduationCap, BookOpen, Mail } from "lucide-react";
+import { Loader2, GraduationCap, BookOpen, Mail, Shield, Check, Building2, Lock } from "lucide-react";
 import { DEPARTMENTS } from "@/lib/constants";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
@@ -28,80 +28,113 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-muted/40">
-      {/* Left Section - Auth Forms */}
-      <div className="flex-1 p-4 md:p-8 flex flex-col justify-center items-center">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-primary">NotesHub</h1>
-            <p className="text-muted-foreground mt-2">
-              Access and share notes with your department colleagues
+    <div className="min-h-screen flex bg-slate-50">
+      {/* Left Section - Hero */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-12 flex-col justify-between relative overflow-hidden">
+        {/* Subtle Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }} />
+        
+        <div className="relative z-10">
+          <div className="flex items-center space-x-3 mb-12">
+            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <Building2 className="h-7 w-7 text-white" />
+            </div>
+            <span className="text-3xl font-bold text-white">NotesHub</span>
+          </div>
+          
+          <div className="max-w-md">
+            <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
+              Enterprise-Grade Note Management System
+            </h1>
+            <p className="text-lg text-slate-300 mb-12">
+              Secure, scalable, and efficient platform designed for academic institutions.
+            </p>
+            
+            <div className="space-y-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Shield className="h-5 w-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Enterprise Security</h3>
+                  <p className="text-slate-400 text-sm">Bank-level encryption and data protection</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="h-5 w-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Centralized Repository</h3>
+                  <p className="text-slate-400 text-sm">Department-specific content organization</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Check className="h-5 w-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Quality Assurance</h3>
+                  <p className="text-slate-400 text-sm">Automated validation and review processes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="relative z-10 text-slate-400 text-sm">
+          <p>© 2025 NotesHub. All rights reserved.</p>
+        </div>
+      </div>
+
+      {/* Right Section - Auth Forms */}
+      <div className="flex-1 flex items-center justify-center p-8 lg:p-12">
+        <div className="w-full max-w-md">
+          <div className="mb-8">
+            <div className="lg:hidden flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold text-slate-900">NotesHub</span>
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              {activeTab === "login" ? "Welcome Back" : "Create Account"}
+            </h2>
+            <p className="text-slate-600">
+              {activeTab === "login" 
+                ? "Enter your credentials to access your account" 
+                : "Register to start sharing and accessing notes"}
             </p>
           </div>
 
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register")} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-200 p-1">
+              <TabsTrigger 
+                value="login" 
+                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
+              >
+                Sign In
+              </TabsTrigger>
+              <TabsTrigger 
+                value="register"
+                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
+              >
+                Register
+              </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="login" className="mt-4">
+            <TabsContent value="login" className="mt-0">
               <LoginForm />
             </TabsContent>
             
-            <TabsContent value="register" className="mt-4">
+            <TabsContent value="register" className="mt-0">
               <RegisterForm />
             </TabsContent>
           </Tabs>
-        </div>
-      </div>
-
-      {/* Right Section - Hero Image/Info */}
-      <div className="flex-1 bg-gradient-to-br from-primary-foreground to-primary p-8 text-black flex flex-col justify-center md:justify-start">
-        <div className="max-w-xl mx-auto md:mt-32">
-          <h2 className="text-4xl font-bold mb-6">Your Department's Notes in One Place</h2>
-          <p className="text-xl mb-8">
-            NotesHub helps you discover, share and collaborate with others in your department. 
-            Access course materials, lecture notes, and study guides shared by your peers.
-          </p>
-          
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="bg-white/20 p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg text-black">Department Specific</h3>
-                <p className="text-black">Notes are filtered to your department automatically</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="bg-white/20 p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg text-black">Easy Uploads</h3>
-                <p className="text-black">Share your notes with a few clicks</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="bg-white/20 p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg text-black">Multiple File Types</h3>
-                <p className="text-black">PDF, Word, PowerPoint, and more supported</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -122,7 +155,6 @@ function LoginForm() {
   const onSubmit = (data: z.infer<typeof loginUserSchema>) => {
     loginMutation.mutate(data, {
       onError: (error) => {
-        // Set specific field errors based on the error message
         if (error.message.includes("USN not registered")) {
           form.setError("usn", { 
             type: "manual", 
@@ -139,27 +171,23 @@ function LoginForm() {
   };
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>Enter your USN and password to access your account</CardDescription>
-      </CardHeader>
-      
+    <Card className="border-slate-200 shadow-sm">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <FormField
               control={form.control}
               name="usn"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>USN</FormLabel>
+                  <FormLabel className="text-slate-700 font-medium">University Seat Number</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Enter your USN (e.g., 1SI20CS045 or 22EC101)" 
+                      placeholder="e.g., 1SI20CS045 or 22EC101" 
                       {...field}
                       onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                       disabled={loginMutation.isPending}
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormControl>
                   <FormMessage />
@@ -172,13 +200,14 @@ function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-slate-700 font-medium">Password</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
                       placeholder="Enter your password" 
                       {...field} 
                       disabled={loginMutation.isPending}
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormControl>
                   <FormMessage />
@@ -187,7 +216,7 @@ function LoginForm() {
             />
             
             {loginMutation.error && !form.formState.errors.usn && !form.formState.errors.password && (
-              <div className="text-red-600 dark:text-red-400 text-sm p-2 border border-red-300 rounded bg-red-50 dark:bg-red-900/20">
+              <div className="text-red-600 text-sm p-3 border border-red-200 rounded-lg bg-red-50">
                 {loginMutation.error.message}
               </div>
             )}
@@ -196,16 +225,16 @@ function LoginForm() {
           <CardFooter className="flex flex-col gap-3">
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white" 
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
+              ) : (
+                <Lock className="mr-2 h-4 w-4" />
+              )}
               Sign In
             </Button>
-            
-
             
             <ForgotPasswordDialog />
           </CardFooter>
@@ -229,66 +258,46 @@ function RegisterForm() {
       email: "",
       department: "",
       college: "",
-      year: undefined, // No default year, user must select
+      year: undefined,
       password: "",
       confirmPassword: ""
     }
   });
   
-  // Extract the department code, college, and year from USN as user types
   const handleUsnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase();
     form.setValue("usn", value);
     
-    // Define regex patterns for USN validation
-    // Format: 1SI20CS045 (standard format with college code in positions 2-3)
     const standardPattern = /^[0-9]([A-Z]{2})([0-9]{2})([A-Z]{2})[0-9]{3}$/;
-    // Format: 22EC101 (short format without college code)
     const shortPattern = /^([0-9]{2})([A-Z]{2})[0-9]{3}$/;
     
-    // Convert the USN to uppercase for consistent processing
     const upperValue = value.toUpperCase();
-    
     const standardMatch = upperValue.match(standardPattern);
     const shortMatch = upperValue.match(shortPattern);
     
     if (standardMatch) {
-      // Standard format: 1SI20CS045
-      // Extract the college code from the first capture group
       const collegeCode = standardMatch[1];
-      // Extract the year from the second capture group (positions 4-5)
       const yearCode = standardMatch[2];
-      // Extract the department code from the third capture group
       const deptCode = standardMatch[3];
       
       setUsnCode(deptCode);
       setCollegeCode(collegeCode);
       
-      // Find matching department from the code
       const matchingDept = DEPARTMENTS.find(dept => dept.code === deptCode);
       
-      // Auto-select college based on college code
       if (COLLEGE_CODES[collegeCode]) {
-        // Known college code - set the value directly
         form.setValue("college", COLLEGE_CODES[collegeCode]);
       } else {
-        // Unknown college code - set to "other"
         form.setValue("college", "other");
-        
-        // Create a default college name from the college code
         const defaultCollegeName = `${collegeCode} College`;
         setCustomCollegeName(defaultCollegeName);
       }
       
-      // Suggest year based on year code (e.g., 20 = 2020)
-      // For students who joined in 2020, they'd be in 3rd year in 2023
       const currentYear = new Date().getFullYear();
       const joiningYear = 2000 + parseInt(yearCode);
       let suggestedYear = currentYear - joiningYear + 1;
       
-      // Suggest the year if it's within valid range, but don't override user selection
       if (suggestedYear >= 1 && suggestedYear <= 4) {
-        // Only set if no selection has been made yet
         const currentYearValue = form.getValues("year");
         if (currentYearValue === undefined) {
           form.setValue("year", suggestedYear);
@@ -296,37 +305,28 @@ function RegisterForm() {
       }
       
       if (matchingDept) {
-        // Auto-select the department
         form.setValue("department", matchingDept.value);
         setUsnError(null);
       } else {
         setUsnError(`Department code '${deptCode}' not recognized. Please check your USN.`);
       }
     } else if (shortMatch) {
-      // Short format: 22EC101
-      // Extract year code from the first capture group
       const yearCode = shortMatch[1];
-      // Extract department code from the second capture group
       const deptCode = shortMatch[2];
       
       setUsnCode(deptCode);
       setCollegeCode("");
       
-      // Find matching department from the code
       const matchingDept = DEPARTMENTS.find(dept => dept.code === deptCode);
       
-      // For short format, we don't have college code, so set to "other"
       form.setValue("college", "other");
-      setCustomCollegeName(""); // Clear any previous custom college name
+      setCustomCollegeName("");
       
-      // Suggest year based on year code (e.g., 22 = 2022)
       const currentYear = new Date().getFullYear();
       const joiningYear = 2000 + parseInt(yearCode);
       let suggestedYear = currentYear - joiningYear + 1;
       
-      // Suggest the year if it's within valid range, but don't override user selection
       if (suggestedYear >= 1 && suggestedYear <= 4) {
-        // Only set if no selection has been made yet
         const currentYearValue = form.getValues("year");
         if (currentYearValue === undefined) {
           form.setValue("year", suggestedYear);
@@ -334,14 +334,12 @@ function RegisterForm() {
       }
       
       if (matchingDept) {
-        // Auto-select the department
         form.setValue("department", matchingDept.value);
         setUsnError(null);
       } else {
         setUsnError(`Department code '${deptCode}' not recognized. Please check your USN.`);
       }
-    } else if (value.length >= 7) { // Short USN length is at least 7 characters
-      // If USN is long enough but doesn't match any pattern
+    } else if (value.length >= 7) {
       setUsnError("Invalid USN format. Examples: 1SI20CS045 or 22EC101");
       setUsnCode("");
       setCollegeCode("");
@@ -353,21 +351,14 @@ function RegisterForm() {
   };
   
   const onSubmit = (data: z.infer<typeof registerUserSchema>) => {
-    // If the college is "other" and we have a custom college name, update the data
     let formData = { ...data } as z.infer<typeof registerUserSchema> & { customCollegeName?: string };
     
-    // If the form shows "other" as college and we have a custom name, store it
     if (formData.college === "other" && customCollegeName.trim()) {
-      // We are still submitting "other" as the college value, but we can
-      // store the custom name in the database through a custom parameter
-      // For storage implementation, the custom name could go in a separate field
-      // or be handled in registration logic
       formData.customCollegeName = customCollegeName.trim();
     }
     
     registerMutation.mutate(formData, {
       onError: (error) => {
-        // If the error contains "already exists", set a custom form error
         if (error.message.includes("already exists")) {
           form.setError("usn", { 
             type: "manual", 
@@ -379,32 +370,28 @@ function RegisterForm() {
   };
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create an Account</CardTitle>
-        <CardDescription>Enter your details to register</CardDescription>
-      </CardHeader>
-      
+    <Card className="border-slate-200 shadow-sm">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <FormField
               control={form.control}
               name="usn"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>USN</FormLabel>
+                  <FormLabel className="text-slate-700 font-medium">University Seat Number</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Enter your USN (e.g., 1SI20CS045 or 22EC101)" 
+                      placeholder="e.g., 1SI20CS045 or 22EC101" 
                       {...field}
                       onChange={handleUsnChange}
                       disabled={registerMutation.isPending}
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormControl>
                   <FormDescription className="flex flex-col gap-1">
                     {usnError && (
-                      <span className="text-red-600 dark:text-red-400 text-sm">
+                      <span className="text-red-600 text-sm">
                         {usnError}
                       </span>
                     )}
@@ -419,190 +406,141 @@ function RegisterForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-slate-700 font-medium">Email Address</FormLabel>
                   <FormControl>
                     <Input 
                       type="email"
-                      placeholder="Enter your email address" 
+                      placeholder="your.email@university.edu" 
                       {...field} 
                       disabled={registerMutation.isPending}
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormControl>
-                  <FormDescription></FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
             
-            <FormField
-              control={form.control}
-              name="department"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Department</FormLabel>
-                  {usnCode ? (
-                    // For recognized department codes - show detected department with disabled select
-                    <>
-                      <Select
-                        disabled={true}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="flex items-center">
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <SelectValue placeholder="Department from USN" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {DEPARTMENTS.map((dept) => (
-                            <SelectItem key={dept.value} value={dept.value}>
-                              {dept.label} ({dept.code})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription></FormDescription>
-                    </>
-                  ) : (
-                    // No department code detected yet
-                    <>
-                      <Select
-                        disabled={true}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="flex items-center">
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <SelectValue placeholder="Enter USN to detect department" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {DEPARTMENTS.map((dept) => (
-                            <SelectItem key={dept.value} value={dept.value}>
-                              {dept.label} ({dept.code})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription></FormDescription>
-                    </>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="year"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Year</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    value={field.value ? field.value.toString() : undefined}
-                    disabled={registerMutation.isPending}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="flex items-center">
-                        <SelectValue placeholder="Select your year" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {VALID_YEARS.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year === 1 ? "1st Year" : 
-                           year === 2 ? "2nd Year" : 
-                           year === 3 ? "3rd Year" : 
-                           year === 4 ? "4th Year" : `${year}th Year`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription></FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-slate-700 font-medium">Department</FormLabel>
+                    <Select
+                      disabled={true}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-slate-300">
+                          <SelectValue placeholder={usnCode ? "Auto-detected" : "Enter USN first"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {DEPARTMENTS.map((dept) => (
+                          <SelectItem key={dept.value} value={dept.value}>
+                            {dept.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-slate-700 font-medium">Year</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(parseInt(value))}
+                      value={field.value ? field.value.toString() : undefined}
+                      disabled={registerMutation.isPending}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-slate-300">
+                          <SelectValue placeholder="Select year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {VALID_YEARS.map((year) => (
+                          <SelectItem key={year} value={year.toString()}>
+                            Year {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <FormField
               control={form.control}
               name="college"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>College</FormLabel>
+                  <FormLabel className="text-slate-700 font-medium">Institution</FormLabel>
                   {COLLEGE_CODES[collegeCode] ? (
-                    // For known college codes - show detected college with disabled select
-                    <>
-                      <Select
-                        disabled={true}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="flex items-center">
-                            <GraduationCap className="mr-2 h-4 w-4" />
-                            <SelectValue placeholder="Auto-detected college" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {KARNATAKA_COLLEGES.map((college) => (
-                            <SelectItem key={college.value} value={college.value}>
-                              {college.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription></FormDescription>
-                    </>
+                    <Select
+                      disabled={true}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-slate-300">
+                          <SelectValue placeholder="Auto-detected" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {KARNATAKA_COLLEGES.map((college) => (
+                          <SelectItem key={college.value} value={college.value}>
+                            {college.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   ) : collegeCode || field.value === "other" ? (
-                    // For unknown college codes - show custom input field
-                    <>
-                      <div className="flex items-center gap-2">
-                        <FormControl>
-                          <Input
-                            placeholder="Enter your college name"
-                            value={customCollegeName}
-                            onChange={(e) => {
-                              setCustomCollegeName(e.target.value);
-                              // Set custom college name to the college field
-                              // We'll store it in the "other" field but with custom name
-                              field.onChange("other");
-                            }}
-                            disabled={registerMutation.isPending}
-                          />
-                        </FormControl>
-                        {/* Hidden select to maintain form validation */}
-                        <input type="hidden" {...field} value="other" />
-                      </div>
-                      <FormDescription></FormDescription>
-                    </>
+                    <div className="flex items-center gap-2">
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your institution name"
+                          value={customCollegeName}
+                          onChange={(e) => {
+                            setCustomCollegeName(e.target.value);
+                            field.onChange("other");
+                          }}
+                          disabled={registerMutation.isPending}
+                          className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                      </FormControl>
+                      <input type="hidden" {...field} value="other" />
+                    </div>
                   ) : (
-                    // No USN entered yet
-                    <>
-                      <Select
-                        disabled={true}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="flex items-center">
-                            <GraduationCap className="mr-2 h-4 w-4" />
-                            <SelectValue placeholder="Enter USN first" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {KARNATAKA_COLLEGES.map((college) => (
-                            <SelectItem key={college.value} value={college.value}>
-                              {college.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription></FormDescription>
-                    </>
+                    <Select
+                      disabled={true}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-slate-300">
+                          <SelectValue placeholder="Enter USN first" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {KARNATAKA_COLLEGES.map((college) => (
+                          <SelectItem key={college.value} value={college.value}>
+                            {college.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                   <FormMessage />
                 </FormItem>
@@ -614,16 +552,16 @@ function RegisterForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-slate-700 font-medium">Password</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
-                      placeholder="Create a password" 
+                      placeholder="Create a strong password" 
                       {...field} 
                       disabled={registerMutation.isPending}
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormControl>
-                  <FormDescription></FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -634,13 +572,14 @@ function RegisterForm() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel className="text-slate-700 font-medium">Confirm Password</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
-                      placeholder="Confirm your password" 
+                      placeholder="Re-enter your password" 
                       {...field} 
                       disabled={registerMutation.isPending}
+                      className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormControl>
                   <FormMessage />
@@ -649,7 +588,7 @@ function RegisterForm() {
             />
             
             {registerMutation.error && (
-              <div className="text-red-600 dark:text-red-400 text-sm p-2 border border-red-300 rounded bg-red-50 dark:bg-red-900/20">
+              <div className="text-red-600 text-sm p-3 border border-red-200 rounded-lg bg-red-50">
                 {registerMutation.error.message.includes("already exists") 
                   ? "This USN is already registered. Please login instead."
                   : registerMutation.error.message
@@ -661,16 +600,14 @@ function RegisterForm() {
           <CardFooter className="flex flex-col gap-3">
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white" 
               disabled={registerMutation.isPending}
             >
               {registerMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              Register
+              Create Account
             </Button>
-            
-
           </CardFooter>
         </form>
       </Form>
@@ -697,9 +634,6 @@ function ForgotPasswordDialog() {
     
     try {
       const response = await apiRequest('POST', '/api/forgot-password', data);
-      
-      // In a real application, the link would be sent via email
-      // For demo, we display it to the user
       const responseData = await response.json();
       if (responseData.resetLink) {
         setResetLink(responseData.resetLink);
@@ -727,7 +661,7 @@ function ForgotPasswordDialog() {
         <Button 
           variant="link" 
           size="sm" 
-          className="w-full text-muted-foreground hover:text-primary"
+          className="w-full text-slate-600 hover:text-slate-900"
         >
           Forgot your password?
         </Button>
@@ -746,16 +680,16 @@ function ForgotPasswordDialog() {
         {resetSent ? (
           <div className="space-y-4">
             {resetLink && (
-              <div className="p-3 bg-muted rounded-md text-sm overflow-auto">
+              <div className="p-3 bg-slate-50 rounded-lg text-sm overflow-auto border border-slate-200">
                 <p className="font-semibold mb-2">Demo Only: Password Reset Link</p>
-                <p className="break-all">{resetLink}</p>
+                <p className="break-all text-slate-600">{resetLink}</p>
               </div>
             )}
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-600">
               In a real application, this link would be sent to your email.
             </p>
             <DialogFooter>
-              <Button onClick={() => setIsOpen(false)}>Close</Button>
+              <Button onClick={() => setIsOpen(false)} className="bg-slate-900 hover:bg-slate-800">Close</Button>
             </DialogFooter>
           </div>
         ) : (
@@ -769,9 +703,10 @@ function ForgotPasswordDialog() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="Enter your email address" 
+                        placeholder="your.email@university.edu" 
                         {...field} 
                         disabled={isLoading}
+                        className="border-slate-300"
                       />
                     </FormControl>
                     <FormMessage />
@@ -780,7 +715,7 @@ function ForgotPasswordDialog() {
               />
               
               <DialogFooter>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="bg-slate-900 hover:bg-slate-800">
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
