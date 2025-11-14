@@ -7,4 +7,134 @@ Provides endpoints for:
 - Department and subject statistics
 - Upload trends and predictions
 - User engagement metrics
-"""\n\nfrom fastapi import APIRouter, Depends, HTTPException\nfrom typing import Optional, List\nfrom datetime import datetime\n\nfrom database import get_database\nfrom auth import get_current_user_id\nfrom middleware.admin_auth import get_admin_status\nfrom services.analytics_service import get_analytics_service\n\nrouter = APIRouter(prefix="/api/analytics", tags=["analytics"])\n\n\n@router.get("/dashboard")\nasync def get_dashboard(\n    department: Optional[str] = None,\n    user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get comprehensive dashboard statistics"""\n    analytics = get_analytics_service(database)\n    stats = await analytics.get_dashboard_stats(user_id=None, department=department)\n    return stats\n\n\n@router.get("/user/{user_id}")\nasync def get_user_analytics(\n    user_id: str,\n    current_user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get analytics for a specific user"""\n    # Users can only view their own analytics unless admin\n    if user_id != current_user_id:\n        # Check if current user is admin\n        is_admin = await get_admin_status(current_user_id, database)\n        if not is_admin:\n            raise HTTPException(\n                status_code=403,\n                detail="You can only view your own analytics"\n            )\n    \n    analytics = get_analytics_service(database)\n    user_stats = await analytics.get_user_analytics(user_id)\n    \n    if not user_stats:\n        raise HTTPException(status_code=404, detail="User not found")\n    \n    return user_stats\n\n\n@router.get("/popular-notes")\nasync def get_popular_notes(\n    limit: int = 10,\n    department: Optional[str] = None,\n    user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get most popular notes"""\n    analytics = get_analytics_service(database)\n    popular = await analytics.get_popular_notes(limit=limit, department=department)\n    return {"notes": popular}\n\n\n@router.get("/departments")\nasync def get_department_statistics(\n    user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get statistics by department"""\n    analytics = get_analytics_service(database)\n    stats = await analytics.get_department_statistics()\n    return {"departments": stats}\n\n\n@router.get("/subjects")\nasync def get_subject_statistics(\n    department: Optional[str] = None,\n    user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get statistics by subject"""\n    analytics = get_analytics_service(database)\n    stats = await analytics.get_subject_statistics(department=department)\n    return {"subjects": stats}\n\n\n@router.get("/trends/uploads")\nasync def get_upload_trends(\n    days: int = 30,\n    user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get upload trends over time"""\n    if days > 365:\n        raise HTTPException(status_code=400, detail="Days cannot exceed 365")\n    \n    analytics = get_analytics_service(database)\n    trends = await analytics.get_upload_trends(days=days)\n    return {"trends": trends, "days": days}\n\n\n@router.get("/trends/predictions")\nasync def get_trend_predictions(\n    days_ahead: int = 7,\n    user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get predicted upload trends"""\n    if days_ahead > 30:\n        raise HTTPException(status_code=400, detail="Prediction days cannot exceed 30")\n    \n    analytics = get_analytics_service(database)\n    predictions = await analytics.predict_trends(days_ahead=days_ahead)\n    return {"predictions": predictions, "days_ahead": days_ahead}\n\n\n@router.get("/engagement")\nasync def get_engagement_metrics(\n    days: int = 7,\n    user_id: str = Depends(get_current_user_id),\n    database = Depends(get_database)\n):\n    """Get user engagement metrics"""\n    if days > 90:\n        raise HTTPException(status_code=400, detail="Days cannot exceed 90")\n    \n    analytics = get_analytics_service(database)\n    metrics = await analytics.get_engagement_metrics(days=days)\n    return metrics\n
+"""
+
+from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional, List
+from datetime import datetime
+
+from database import get_database
+from auth import get_current_user_id
+from middleware.admin_auth import get_admin_status
+from services.analytics_service import get_analytics_service
+
+router = APIRouter(prefix="/api/analytics", tags=["analytics"])
+
+
+@router.get("/dashboard")
+async def get_dashboard(
+    department: Optional[str] = None,
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get comprehensive dashboard statistics"""
+    analytics = get_analytics_service(database)
+    stats = await analytics.get_dashboard_stats(user_id=None, department=department)
+    return stats
+
+
+@router.get("/user/{user_id}")
+async def get_user_analytics(
+    user_id: str,
+    current_user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get analytics for a specific user"""
+    # Users can only view their own analytics unless admin
+    if user_id != current_user_id:
+        # Check if current user is admin
+        is_admin = await get_admin_status(current_user_id, database)
+        if not is_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="You can only view your own analytics"
+            )
+    
+    analytics = get_analytics_service(database)
+    user_stats = await analytics.get_user_analytics(user_id)
+    
+    if not user_stats:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return user_stats
+
+
+@router.get("/popular-notes")
+async def get_popular_notes(
+    limit: int = 10,
+    department: Optional[str] = None,
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get most popular notes"""
+    analytics = get_analytics_service(database)
+    popular = await analytics.get_popular_notes(limit=limit, department=department)
+    return {"notes": popular}
+
+
+@router.get("/departments")
+async def get_department_statistics(
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get statistics by department"""
+    analytics = get_analytics_service(database)
+    stats = await analytics.get_department_statistics()
+    return {"departments": stats}
+
+
+@router.get("/subjects")
+async def get_subject_statistics(
+    department: Optional[str] = None,
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get statistics by subject"""
+    analytics = get_analytics_service(database)
+    stats = await analytics.get_subject_statistics(department=department)
+    return {"subjects": stats}
+
+
+@router.get("/trends/uploads")
+async def get_upload_trends(
+    days: int = 30,
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get upload trends over time"""
+    if days > 365:
+        raise HTTPException(status_code=400, detail="Days cannot exceed 365")
+    
+    analytics = get_analytics_service(database)
+    trends = await analytics.get_upload_trends(days=days)
+    return {"trends": trends, "days": days}
+
+
+@router.get("/trends/predictions")
+async def get_trend_predictions(
+    days_ahead: int = 7,
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get predicted upload trends"""
+    if days_ahead > 30:
+        raise HTTPException(status_code=400, detail="Prediction days cannot exceed 30")
+    
+    analytics = get_analytics_service(database)
+    predictions = await analytics.predict_trends(days_ahead=days_ahead)
+    return {"predictions": predictions, "days_ahead": days_ahead}
+
+
+@router.get("/engagement")
+async def get_engagement_metrics(
+    days: int = 7,
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Get user engagement metrics"""
+    if days > 90:
+        raise HTTPException(status_code=400, detail="Days cannot exceed 90")
+    
+    analytics = get_analytics_service(database)
+    metrics = await analytics.get_engagement_metrics(days=days)
+    return metrics
