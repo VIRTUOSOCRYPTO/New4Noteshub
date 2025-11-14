@@ -7,12 +7,16 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from bson import ObjectId
 
+from repositories.note_repository import get_note_repository
+from exceptions import NotFoundError, ValidationError
+
 
 class NoteService:
     """Service for note-related operations"""
     
     def __init__(self, database):
         self.db = database
+        self.repository = get_note_repository(database)
     
     async def create_note(self, note_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new note"""
