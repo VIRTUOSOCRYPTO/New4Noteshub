@@ -1,23 +1,35 @@
 """
 Email Service
 Handles sending emails for welcome, password reset, and notifications
-Currently mocked - logs to console instead of sending real emails
+Supports Resend API for production email sending
 """
 from typing import Optional, Dict, List
 from datetime import datetime
 import os
+import resend
 
 
 class EmailService:
     """
     Email service for sending transactional emails
-    Currently mocked for development
+    Supports both mock mode (development) and Resend API (production)
     """
     
     def __init__(self):
         self.enabled = os.getenv("EMAIL_ENABLED", "false").lower() == "true"
         self.from_email = os.getenv("EMAIL_FROM", "noreply@noteshub.app")
-        self.provider = os.getenv("EMAIL_PROVIDER", "mock")  # mock, sendgrid, resend, etc.
+        self.from_name = os.getenv("EMAIL_FROM_NAME", "NotesHub")
+        self.provider = os.getenv("EMAIL_PROVIDER", "mock")  # mock or resend
+        
+        # Initialize Resend if enabled
+        if self.provider == "resend" and self.enabled:
+            resend_api_key = os.getenv("RESEND_API_KEY")
+            if not resend_api_key:
+                print("⚠️  RESEND_API_KEY not found. Falling back to mock mode.")
+                self.provider = "mock"
+            else:
+                resend.api_key = resend_api_key
+                print(f"✅ Email service initialized with Resend API")
         
         print(f"📧 Email service initialized (provider: {self.provider}, enabled: {self.enabled})")
     
@@ -53,8 +65,27 @@ class EmailService:
             print("="*80 + "\n")
             return True
         
-        # Real email sending would go here
-        # Example for SendGrid, Resend, etc.
+        # Send via Resend
+        if self.provider == "resend":
+            try:
+                params = {
+                    "from": f"{self.from_name} <{self.from_email}>",
+                    "to": [to],
+                    "subject": subject,
+                    "html": html_body,
+                }
+                
+                if text_body:
+                    params["text"] = text_body
+                
+                email = resend.Emails.send(params)
+                print(f"✅ Email sent via Resend to {to} - ID: {email.get('id', 'unknown')}")
+                return True
+                
+            except Exception as e:
+                print(f"❌ Failed to send email via Resend: {str(e)}")
+                return False
+        
         return False
     
     async def send_welcome_email(self, user_email: str, user_name: str) -> bool:
