@@ -35,6 +35,10 @@ from bson import ObjectId
 # Import routers
 from routers import analytics, search as search_router
 
+# Import admin middleware and email verification
+from middleware.admin_auth import require_admin, get_admin_status
+from services.email_verification import email_verification_service
+
 # Lifespan context manager for startup and shutdown
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -183,6 +187,20 @@ async def register(request: Request, user_data: UserCreate, database = Depends(g
     result = await database.users.insert_one(user_doc)
     user_doc = await database.users.find_one({"_id": result.inserted_id})
     
+    # Send verification email
+    user_id = str(result.inserted_id)
+    try:
+        token = await email_verification_service.create_verification_token(
+            database, user_id, user_data.email
+        )
+        await email_verification_service.send_verification_email(
+            user_data.email,
+            user_data.usn,
+            token
+        )
+    except Exception as e:
+        print(f"Failed to send verification email: {str(e)}")
+    
     return serialize_doc(user_doc)
 
 @app.post("/api/login")
@@ -303,6 +321,99 @@ async def reset_password(data: ResetPasswordRequest, database = Depends(get_data
             "password_hash": hashed_password,
             "reset_token": None,
             "reset_token_expiry": None
+
+# ============================================================================
+# EMAIL VERIFICATION ROUTES
+# ============================================================================
+
+@app.post("/api/auth/verify-email")
+async def verify_email(token: str, database = Depends(get_database)):
+    """Verify email address using token"""
+    user_id = await email_verification_service.verify_email_token(database, token)
+    
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification token")
+    
+    return {"message": "Email verified successfully", "user_id": user_id}
+
+@app.post("/api/auth/resend-verification")
+async def resend_verification(
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Resend verification email"""
+    success = await email_verification_service.resend_verification_email(database, user_id)
+    
+    if not success:
+        raise HTTPException(status_code=400, detail="Could not resend verification email")
+    
+    return {"message": "Verification email sent"}
+
+@app.get("/api/auth/verification-status")
+async def get_verification_status(
+    user_id: str = Depends(get_current_user_id),
+    database = Depends(get_database)
+):
+    """Check if user's email is verified"""
+    user = await database.users.find_one({"_id": ObjectId(user_id)})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "email_verified": user.get("email_verified", False),
+        "email": user.get("email")
+    }
+
+# ============================================================================
+# ADMIN ROUTES
+# ============================================================================
+
+@app.get("/api/admin/users")
+async def get_all_users(
+    admin_id: str = Depends(require_admin),
+    database = Depends(get_database)
+):
+    """Get all users (admin only)"""
+    users_cursor = database.users.find({})
+    users = await users_cursor.to_list(length=1000)
+    
+    # Remove sensitive data
+    for user in users:
+        user = serialize_doc(user)
+        if "password_hash" in user:
+            del user["password_hash"]
+        if "two_factor_secret" in user:
+            del user["two_factor_secret"]
+    
+    return [serialize_doc(u) for u in users]
+
+@app.get("/api/admin/stats")
+async def get_admin_stats(
+    admin_id: str = Depends(require_admin),
+    database = Depends(get_database)
+):
+    """Get system statistics (admin only)"""
+    total_users = await database.users.count_documents({})
+    total_notes = await database.notes.count_documents({})
+    flagged_notes = await database.notes.count_documents({"is_flagged": True})
+    verified_users = await database.users.count_documents({"email_verified": True})
+    
+    return {
+        "total_users": total_users,
+        "total_notes": total_notes,
+        "flagged_notes": flagged_notes,
+        "verified_users": verified_users,
+        "unverified_users": total_users - verified_users
+    }
+
+@app.get("/api/admin/check")
+async def check_admin_status(
+    is_admin: bool = Depends(get_admin_status)
+):
+    """Check if current user is admin"""
+    return {"is_admin": is_admin}
+
         }}
     )
     
