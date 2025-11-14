@@ -83,7 +83,7 @@ export default function Header() {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-9 w-9 bg-primary hover:bg-primary/80 transition-colors">
                       <AvatarImage 
-                        src={user.profilePicture ? `/api/user/profile-picture/${user.profilePicture}` : undefined} 
+                        src={user.profile_picture ? `/api/user/profile-picture/${user.profile_picture}` : undefined} 
                         alt={user.usn} 
                       />
                       <AvatarFallback>{initials}</AvatarFallback>
