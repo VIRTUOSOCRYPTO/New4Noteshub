@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Array of tips the Note Buddy will show
 const TIPS = [
   "Welcome to NotesHub! Share your notes with your college classmates.",
   "Did you know? You can filter notes by department and subject.",
@@ -23,7 +22,6 @@ export default function NoteBuddy() {
   const [tipIndex, setTipIndex] = useState(0);
   const [dismissed, setDismissed] = useState(false);
 
-  // Show the buddy after a delay
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!dismissed) {
@@ -34,7 +32,6 @@ export default function NoteBuddy() {
     return () => clearTimeout(timer);
   }, [dismissed]);
 
-  // Change the tip periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (visible) {
@@ -60,12 +57,12 @@ export default function NoteBuddy() {
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          <Card className="border-2 border-primary/20 shadow-lg overflow-hidden">
+          <Card className="border-2 border-slate-200 shadow-2xl overflow-hidden bg-white">
             <div className="absolute top-2 right-2">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 rounded-full"
+                className="h-6 w-6 p-0 rounded-full hover:bg-slate-100"
                 onClick={handleClose}
               >
                 <X className="h-4 w-4" />
@@ -73,18 +70,18 @@ export default function NoteBuddy() {
             </div>
             <CardContent className="p-4 pt-6">
               <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-primary to-primary/60 p-2 rounded-full flex-shrink-0">
+                <div className="bg-slate-900 p-2 rounded-lg flex-shrink-0">
                   <Lightbulb className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-sm mb-1">Note Buddy Says:</h4>
+                  <h4 className="font-semibold text-sm mb-1 text-slate-900">Note Buddy Says:</h4>
                   <AnimatePresence mode="wait">
                     <motion.p
                       key={tipIndex}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="text-sm text-muted-foreground"
+                      className="text-sm text-slate-600"
                     >
                       {TIPS[tipIndex]}
                     </motion.p>
