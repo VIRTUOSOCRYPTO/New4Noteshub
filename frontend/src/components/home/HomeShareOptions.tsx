@@ -21,12 +21,10 @@ import { showToast } from '@/components/ui/toast-container';
 export default function HomeShareOptions() {
   const [copied, setCopied] = useState(false);
   
-  // Create the share URL - share the main site
   const shareUrl = window.location.origin;
   const shareTitle = 'Check out this awesome notes sharing platform for college students!';
   const shareText = 'NoteHub - Share and find academic notes and study materials';
   
-  // Handle copy to clipboard
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl).then(() => {
       setCopied(true);
@@ -37,10 +35,8 @@ export default function HomeShareOptions() {
     });
   };
   
-  // Check if device is mobile
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   
-  // Share links for various platforms
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
     twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`,
@@ -53,7 +49,6 @@ export default function HomeShareOptions() {
     email: `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`
   };
   
-  // Handle share click
   const handleShare = (platform: keyof typeof shareLinks) => {
     window.open(shareLinks[platform], '_blank');
   };
@@ -63,11 +58,11 @@ export default function HomeShareOptions() {
       <DropdownMenuTrigger asChild>
         <Button 
           size="lg" 
-          variant="outline" 
-          className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
+          className="bg-slate-700 hover:bg-slate-600 text-white border-0 px-8 py-6 text-lg h-auto"
           title="Share App"
         >
-          <Share2 className="h-5 w-5" />
+          <Share2 className="h-5 w-5 mr-2" />
+          Share
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
