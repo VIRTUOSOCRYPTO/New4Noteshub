@@ -1,6 +1,14 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 
+// Import Sentry for error logging (if available)
+let Sentry: any;
+try {
+  Sentry = require('@sentry/react');
+} catch (e) {
+  // Sentry not installed - will use console logging only
+}
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -43,8 +51,63 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // TODO: Log to error reporting service (e.g., Sentry)
-    // logErrorToService(error, errorInfo);
+    // Log to error reporting service (Sentry)
+    this.logErrorToService(error, errorInfo);
+  }
+
+  /**
+   * Log error to external error tracking service
+   */
+  private logErrorToService(error: Error, errorInfo: ErrorInfo): void {
+    try {
+      if (Sentry && typeof Sentry.captureException === 'function') {
+        // Send to Sentry if available
+        Sentry.captureException(error, {
+          contexts: {
+            react: {
+              componentStack: errorInfo.componentStack,
+            },
+          },
+          tags: {
+            errorBoundary: true,
+          },
+          level: 'error',
+        });
+      } else {
+        // Fallback: log to server endpoint
+        this.logToServer(error, errorInfo);
+      }
+    } catch (loggingError) {
+      console.error('Failed to log error:', loggingError);
+    }
+  }
+
+  /**
+   * Send error to backend logging endpoint
+   */
+  private async logToServer(error: Error, errorInfo: ErrorInfo): Promise<void> {
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
+      if (!backendUrl) return;
+
+      await fetch(`${backendUrl}/api/logs/client-error`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+        }),
+      });
+    } catch (e) {
+      // Silently fail if logging fails
+      console.error('Failed to log error to server:', e);
+    }
   }
 
   handleReset = (): void => {
