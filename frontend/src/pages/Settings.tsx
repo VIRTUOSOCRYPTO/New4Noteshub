@@ -284,7 +284,7 @@ export default function Settings() {
                       >
                         <Avatar className="h-32 w-32 border-4 border-white shadow-2xl">
                           <AvatarImage 
-                            src={user.profilePicture ? `/api/user/profile-picture/${user.profilePicture}` : undefined} 
+                            src={user.profile_picture ? `/api/user/profile-picture/${user.profile_picture}` : undefined} 
                             alt={user.usn} 
                           />
                           <AvatarFallback className="text-3xl bg-gradient-to-br from-blue-500 to-purple-500 text-white">
