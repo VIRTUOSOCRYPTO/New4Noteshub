@@ -1,13 +1,10 @@
-node_modules
-dist
-build
-coverage
-*.min.js
-*.bundle.js
-.next
-.vercel
-.env*
-!.env.example
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": false,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "arrowParens": "avoid",
+  "endOfLine": "lf"
+}
