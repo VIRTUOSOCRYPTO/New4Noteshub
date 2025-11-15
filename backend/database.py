@@ -62,6 +62,31 @@ class Database:
         await self.db.drawings.create_index("note_id")
         await self.db.drawings.create_index("is_public")
         
+        # Gamification collection indexes
+        await self.db.streaks.create_index("user_id", unique=True)
+        await self.db.streaks.create_index("current_streak")
+        await self.db.streaks.create_index("last_activity_date")
+        
+        # Referrals collection indexes
+        await self.db.referrals.create_index("user_id", unique=True)
+        await self.db.referrals.create_index("referral_code", unique=True)
+        await self.db.referrals.create_index("referred_by")
+        
+        # User points collection indexes
+        await self.db.user_points.create_index("user_id", unique=True)
+        await self.db.user_points.create_index("total_points")
+        await self.db.user_points.create_index("level")
+        
+        # Leaderboards collection indexes
+        await self.db.leaderboards.create_index([("type", 1), ("filter", 1)])
+        await self.db.leaderboards.create_index("updated_at")
+        
+        # Share actions collection indexes
+        await self.db.share_actions.create_index("user_id")
+        await self.db.share_actions.create_index("note_id")
+        await self.db.share_actions.create_index("platform")
+        await self.db.share_actions.create_index("shared_at")
+        
         print("Database indexes created successfully")
 
     async def close_database_connection(self):
