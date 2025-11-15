@@ -20,6 +20,8 @@ const FlaggedContent = lazy(() => import("@/pages/FlaggedContent"));
 const CorsDebug = lazy(() => import("@/pages/CorsDebug"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const ViralHub = lazy(() => import("@/pages/viral/ViralHub"));
+const RewardsHub = lazy(() => import("@/pages/RewardsHub"));
+const CommunityHub = lazy(() => import("@/pages/CommunityHub"));
 const Header = lazy(() => import("@/components/layout/Header"));
 const Footer = lazy(() => import("@/components/layout/Footer"));
 const ToastContainer = lazy(() => import("@/components/ui/toast-container"));
@@ -54,6 +56,8 @@ function Router() {
         <ProtectedRoute path="/flagged" component={FlaggedContent} />
         <ProtectedRoute path="/analytics" component={Analytics} />
         <ProtectedRoute path="/viral" component={ViralHub} />
+        <ProtectedRoute path="/rewards" component={RewardsHub} />
+        <ProtectedRoute path="/community" component={CommunityHub} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/reset-password" component={ResetPassword} />
         <Route path="/cors-debug" component={CorsDebug} />
