@@ -30,8 +30,8 @@ interface Note {
   title: string;
   subject: string;
   department: string;
-  download_count: number;
-  view_count: number;
+  downloadCount: number;
+  viewCount: number;
   popularity_score: number;
 }
 
@@ -341,11 +341,11 @@ export default function Analytics() {
                         </div>
                         <div className="flex items-center space-x-6 text-sm">
                           <div className="text-center">
-                            <div className="font-bold text-blue-600">{note.download_count}</div>
+                            <div className="font-bold text-blue-600">{note.downloadCount}</div>
                             <div className="text-gray-500 text-xs">Downloads</div>
                           </div>
                           <div className="text-center">
-                            <div className="font-bold text-purple-600">{note.view_count}</div>
+                            <div className="font-bold text-purple-600">{note.viewCount}</div>
                             <div className="text-gray-500 text-xs">Views</div>
                           </div>
                           <div className="text-center">
