@@ -30,7 +30,12 @@ from routers import (
     achievements,
     study_groups,
     social,
-    exams
+    exams,
+    challenges,
+    contests,
+    fomo,
+    rewards,
+    whatsapp_share
 )
 
 
@@ -126,6 +131,11 @@ app.include_router(achievements.router)
 app.include_router(study_groups.router)
 app.include_router(social.router)
 app.include_router(exams.router)
+app.include_router(challenges.router)
+app.include_router(contests.router)
+app.include_router(fomo.router)
+app.include_router(rewards.router)
+app.include_router(whatsapp_share.router)
 
 
 # Global exception handler
