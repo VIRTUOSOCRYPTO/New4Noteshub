@@ -7,7 +7,7 @@ This guide covers how to deploy the NotezHub application to production and how t
 The NotezHub application consists of two main components:
 
 1. **Frontend** - React application deployed on [notezhubz.web.app](https://noteshub-ocpi.onrender.com)
-2. **Backend** - Express.js API deployed on [noteshub-api-gqkp.onrender.com](https://noteshub-api-gqkp.onrender.com)
+2. **Backend** - FastAPI application deployed on [noteshub-api-gqkp.onrender.com](https://noteshub-api-gqkp.onrender.com)
 
 ## Testing API Endpoints
 
