@@ -53,6 +53,7 @@ function Router() {
         <ProtectedRoute path="/settings" component={Settings} />
         <ProtectedRoute path="/flagged" component={FlaggedContent} />
         <ProtectedRoute path="/analytics" component={Analytics} />
+        <ProtectedRoute path="/viral" component={ViralHub} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/reset-password" component={ResetPassword} />
         <Route path="/cors-debug" component={CorsDebug} />
