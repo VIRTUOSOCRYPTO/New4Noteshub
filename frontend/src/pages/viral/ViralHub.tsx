@@ -6,8 +6,31 @@ import {
   ReferralDashboard 
 } from "@/components/viral";
 import { Flame, Trophy, Users, Gift, TrendingUp } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function ViralHub() {
+  // Fetch user rank from leaderboard
+  const { data: leaderboardData } = useQuery({
+    queryKey: ["/api/leaderboards/all-india"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/leaderboards/all-india");
+      return await res.json();
+    },
+  });
+
+  // Fetch referral data
+  const { data: referralData } = useQuery({
+    queryKey: ["/api/referrals/my-referral"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/referrals/my-referral");
+      return await res.json();
+    },
+  });
+
+  // Fetch achievements count (for now, use a placeholder)
+  const achievementsCount = 0; // Will be implemented when achievement system is ready
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl" data-testid="viral-hub">
       {/* Hero Section */}
@@ -55,7 +78,9 @@ export default function ViralHub() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Your Rank</p>
-                  <p className="text-3xl font-bold">#--</p>
+                  <p className="text-3xl font-bold">
+                    {leaderboardData?.user_rank ? `#${leaderboardData.user_rank}` : "#--"}
+                  </p>
                 </div>
                 <Trophy className="h-10 w-10 text-blue-500" />
               </div>
@@ -65,7 +90,9 @@ export default function ViralHub() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Referrals</p>
-                  <p className="text-3xl font-bold">--</p>
+                  <p className="text-3xl font-bold">
+                    {referralData?.total_referrals ?? "--"}
+                  </p>
                 </div>
                 <Users className="h-10 w-10 text-purple-500" />
               </div>
@@ -75,7 +102,7 @@ export default function ViralHub() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Achievements</p>
-                  <p className="text-3xl font-bold">--</p>
+                  <p className="text-3xl font-bold">{achievementsCount}</p>
                 </div>
                 <Gift className="h-10 w-10 text-amber-500" />
               </div>
