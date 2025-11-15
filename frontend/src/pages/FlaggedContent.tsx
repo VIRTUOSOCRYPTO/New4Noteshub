@@ -14,8 +14,8 @@ interface FlaggedNote {
   subject: string;
   department: string;
   usn: string;
-  flag_reason: string;
-  uploaded_at: string;
+  flagReason: string;
+  uploadedAt: string;
   filename: string;
 }
 
@@ -205,7 +205,7 @@ export default function FlaggedContent() {
                             <div>
                               <div className="text-xs text-gray-500">Upload Date</div>
                               <div className="font-medium text-gray-900">
-                                {new Date(note.uploaded_at).toLocaleDateString()}
+                                {new Date(note.uploadedAt).toLocaleDateString()}
                               </div>
                             </div>
                           </div>
