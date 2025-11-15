@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, Clock, AlertTriangle, BookOpen, TrendingUp } from "lucide-react";
+import { Calendar, Clock, AlertTriangle, BookOpen, TrendingUp, Users } from "lucide-react";
 
 interface Exam {
   id: string;
@@ -264,6 +264,3 @@ export function ExamCountdown() {
     </div>
   );
 }
-
-// Fix: Import Users icon
-import { Users } from "lucide-react";
