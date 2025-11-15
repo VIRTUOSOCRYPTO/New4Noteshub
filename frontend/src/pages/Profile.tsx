@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { UserAchievements } from "@/components/badges/UserAchievements";
 import { usePageVisits } from "@/hooks/use-page-visits";
+import { StreakTracker } from "@/components/viral/StreakTracker";
+import { PointsDisplay } from "@/components/viral/PointsDisplay";
 
 export default function Profile() {
   usePageVisits('profile');
@@ -86,6 +88,12 @@ export default function Profile() {
           </div>
           
           <div className="md:col-span-2">
+            {/* Viral Features - Streak and Points */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <StreakTracker />
+              <PointsDisplay showProgress={true} />
+            </div>
+            
             <Card className="mb-6 border-slate-200 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-slate-900">Account Information</CardTitle>
