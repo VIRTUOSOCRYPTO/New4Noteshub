@@ -26,7 +26,11 @@ from routers import (
     search as search_router,
     gamification,
     leaderboards,
-    referrals
+    referrals,
+    achievements,
+    study_groups,
+    social,
+    exams
 )
 
 
@@ -63,9 +67,12 @@ async def lifespan(app: FastAPI):
     print("="*60)
     print("✅ NotesHub API started successfully!")
     print(f"✅ Database connected")
-    print(f"✅ Modular routers loaded: 10 modules")
+    print(f"✅ Modular routers loaded: 14 modules")
     print(f"✅ Viral growth features: Leaderboards, Streaks, Referrals")
-    print(f"✅ Gamification: Points, Levels, Achievements")
+    print(f"✅ Gamification: Points, Levels, 50+ Achievements")
+    print(f"✅ Social: Follow system, Activity feed")
+    print(f"✅ Study Groups: Collaborative learning with chat")
+    print(f"✅ Exams: Countdown timers, Panic mode")
     print(f"✅ Feature flags initialized")
     print(f"✅ A/B testing initialized")
     print(f"✅ Performance monitoring active")
@@ -115,6 +122,10 @@ app.include_router(search_router.router)
 app.include_router(gamification.router)
 app.include_router(leaderboards.router)
 app.include_router(referrals.router)
+app.include_router(achievements.router)
+app.include_router(study_groups.router)
+app.include_router(social.router)
+app.include_router(exams.router)
 
 
 # Global exception handler
