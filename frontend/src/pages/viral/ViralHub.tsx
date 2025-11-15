@@ -14,7 +14,7 @@ import {
   SurpriseRewards,
   AIRecommendations
 } from "@/components/viral";
-import { Flame, Trophy, Users, Gift, TrendingUp, Award, MessageCircle, Calendar, Target, Zap, Sparkles, Instagram, Brain } from "lucide-react";
+import { Flame, Trophy, Users, TrendingUp, Target, Sparkles, Brain, Gift } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -61,56 +61,32 @@ export default function ViralHub() {
         </p>
       </div>
 
-      {/* Tabs for different sections */}
+      {/* Tabs for different sections - Consolidated from 12 to 6 */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-13 gap-1">
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 gap-2">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Flame className="h-4 w-4" />
-            <span className="hidden md:inline">Overview</span>
+            <span>Overview</span>
           </TabsTrigger>
-          <TabsTrigger value="leaderboards" className="flex items-center gap-2">
+          <TabsTrigger value="progress" className="flex items-center gap-2">
             <Trophy className="h-4 w-4" />
-            <span className="hidden md:inline">Ranks</span>
+            <span>Progress</span>
           </TabsTrigger>
-          <TabsTrigger value="achievements" className="flex items-center gap-2">
-            <Award className="h-4 w-4" />
-            <span className="hidden md:inline">Achievements</span>
-          </TabsTrigger>
-          <TabsTrigger value="groups" className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            <span className="hidden md:inline">Groups</span>
-          </TabsTrigger>
-          <TabsTrigger value="social" className="flex items-center gap-2">
+          <TabsTrigger value="community" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            <span className="hidden md:inline">Social</span>
+            <span>Community</span>
           </TabsTrigger>
-          <TabsTrigger value="referrals" className="flex items-center gap-2">
-            <Gift className="h-4 w-4" />
-            <span className="hidden md:inline">Referrals</span>
-          </TabsTrigger>
-          <TabsTrigger value="exams" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span className="hidden md:inline">Exams</span>
-          </TabsTrigger>
-          <TabsTrigger value="challenges" className="flex items-center gap-2">
+          <TabsTrigger value="compete" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            <span className="hidden md:inline">Challenges</span>
-          </TabsTrigger>
-          <TabsTrigger value="contests" className="flex items-center gap-2">
-            <Trophy className="h-4 w-4" />
-            <span className="hidden md:inline">Contests</span>
-          </TabsTrigger>
-          <TabsTrigger value="fomo" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            <span className="hidden md:inline">Alerts</span>
+            <span>Compete</span>
           </TabsTrigger>
           <TabsTrigger value="rewards" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
-            <span className="hidden md:inline">Rewards</span>
+            <span>Rewards</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 text-white">
             <Brain className="h-4 w-4" />
-            <span className="hidden md:inline">AI</span>
+            <span>AI</span>
           </TabsTrigger>
         </TabsList>
 
@@ -186,54 +162,88 @@ export default function ViralHub() {
           </div>
         </TabsContent>
 
-        {/* Leaderboards Tab */}
-        <TabsContent value="leaderboards">
+        {/* Progress Tab - Combines Ranks + Achievements */}
+        <TabsContent value="progress" className="space-y-6">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-2">Your Progress</h2>
+            <p className="text-muted-foreground">Track your rankings and unlock achievements</p>
+          </div>
           <Leaderboard />
+          <div className="mt-8">
+            <AchievementShowcase />
+          </div>
         </TabsContent>
 
-        {/* Referrals Tab */}
-        <TabsContent value="referrals">
-          <ReferralDashboard />
+        {/* Community Tab - Combines Groups + Social + Referrals */}
+        <TabsContent value="community" className="space-y-6">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-2">Community</h2>
+            <p className="text-muted-foreground">Connect with friends, join groups, and grow together</p>
+          </div>
+          
+          {/* Referrals Section */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Referrals & Invites</h3>
+            <ReferralDashboard />
+          </div>
+
+          {/* Study Groups Section */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-4">Study Groups</h3>
+            <StudyGroups />
+          </div>
+
+          {/* Social Feed Section */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-4">Social Feed</h3>
+            <SocialFeed />
+          </div>
         </TabsContent>
 
-        {/* Achievements Tab */}
-        <TabsContent value="achievements">
-          <AchievementShowcase />
+        {/* Compete Tab - Combines Challenges + Contests + Exams */}
+        <TabsContent value="compete" className="space-y-6">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-2">Competitions</h2>
+            <p className="text-muted-foreground">Join challenges, contests, and track your exams</p>
+          </div>
+
+          {/* Exam Countdown */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Exam Countdown</h3>
+            <ExamCountdown />
+          </div>
+
+          {/* Challenges */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-4">Daily Challenges</h3>
+            <ChallengesHub />
+          </div>
+
+          {/* Contests */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-4">Contests</h3>
+            <ContestsGallery />
+          </div>
         </TabsContent>
 
-        {/* Study Groups Tab */}
-        <TabsContent value="groups">
-          <StudyGroups />
-        </TabsContent>
+        {/* Rewards Tab - Combines Alerts + Rewards */}
+        <TabsContent value="rewards" className="space-y-6">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-2">Rewards & Alerts</h2>
+            <p className="text-muted-foreground">Claim rewards and stay updated with live activity</p>
+          </div>
 
-        {/* Social Feed Tab */}
-        <TabsContent value="social">
-          <SocialFeed />
-        </TabsContent>
+          {/* FOMO Triggers / Alerts */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Live Activity Feed</h3>
+            <FOMOTriggers />
+          </div>
 
-        {/* Exams Tab */}
-        <TabsContent value="exams">
-          <ExamCountdown />
-        </TabsContent>
-
-        {/* Challenges Tab - Month 2 */}
-        <TabsContent value="challenges">
-          <ChallengesHub />
-        </TabsContent>
-
-        {/* Contests Tab - Month 2 */}
-        <TabsContent value="contests">
-          <ContestsGallery />
-        </TabsContent>
-
-        {/* FOMO Triggers Tab - Month 2 */}
-        <TabsContent value="fomo">
-          <FOMOTriggers />
-        </TabsContent>
-
-        {/* Surprise Rewards Tab - Month 2 */}
-        <TabsContent value="rewards">
-          <SurpriseRewards />
+          {/* Surprise Rewards */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-4">Surprise Rewards</h3>
+            <SurpriseRewards />
+          </div>
         </TabsContent>
 
         {/* AI Personalization Tab - NEW */}
