@@ -7,9 +7,13 @@ import {
   AchievementShowcase,
   StudyGroups,
   SocialFeed,
-  ExamCountdown
+  ExamCountdown,
+  ChallengesHub,
+  ContestsGallery,
+  FOMOTriggers,
+  SurpriseRewards
 } from "@/components/viral";
-import { Flame, Trophy, Users, Gift, TrendingUp, Award, MessageCircle, Calendar } from "lucide-react";
+import { Flame, Trophy, Users, Gift, TrendingUp, Award, MessageCircle, Calendar, Target, Zap, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -58,7 +62,7 @@ export default function ViralHub() {
 
       {/* Tabs for different sections */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8 lg:grid-cols-8">
+        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-11 gap-1">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Flame className="h-4 w-4" />
             <span className="hidden md:inline">Overview</span>
@@ -86,6 +90,22 @@ export default function ViralHub() {
           <TabsTrigger value="exams" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             <span className="hidden md:inline">Exams</span>
+          </TabsTrigger>
+          <TabsTrigger value="challenges" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            <span className="hidden md:inline">Challenges</span>
+          </TabsTrigger>
+          <TabsTrigger value="contests" className="flex items-center gap-2">
+            <Trophy className="h-4 w-4" />
+            <span className="hidden md:inline">Contests</span>
+          </TabsTrigger>
+          <TabsTrigger value="fomo" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            <span className="hidden md:inline">Alerts</span>
+          </TabsTrigger>
+          <TabsTrigger value="rewards" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden md:inline">Rewards</span>
           </TabsTrigger>
         </TabsList>
 
@@ -189,6 +209,26 @@ export default function ViralHub() {
         {/* Exams Tab */}
         <TabsContent value="exams">
           <ExamCountdown />
+        </TabsContent>
+
+        {/* Challenges Tab - Month 2 */}
+        <TabsContent value="challenges">
+          <ChallengesHub />
+        </TabsContent>
+
+        {/* Contests Tab - Month 2 */}
+        <TabsContent value="contests">
+          <ContestsGallery />
+        </TabsContent>
+
+        {/* FOMO Triggers Tab - Month 2 */}
+        <TabsContent value="fomo">
+          <FOMOTriggers />
+        </TabsContent>
+
+        {/* Surprise Rewards Tab - Month 2 */}
+        <TabsContent value="rewards">
+          <SurpriseRewards />
         </TabsContent>
       </Tabs>
     </div>
