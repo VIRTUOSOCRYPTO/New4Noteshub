@@ -19,6 +19,7 @@ const Settings = lazy(() => import("@/pages/Settings"));
 const FlaggedContent = lazy(() => import("@/pages/FlaggedContent"));
 const CorsDebug = lazy(() => import("@/pages/CorsDebug"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
+const ViralHub = lazy(() => import("@/pages/viral/ViralHub"));
 const Header = lazy(() => import("@/components/layout/Header"));
 const Footer = lazy(() => import("@/components/layout/Footer"));
 const ToastContainer = lazy(() => import("@/components/ui/toast-container"));
