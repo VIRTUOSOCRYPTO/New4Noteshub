@@ -8,6 +8,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from datetime import datetime
 import re
+import uuid
 
 from database import get_database
 from auth import (
@@ -25,10 +26,12 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 def serialize_doc(doc):
-    """Convert ObjectId to string"""
+    """Convert MongoDB document to API response format"""
     if doc and "_id" in doc:
-        doc["id"] = str(doc["_id"])
         del doc["_id"]
+    # Ensure 'id' field exists
+    if doc and "id" not in doc:
+        doc["id"] = str(uuid.uuid4())
     return doc
 
 
@@ -64,8 +67,12 @@ async def register(request: Request, user_data: UserCreate, database=Depends(get
     if existing_email:
         raise HTTPException(status_code=409, detail="Email already registered.")
     
+    # Generate UUID for new user
+    user_id = str(uuid.uuid4())
+    
     # Create user
     user = {
+        "id": user_id,
         "usn": usn_upper,
         "email": user_data.email,
         "password": get_password_hash(user_data.password),
@@ -77,15 +84,14 @@ async def register(request: Request, user_data: UserCreate, database=Depends(get
         "createdAt": datetime.utcnow()
     }
     
-    result = await database.users.insert_one(user)
-    user["id"] = str(result.inserted_id)
+    await database.users.insert_one(user)
     
     # Generate tokens
-    access_token = create_access_token({"sub": str(result.inserted_id)})
-    refresh_token = create_refresh_token({"sub": str(result.inserted_id)})
+    access_token = create_access_token({"sub": user_id})
+    refresh_token = create_refresh_token({"sub": user_id})
     
     return UserResponse(
-        id=user["id"],
+        id=user_id,
         usn=user["usn"],
         email=user["email"],
         department=user["department"],
@@ -111,8 +117,16 @@ async def login(request: Request, user_data: UserLogin, database=Depends(get_dat
     if not verify_password(user_data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Incorrect password. Please try again.")
     
+    # Get user ID from 'id' field or generate if missing
+    user_id = user.get("id")
+    if not user_id:
+        user_id = str(uuid.uuid4())
+        await database.users.update_one(
+            {"usn": usn_upper},
+            {"$set": {"id": user_id}}
+        )
+    
     # Generate tokens
-    user_id = str(user["_id"])
     access_token = create_access_token({"sub": user_id})
     refresh_token = create_refresh_token({"sub": user_id})
     
@@ -149,10 +163,17 @@ async def forgot_password(request: Request, data: ForgotPasswordRequest, databas
     # Generate reset token
     reset_token = generate_reset_token()
     
+    # Get user ID
+    user_id = user.get("id")
+    if not user_id:
+        user_id = str(uuid.uuid4())
+    
     # Store token with expiry (1 hour)
+    query = {"id": user_id} if user_id else {"_id": user["_id"]}
     await database.users.update_one(
-        {"_id": user["_id"]},
+        query,
         {"$set": {
+            "id": user_id,
             "resetToken": reset_token,
             "resetTokenExpiry": datetime.utcnow().timestamp() + 3600
         }}
@@ -178,10 +199,17 @@ async def reset_password(data: ResetPasswordRequest, database=Depends(get_databa
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
     
+    # Get user ID
+    user_id = user.get("id")
+    if not user_id:
+        user_id = str(uuid.uuid4())
+    
     # Update password and clear reset token
+    query = {"id": user_id} if user_id else {"_id": user["_id"]}
     await database.users.update_one(
-        {"_id": user["_id"]},
+        query,
         {"$set": {
+            "id": user_id,
             "password": get_password_hash(data.newPassword),
             "resetToken": None,
             "resetTokenExpiry": None
