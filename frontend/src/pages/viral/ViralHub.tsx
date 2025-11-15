@@ -3,9 +3,13 @@ import {
   StreakTracker, 
   PointsDisplay, 
   Leaderboard, 
-  ReferralDashboard 
+  ReferralDashboard,
+  AchievementShowcase,
+  StudyGroups,
+  SocialFeed,
+  ExamCountdown
 } from "@/components/viral";
-import { Flame, Trophy, Users, Gift, TrendingUp } from "lucide-react";
+import { Flame, Trophy, Users, Gift, TrendingUp, Award, MessageCircle, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -28,8 +32,16 @@ export default function ViralHub() {
     },
   });
 
-  // Fetch achievements count (for now, use a placeholder)
-  const achievementsCount = 0; // Will be implemented when achievement system is ready
+  // Fetch achievements count
+  const { data: achievementStats } = useQuery({
+    queryKey: ["/api/achievements/stats"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/achievements/stats");
+      return await res.json();
+    },
+  });
+
+  const achievementsCount = achievementStats?.unlocked || 0;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl" data-testid="viral-hub">
@@ -46,22 +58,34 @@ export default function ViralHub() {
 
       {/* Tabs for different sections */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-8 lg:grid-cols-8">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Flame className="h-4 w-4" />
-            Overview
+            <span className="hidden md:inline">Overview</span>
           </TabsTrigger>
           <TabsTrigger value="leaderboards" className="flex items-center gap-2">
             <Trophy className="h-4 w-4" />
-            Leaderboards
+            <span className="hidden md:inline">Ranks</span>
+          </TabsTrigger>
+          <TabsTrigger value="achievements" className="flex items-center gap-2">
+            <Award className="h-4 w-4" />
+            <span className="hidden md:inline">Achievements</span>
+          </TabsTrigger>
+          <TabsTrigger value="groups" className="flex items-center gap-2">
+            <MessageCircle className="h-4 w-4" />
+            <span className="hidden md:inline">Groups</span>
+          </TabsTrigger>
+          <TabsTrigger value="social" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden md:inline">Social</span>
           </TabsTrigger>
           <TabsTrigger value="referrals" className="flex items-center gap-2">
             <Gift className="h-4 w-4" />
-            Referrals
+            <span className="hidden md:inline">Referrals</span>
           </TabsTrigger>
-          <TabsTrigger value="achievements" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Achievements
+          <TabsTrigger value="exams" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden md:inline">Exams</span>
           </TabsTrigger>
         </TabsList>
 
@@ -149,13 +173,22 @@ export default function ViralHub() {
 
         {/* Achievements Tab */}
         <TabsContent value="achievements">
-          <div className="text-center py-12">
-            <Trophy className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-2xl font-bold mb-2">Achievements Coming Soon!</h3>
-            <p className="text-muted-foreground">
-              100+ achievements to unlock. Check back soon!
-            </p>
-          </div>
+          <AchievementShowcase />
+        </TabsContent>
+
+        {/* Study Groups Tab */}
+        <TabsContent value="groups">
+          <StudyGroups />
+        </TabsContent>
+
+        {/* Social Feed Tab */}
+        <TabsContent value="social">
+          <SocialFeed />
+        </TabsContent>
+
+        {/* Exams Tab */}
+        <TabsContent value="exams">
+          <ExamCountdown />
         </TabsContent>
       </Tabs>
     </div>
