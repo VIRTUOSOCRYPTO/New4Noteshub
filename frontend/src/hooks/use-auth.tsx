@@ -41,7 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const res = await apiRequest("GET", "/api/user");
         return await res.json();
       } catch (error) {
-        if (error instanceof Response && error.status === 401) {
+        // Treat both 401 and 403 as "not logged in"
+        if (error instanceof Response && (error.status === 401 || error.status === 403)) {
+          return null;
+        }
+        if (error instanceof Error && (error.message.includes("401") || error.message.includes("403"))) {
           return null;
         }
         throw error;
@@ -88,11 +92,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/register", credentials);
       return await res.json();
     },
-    onSuccess: (user: Omit<User, "password">) => {
-      queryClient.setQueryData(["/api/user"], user);
+    onSuccess: (data: any) => {
+      // Registration returns a UserResponse with tokens
+      if (data.accessToken) {
+        setAuthToken(data.accessToken);
+      }
+      
+      // Extract user data (without tokens)
+      const { accessToken, refreshToken, ...userData } = data;
+      
+      queryClient.setQueryData(["/api/user"], userData);
       toast({
         title: "Registration successful",
-        description: `Welcome to NotesHub, ${user.usn}!`,
+        description: `Welcome to NotesHub, ${userData.usn}!`,
       });
     },
     onError: (error: Error) => {
