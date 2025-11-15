@@ -14,3 +14,7 @@ export { ContestsGallery } from './ContestsGallery';
 export { FOMOTriggers } from './FOMOTriggers';
 export { SurpriseRewards } from './SurpriseRewards';
 export { WhatsAppShareButtons } from './WhatsAppShareButtons';
+// New Enhanced Features
+export { InstagramStoryGenerator } from './InstagramStoryGenerator';
+export { AIRecommendations } from './AIRecommendations';
+export { UnlockContent } from './UnlockContent';
