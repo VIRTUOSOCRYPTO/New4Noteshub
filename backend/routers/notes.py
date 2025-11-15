@@ -21,6 +21,14 @@ from models import (
     FlagNoteRequest, ReviewNoteRequest
 )
 
+# Import gamification functions
+try:
+    from routers.gamification import award_points_for_action
+except ImportError:
+    # Fallback if gamification not available
+    async def award_points_for_action(db, user_id: str, action: str):
+        pass
+
 router = APIRouter(prefix="/api/notes", tags=["Notes"])
 
 # Upload directory
@@ -124,6 +132,12 @@ async def upload_note(
     
     await database.notes.insert_one(note)
     
+    # Award points and update streak for upload
+    try:
+        await award_points_for_action(database, user_id, "upload_note")
+    except Exception as e:
+        print(f"Warning: Could not award points for upload: {e}")
+    
     return serialize_doc(note)
 
 
@@ -149,6 +163,14 @@ async def download_note(
         {"id": note_id},
         {"$inc": {"downloadCount": 1}}
     )
+    
+    # Award points to note uploader when their note is downloaded
+    note_owner_id = note.get("userId")
+    if note_owner_id:
+        try:
+            await award_points_for_action(database, note_owner_id, "note_downloaded")
+        except Exception as e:
+            print(f"Warning: Could not award points for download: {e}")
     
     # Determine proper media type based on file extension
     file_ext = Path(note["originalFilename"]).suffix.lower()
