@@ -21,6 +21,60 @@ from models import (
     DEPARTMENT_CODES
 )
 
+
+async def initialize_user_gamification(database, user_id: str, usn: str):
+    """Initialize gamification data for a new user"""
+    import random
+    import string
+    
+    # Generate referral code
+    random_chars = ''.join(random.choices(string.ascii_uppercase + string.digits, k=3))
+    referral_code = f"{usn[-4:]}{random_chars}".upper()
+    
+    # Ensure referral code uniqueness
+    existing = await database.referrals.find_one({"referral_code": referral_code})
+    while existing:
+        random_chars = ''.join(random.choices(string.ascii_uppercase + string.digits, k=3))
+        referral_code = f"{usn[-4:]}{random_chars}".upper()
+        existing = await database.referrals.find_one({"referral_code": referral_code})
+    
+    # Initialize user_points
+    await database.user_points.insert_one({
+        "user_id": user_id,
+        "total_points": 0,
+        "level": 1,
+        "level_name": "Newbie",
+        "points_history": [],
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    })
+    
+    # Initialize streaks
+    await database.streaks.insert_one({
+        "user_id": user_id,
+        "current_streak": 0,
+        "longest_streak": 0,
+        "last_activity_date": None,
+        "total_activities": 0,
+        "created_at": datetime.utcnow()
+    })
+    
+    # Initialize referrals
+    await database.referrals.insert_one({
+        "user_id": user_id,
+        "referral_code": referral_code,
+        "referred_users": [],
+        "total_referrals": 0,
+        "rewards_earned": {
+            "bonus_downloads": 0,
+            "ai_access_days": 0,
+            "premium_days": 0
+        },
+        "created_at": datetime.utcnow()
+    })
+    
+    print(f"✅ Initialized gamification for user {user_id} with referral code {referral_code}")
+
 router = APIRouter(prefix="/api", tags=["Authentication"])
 limiter = Limiter(key_func=get_remote_address)
 
@@ -85,6 +139,12 @@ async def register(request: Request, user_data: UserCreate, database=Depends(get
     }
     
     await database.users.insert_one(user)
+    
+    # Initialize gamification data (points, streaks, referrals)
+    try:
+        await initialize_user_gamification(database, user_id, usn_upper)
+    except Exception as e:
+        print(f"Warning: Failed to initialize gamification for {user_id}: {e}")
     
     # Generate tokens
     access_token = create_access_token({"sub": user_id})
