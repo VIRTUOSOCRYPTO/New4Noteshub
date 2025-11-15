@@ -4,3 +4,7 @@ export { PointsDisplay } from './PointsDisplay';
 export { Leaderboard } from './Leaderboard';
 export { ReferralDashboard } from './ReferralDashboard';
 export { ShareButtons } from './ShareButtons';
+export { AchievementShowcase } from './AchievementShowcase';
+export { StudyGroups } from './StudyGroups';
+export { SocialFeed } from './SocialFeed';
+export { ExamCountdown } from './ExamCountdown';
