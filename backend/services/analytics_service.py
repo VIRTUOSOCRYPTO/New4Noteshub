@@ -77,7 +77,7 @@ class AnalyticsService:
         ]).to_list(length=1)
         
         total_downloads = download_stats[0]["total_downloads"] if download_stats else 0
-        avg_downloads = download_stats[0]["avg_downloads"] if download_stats else 0
+        avg_downloads = download_stats[0]["avg_downloads"] if (download_stats and download_stats[0]["avg_downloads"] is not None) else 0
         
         # View statistics
         view_stats = await self.db.notes.aggregate([
@@ -90,7 +90,7 @@ class AnalyticsService:
         ]).to_list(length=1)
         
         total_views = view_stats[0]["total_views"] if view_stats else 0
-        avg_views = view_stats[0]["avg_views"] if view_stats else 0
+        avg_views = view_stats[0]["avg_views"] if (view_stats and view_stats[0]["avg_views"] is not None) else 0
         
         # Active users (users who uploaded in last 7 days)
         active_users_pipeline = [
@@ -111,8 +111,8 @@ class AnalyticsService:
             "active_users": active_users,
             "total_downloads": total_downloads,
             "total_views": total_views,
-            "avg_downloads_per_note": round(avg_downloads, 2),
-            "avg_views_per_note": round(avg_views, 2),
+            "avg_downloads_per_note": round(avg_downloads, 2) if avg_downloads else 0,
+            "avg_views_per_note": round(avg_views, 2) if avg_views else 0,
             "uploads": {
                 "last_24h": uploads_24h,
                 "last_7d": uploads_7d,
@@ -123,22 +123,25 @@ class AnalyticsService:
     async def get_popular_notes(self, limit: int = 10, department: Optional[str] = None) -> List[Dict]:
         """Get most popular notes by downloads and views"""
         
-        query = {"is_approved": True}
+        # Don't filter by is_approved if it's null - show all notes
+        query = {}
         if department:
             query["department"] = department
         
-        # Calculate popularity score: downloads * 2 + views
+        # Calculate popularity score: downloads * 2 + views (handle null values)
         pipeline = [
             {"$match": query},
             {"$addFields": {
+                "download_count": {"$ifNull": ["$download_count", 0]},
+                "view_count": {"$ifNull": ["$view_count", 0]},
                 "popularity_score": {
                     "$add": [
-                        {"$multiply": ["$download_count", 2]},
-                        "$view_count"
+                        {"$multiply": [{"$ifNull": ["$download_count", 0]}, 2]},
+                        {"$ifNull": ["$view_count", 0]}
                     ]
                 }
             }},
-            {"$sort": {"popularity_score": -1}},
+            {"$sort": {"popularity_score": -1, "uploaded_at": -1}},
             {"$limit": limit}
         ]
         
@@ -174,8 +177,8 @@ class AnalyticsService:
                 "total_notes": stat["total_notes"],
                 "total_downloads": stat["total_downloads"],
                 "total_views": stat["total_views"],
-                "avg_downloads": round(stat["avg_downloads"], 2),
-                "avg_views": round(stat["avg_views"], 2)
+                "avg_downloads": round(stat["avg_downloads"], 2) if stat["avg_downloads"] is not None else 0,
+                "avg_views": round(stat["avg_views"], 2) if stat["avg_views"] is not None else 0
             }
             for stat in stats
         ]
@@ -216,8 +219,11 @@ class AnalyticsService:
         
         start_date = datetime.utcnow() - timedelta(days=days)
         
+        # Get trends only for notes with valid uploaded_at dates
         pipeline = [
-            {"$match": {"uploaded_at": {"$gte": start_date}}},
+            {"$match": {
+                "uploaded_at": {"$ne": None, "$gte": start_date}
+            }},
             {"$group": {
                 "_id": {
                     "year": {"$year": "$uploaded_at"},
@@ -229,15 +235,28 @@ class AnalyticsService:
             {"$sort": {"_id": 1}}
         ]
         
-        trends = await self.db.notes.aggregate(pipeline).to_list(length=None)
+        trends_data = await self.db.notes.aggregate(pipeline).to_list(length=None)
         
-        return [
-            {
-                "date": f"{trend['_id']['year']}-{trend['_id']['month']:02d}-{trend['_id']['day']:02d}",
-                "uploads": trend["count"]
-            }
-            for trend in trends
-        ]
+        # Create a map of dates to counts
+        trends_map = {}
+        for trend in trends_data:
+            date_str = f"{trend['_id']['year']}-{trend['_id']['month']:02d}-{trend['_id']['day']:02d}"
+            trends_map[date_str] = trend["count"]
+        
+        # Fill in all days in the range with zeros for missing dates
+        result = []
+        current_date = start_date
+        end_date = datetime.utcnow()
+        
+        while current_date <= end_date:
+            date_str = current_date.strftime("%Y-%m-%d")
+            result.append({
+                "date": date_str,
+                "uploads": trends_map.get(date_str, 0)
+            })
+            current_date += timedelta(days=1)
+        
+        return result
     
     async def get_engagement_metrics(self, days: int = 7) -> Dict:
         """Get user engagement metrics"""
