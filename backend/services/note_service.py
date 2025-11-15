@@ -5,7 +5,7 @@ Business logic for note operations
 
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from bson import ObjectId
+import uuid
 
 from repositories.note_repository import get_note_repository
 from exceptions import NotFoundError, ValidationError
@@ -20,7 +20,10 @@ class NoteService:
     
     async def create_note(self, note_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new note"""
+        note_id = str(uuid.uuid4())
+        
         note_doc = {
+            "id": note_id,
             "user_id": note_data["user_id"],
             "usn": note_data["usn"],
             "title": note_data["title"],
@@ -38,8 +41,7 @@ class NoteService:
             "view_count": 0
         }
         
-        result = await self.db.notes.insert_one(note_doc)
-        note_doc["_id"] = result.inserted_id
+        await self.db.notes.insert_one(note_doc)
         return note_doc
     
     async def get_notes(
@@ -65,12 +67,12 @@ class NoteService:
     
     async def get_note_by_id(self, note_id: str) -> Optional[Dict[str, Any]]:
         """Get note by ID"""
-        return await self.db.notes.find_one({"_id": ObjectId(note_id)})
+        return await self.db.notes.find_one({"id": note_id})
     
     async def increment_download_count(self, note_id: str) -> bool:
         """Increment note download count"""
         result = await self.db.notes.update_one(
-            {"_id": ObjectId(note_id)},
+            {"id": note_id},
             {"$inc": {"download_count": 1}}
         )
         return result.modified_count > 0
@@ -78,7 +80,7 @@ class NoteService:
     async def increment_view_count(self, note_id: str) -> bool:
         """Increment note view count"""
         result = await self.db.notes.update_one(
-            {"_id": ObjectId(note_id)},
+            {"id": note_id},
             {"$inc": {"view_count": 1}}
         )
         return result.modified_count > 0
@@ -86,7 +88,7 @@ class NoteService:
     async def flag_note(self, note_id: str, reason: str) -> bool:
         """Flag a note for review"""
         result = await self.db.notes.update_one(
-            {"_id": ObjectId(note_id)},
+            {"id": note_id},
             {"$set": {
                 "is_flagged": True,
                 "flag_reason": reason
@@ -102,7 +104,7 @@ class NoteService:
     async def approve_note(self, note_id: str) -> bool:
         """Approve a flagged note"""
         result = await self.db.notes.update_one(
-            {"_id": ObjectId(note_id)},
+            {"id": note_id},
             {"$set": {
                 "is_flagged": False,
                 "is_approved": True,
@@ -113,7 +115,7 @@ class NoteService:
     
     async def delete_note(self, note_id: str) -> bool:
         """Delete a note"""
-        result = await self.db.notes.delete_one({"_id": ObjectId(note_id)})
+        result = await self.db.notes.delete_one({"id": note_id})
         return result.deleted_count > 0
     
     async def search_notes(
