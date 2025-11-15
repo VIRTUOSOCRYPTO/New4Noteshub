@@ -274,3 +274,96 @@ class UserStats(BaseModel):
     previewCount: int
     uniqueSubjectsCount: int
     pagesVisited: int
+
+# Gamification Models
+class StreakData(BaseModel):
+    user_id: str
+    current_streak: int = 0
+    longest_streak: int = 0
+    last_activity_date: Optional[datetime] = None
+    total_activities: int = 0
+
+class StreakResponse(BaseModel):
+    current_streak: int
+    longest_streak: int
+    last_activity_date: Optional[datetime]
+    days_until_next_milestone: int
+    next_milestone: int
+
+class UserPoints(BaseModel):
+    user_id: str
+    total_points: int = 0
+    level: int = 1
+    points_to_next_level: int = 100
+
+class PointsResponse(BaseModel):
+    total_points: int
+    level: int
+    level_name: str
+    points_to_next_level: int
+    progress_percentage: float
+
+class PointsHistoryItem(BaseModel):
+    action: str
+    points: int
+    timestamp: datetime
+
+# Referral Models
+class ReferralData(BaseModel):
+    user_id: str
+    referral_code: str
+    referred_by: Optional[str] = None
+    referred_users: List[str] = []
+    total_referrals: int = 0
+    rewards_earned: dict = {
+        "bonus_downloads": 0,
+        "ai_access_days": 0,
+        "premium_days": 0
+    }
+
+class ReferralResponse(BaseModel):
+    referral_code: str
+    total_referrals: int
+    rewards_earned: dict
+    referral_link: str
+
+class ReferralReward(BaseModel):
+    type: str  # "signup", "first_upload"
+    bonus_downloads: int = 0
+    ai_access_days: int = 0
+
+# Leaderboard Models
+class LeaderboardEntry(BaseModel):
+    user_id: str
+    usn: str
+    rank: int
+    score: int
+    college: Optional[str] = None
+    department: str
+    profile_picture: Optional[str] = None
+    streak: int = 0
+    level: int = 1
+
+class LeaderboardResponse(BaseModel):
+    type: str  # "college", "department", "all_india"
+    filter: Optional[dict] = None
+    rankings: List[LeaderboardEntry]
+    user_rank: Optional[int] = None
+    total_users: int
+    updated_at: datetime
+
+class LeaderboardQuery(BaseModel):
+    type: str  # "college", "department", "all_india"
+    college: Optional[str] = None
+    department: Optional[str] = None
+    limit: int = 100
+
+# Social Sharing Models
+class ShareAction(BaseModel):
+    note_id: str
+    platform: str  # "whatsapp", "instagram", "twitter", "facebook"
+
+class ShareStats(BaseModel):
+    total_shares: int
+    platform_breakdown: dict
+    most_shared_note: Optional[str] = None
