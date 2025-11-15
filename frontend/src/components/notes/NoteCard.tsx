@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ShareOptions from "./ShareOptions";
+import { ShareButtons } from "@/components/viral/ShareButtons";
 import { sanitizeText, sanitizeAnchorProps, sanitizeUrl } from "@/lib/sanitize";
 
 interface NoteCardProps {
@@ -161,7 +162,12 @@ export default function NoteCard({ note }: NoteCardProps) {
                 <span className="hidden sm:inline">Report</span>
               </button>
             )}
-            <ShareOptions note={note} compact />
+            <ShareButtons 
+              noteId={note.id} 
+              noteTitle={note.title} 
+              noteSubject={note.subject}
+              compact 
+            />
             <button 
               onClick={handleDownload}
               className="text-primary hover:text-primary/80 flex items-center space-x-1 text-sm bg-secondary/50 hover:bg-secondary dark:hover:bg-secondary/80 px-2 py-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
