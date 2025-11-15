@@ -32,7 +32,7 @@ def serialize_doc(doc):
     return doc
 
 
-@router.get("", response_model=UserResponse)
+@router.get("")
 async def get_user(
     user_id: str = Depends(get_current_user_id),
     database=Depends(get_database)
@@ -42,18 +42,18 @@ async def get_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    return UserResponse(
-        id=user["id"],
-        usn=user["usn"],
-        email=user["email"],
-        department=user["department"],
-        college=user["college"],
-        year=user["year"],
-        profilePicture=user.get("profilePicture")
-    )
+    return {
+        "id": user["id"],
+        "usn": user["usn"],
+        "email": user["email"],
+        "department": user["department"],
+        "college": user["college"],
+        "year": user["year"],
+        "profilePicture": user.get("profilePicture")
+    }
 
 
-@router.patch("/settings", response_model=UserResponse)
+@router.patch("/settings")
 async def update_settings(
     settings: UserSettingsUpdate,
     user_id: str = Depends(get_current_user_id),
@@ -68,15 +68,15 @@ async def update_settings(
     )
     
     user = await database.users.find_one({"id": user_id})
-    return UserResponse(
-        id=user["id"],
-        usn=user["usn"],
-        email=user["email"],
-        department=user["department"],
-        college=user["college"],
-        year=user["year"],
-        profilePicture=user.get("profilePicture")
-    )
+    return {
+        "id": user["id"],
+        "usn": user["usn"],
+        "email": user["email"],
+        "department": user["department"],
+        "college": user["college"],
+        "year": user["year"],
+        "profilePicture": user.get("profilePicture")
+    }
 
 
 @router.patch("/password")
@@ -103,7 +103,7 @@ async def update_password(
     return {"message": "Password updated successfully"}
 
 
-@router.post("/profile-picture", response_model=UserResponse)
+@router.post("/profile-picture")
 async def upload_profile_picture(
     file: UploadFile = File(...),
     user_id: str = Depends(get_current_user_id),
@@ -145,15 +145,15 @@ async def upload_profile_picture(
     )
     
     user = await database.users.find_one({"id": user_id})
-    return UserResponse(
-        id=user["id"],
-        usn=user["usn"],
-        email=user["email"],
-        department=user["department"],
-        college=user["college"],
-        year=user["year"],
-        profilePicture=user.get("profilePicture")
-    )
+    return {
+        "id": user["id"],
+        "usn": user["usn"],
+        "email": user["email"],
+        "department": user["department"],
+        "college": user["college"],
+        "year": user["year"],
+        "profilePicture": user.get("profilePicture")
+    }
 
 
 @router.get("/profile-picture/{filename}")
@@ -167,7 +167,7 @@ async def get_profile_picture(filename: str):
     return FileResponse(path=file_path)
 
 
-@router.get("/stats", response_model=UserStats)
+@router.get("/stats")
 async def get_user_stats(
     user_id: str = Depends(get_current_user_id),
     database=Depends(get_database)
@@ -186,12 +186,12 @@ async def get_user_stats(
     days_since_joined = (datetime.utcnow() - created_at).days
     
     # Mock data for other stats (would need proper tracking in production)
-    return UserStats(
-        uploadCount=upload_count,
-        downloadCount=0,  # Would track in production
-        viewCount=0,  # Would track in production
-        daysSinceJoined=days_since_joined,
-        previewCount=0,  # Would track in production
-        uniqueSubjectsCount=0,  # Would calculate in production
-        pagesVisited=0  # Would track in production
-    )
+    return {
+        "uploadCount": upload_count,
+        "downloadCount": 0,  # Would track in production
+        "viewCount": 0,  # Would track in production
+        "daysSinceJoined": days_since_joined,
+        "previewCount": 0,  # Would track in production
+        "uniqueSubjectsCount": 0,  # Would calculate in production
+        "pagesVisited": 0  # Would track in production
+    }
