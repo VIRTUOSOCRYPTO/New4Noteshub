@@ -11,7 +11,7 @@ Provides advanced search capabilities:
 
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-from bson import ObjectId
+import uuid
 import re
 
 
@@ -99,10 +99,12 @@ class SearchService:
         cursor = cursor.limit(limit)
         notes = await cursor.to_list(length=limit)
         
-        # Serialize ObjectId
+        # Serialize documents
         for note in notes:
-            note["id"] = str(note["_id"])
-            del note["_id"]
+            if "_id" in note:
+                if "id" not in note:
+                    note["id"] = str(uuid.uuid4())
+                del note["_id"]
             # Remove text score from results
             if "score" in note:
                 del note["score"]
@@ -128,8 +130,10 @@ class SearchService:
         
         # Serialize
         for note in notes:
-            note["id"] = str(note["_id"])
-            del note["_id"]
+            if "_id" in note:
+                if "id" not in note:
+                    note["id"] = str(uuid.uuid4())
+                del note["_id"]
         
         return notes
     
@@ -190,6 +194,7 @@ class SearchService:
         """Save search query to user's history"""
         
         search_entry = {
+            "id": str(uuid.uuid4()),
             "user_id": user_id,
             "query": query,
             "filters": filters or {},
@@ -231,8 +236,10 @@ class SearchService:
         
         # Serialize
         for search in searches:
-            search["id"] = str(search["_id"])
-            del search["_id"]
+            if "_id" in search:
+                if "id" not in search:
+                    search["id"] = str(uuid.uuid4())
+                del search["_id"]
         
         return searches
     
@@ -249,7 +256,9 @@ class SearchService:
     ) -> str:
         """Save a search for later use"""
         
+        search_id = str(uuid.uuid4())
         saved_search = {
+            "id": search_id,
             "user_id": user_id,
             "name": name,
             "query": query,
@@ -257,8 +266,8 @@ class SearchService:
             "created_at": datetime.utcnow()
         }
         
-        result = await self.db.saved_searches.insert_one(saved_search)
-        return str(result.inserted_id)
+        await self.db.saved_searches.insert_one(saved_search)
+        return search_id
     
     async def get_saved_searches(self, user_id: str) -> List[Dict]:
         """Get user's saved searches"""
@@ -269,15 +278,17 @@ class SearchService:
         
         # Serialize
         for search in searches:
-            search["id"] = str(search["_id"])
-            del search["_id"]
+            if "_id" in search:
+                if "id" not in search:
+                    search["id"] = str(uuid.uuid4())
+                del search["_id"]
         
         return searches
     
     async def delete_saved_search(self, search_id: str, user_id: str):
         """Delete a saved search"""
         result = await self.db.saved_searches.delete_one({
-            "_id": ObjectId(search_id),
+            "id": search_id,
             "user_id": user_id
         })
         return result.deleted_count > 0
