@@ -12,7 +12,7 @@ import shutil
 import secrets
 from pathlib import Path
 import filetype
-from bson import ObjectId
+import uuid
 
 from database import get_database
 from auth import get_current_user_id
@@ -30,12 +30,12 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 def serialize_doc(doc):
-    """Convert ObjectId to string"""
+    """Convert MongoDB document to API response format"""
     if doc and "_id" in doc:
-        doc["id"] = str(doc["_id"])
         del doc["_id"]
-    if doc and "userId" in doc:
-        doc["userId"] = str(doc["userId"])
+    # Ensure 'id' field exists
+    if doc and "id" not in doc:
+        doc["id"] = str(uuid.uuid4())
     return doc
 
 
@@ -69,8 +69,8 @@ async def upload_note(
     database=Depends(get_database)
 ):
     """Upload a new note"""
-    # Get user info
-    user = await database.users.find_one({"_id": ObjectId(user_id)})
+    # Get user info using the 'id' field
+    user = await database.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -101,14 +101,18 @@ async def upload_note(
     with open(file_path, "wb") as f:
         f.write(contents)
     
+    # Generate UUID for new note
+    note_id = str(uuid.uuid4())
+    
     # Create note record
     note = {
+        "id": note_id,
         "title": title,
         "subject": subject,
         "department": user["department"],
         "year": user["year"],
         "usn": user["usn"],
-        "userId": ObjectId(user_id),
+        "userId": user_id,
         "filename": unique_filename,
         "originalFilename": file.filename,
         "uploadedAt": datetime.utcnow(),
@@ -117,9 +121,7 @@ async def upload_note(
         "isFlagged": False
     }
     
-    result = await database.notes.insert_one(note)
-    note["id"] = str(result.inserted_id)
-    note["userId"] = str(note["userId"])
+    await database.notes.insert_one(note)
     
     return serialize_doc(note)
 
@@ -131,8 +133,8 @@ async def download_note(
     database=Depends(get_database)
 ):
     """Download a note file"""
-    # Find note
-    note = await database.notes.find_one({"_id": ObjectId(note_id)})
+    # Find note by id field
+    note = await database.notes.find_one({"id": note_id})
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
     
@@ -143,7 +145,7 @@ async def download_note(
     
     # Increment download count
     await database.notes.update_one(
-        {"_id": ObjectId(note_id)},
+        {"id": note_id},
         {"$inc": {"downloadCount": 1}}
     )
     
@@ -161,7 +163,7 @@ async def view_note(
 ):
     """Increment view count"""
     result = await database.notes.update_one(
-        {"_id": ObjectId(note_id)},
+        {"id": note_id},
         {"$inc": {"viewCount": 1}}
     )
     
@@ -180,17 +182,17 @@ async def flag_note(
 ):
     """Flag a note for review"""
     # Check if note exists
-    note = await database.notes.find_one({"_id": ObjectId(note_id)})
+    note = await database.notes.find_one({"id": note_id})
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
     
     # Update note
     await database.notes.update_one(
-        {"_id": ObjectId(note_id)},
+        {"id": note_id},
         {"$set": {
             "isFlagged": True,
             "flagReason": data.reason,
-            "flaggedBy": ObjectId(user_id),
+            "flaggedBy": user_id,
             "flaggedAt": datetime.utcnow()
         }}
     )
@@ -216,7 +218,7 @@ async def review_note(
     database=Depends(get_database)
 ):
     """Review a flagged note"""
-    note = await database.notes.find_one({"_id": ObjectId(note_id)})
+    note = await database.notes.find_one({"id": note_id})
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
     
@@ -226,12 +228,12 @@ async def review_note(
     if data.approved:
         # Unflag the note
         await database.notes.update_one(
-            {"_id": ObjectId(note_id)},
+            {"id": note_id},
             {"$set": {
                 "isFlagged": False,
                 "flagReason": None,
                 "reviewedAt": datetime.utcnow(),
-                "reviewedBy": ObjectId(user_id)
+                "reviewedBy": user_id
             }}
         )
         return {"message": "Note has been approved"}
@@ -241,5 +243,5 @@ async def review_note(
         if os.path.exists(file_path):
             os.remove(file_path)
         
-        await database.notes.delete_one({"_id": ObjectId(note_id)})
+        await database.notes.delete_one({"id": note_id})
         return {"message": "Note has been rejected and deleted"}
