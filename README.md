@@ -12,14 +12,15 @@ For the best local development experience:
 
 1. **Start the local backend**:
    ```
-   npm run dev
+   supervisorctl restart all
    ```
-   This starts the Express server on port 5000.
+   This starts the FastAPI server on port 8001.
 
 2. **Access directly via localhost**:
-   Open [http://localhost:5000](http://localhost:5000) in your browser.
+   Open [http://localhost:3000](http://localhost:3000) in your browser for the frontend.
+   The backend API is available at [http://localhost:8001](http://localhost:8001).
    
-   This is the simplest way to test during development - your frontend and backend are served from the same origin.
+   This is the simplest way to test during development - your frontend communicates with the backend via API calls.
 
 ## Configuration Changes Made
 
