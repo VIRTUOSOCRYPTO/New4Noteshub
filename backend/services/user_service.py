@@ -5,7 +5,7 @@ Business logic for user operations
 
 from datetime import datetime
 from typing import Optional, Dict, Any
-from bson import ObjectId
+import uuid
 
 from auth import get_password_hash, verify_password
 
@@ -18,7 +18,10 @@ class UserService:
     
     async def create_user(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new user"""
+        user_id = str(uuid.uuid4())
+        
         user_doc = {
+            "id": user_id,
             "usn": user_data["usn"].upper(),
             "email": user_data["email"],
             "department": user_data["department"],
@@ -37,13 +40,12 @@ class UserService:
             "reset_token_expiry": None
         }
         
-        result = await self.db.users.insert_one(user_doc)
-        user_doc["_id"] = result.inserted_id
+        await self.db.users.insert_one(user_doc)
         return user_doc
     
     async def get_user_by_id(self, user_id: str) -> Optional[Dict[str, Any]]:
         """Get user by ID"""
-        return await self.db.users.find_one({"_id": ObjectId(user_id)})
+        return await self.db.users.find_one({"id": user_id})
     
     async def get_user_by_usn(self, usn: str) -> Optional[Dict[str, Any]]:
         """Get user by USN"""
@@ -56,7 +58,7 @@ class UserService:
     async def update_user(self, user_id: str, update_data: Dict[str, Any]) -> bool:
         """Update user data"""
         result = await self.db.users.update_one(
-            {"_id": ObjectId(user_id)},
+            {"id": user_id},
             {"$set": update_data}
         )
         return result.modified_count > 0
@@ -76,15 +78,15 @@ class UserService:
         if not user:
             return {}
         
-        # Count user's uploads
-        upload_count = await self.db.notes.count_documents({"user_id": user_id})
+        # Count user's uploads using 'userId' field
+        upload_count = await self.db.notes.count_documents({"userId": user_id})
         
         # Calculate days since joined
         days_since_joined = (datetime.utcnow() - user["created_at"]).days
         
         # Get total downloads and views for user's notes
         pipeline = [
-            {"$match": {"user_id": user_id}},
+            {"$match": {"userId": user_id}},
             {"$group": {
                 "_id": None,
                 "total_downloads": {"$sum": "$download_count"},
