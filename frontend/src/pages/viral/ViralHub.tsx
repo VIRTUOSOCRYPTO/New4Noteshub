@@ -11,9 +11,10 @@ import {
   ChallengesHub,
   ContestsGallery,
   FOMOTriggers,
-  SurpriseRewards
+  SurpriseRewards,
+  AIRecommendations
 } from "@/components/viral";
-import { Flame, Trophy, Users, Gift, TrendingUp, Award, MessageCircle, Calendar, Target, Zap, Sparkles } from "lucide-react";
+import { Flame, Trophy, Users, Gift, TrendingUp, Award, MessageCircle, Calendar, Target, Zap, Sparkles, Instagram, Brain } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -62,7 +63,7 @@ export default function ViralHub() {
 
       {/* Tabs for different sections */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-11 gap-1">
+        <TabsList className="grid w-full grid-cols-6 lg:grid-cols-13 gap-1">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Flame className="h-4 w-4" />
             <span className="hidden md:inline">Overview</span>
@@ -106,6 +107,10 @@ export default function ViralHub() {
           <TabsTrigger value="rewards" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
             <span className="hidden md:inline">Rewards</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 text-white">
+            <Brain className="h-4 w-4" />
+            <span className="hidden md:inline">AI</span>
           </TabsTrigger>
         </TabsList>
 
@@ -229,6 +234,11 @@ export default function ViralHub() {
         {/* Surprise Rewards Tab - Month 2 */}
         <TabsContent value="rewards">
           <SurpriseRewards />
+        </TabsContent>
+
+        {/* AI Personalization Tab - NEW */}
+        <TabsContent value="ai">
+          <AIRecommendations />
         </TabsContent>
       </Tabs>
     </div>
