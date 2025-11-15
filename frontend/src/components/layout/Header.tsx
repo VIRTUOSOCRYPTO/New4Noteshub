@@ -1,22 +1,42 @@
 import { Link, useLocation } from "wouter";
-import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert, BarChart3, Building2 } from "lucide-react";
+import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert, BarChart3, Building2, TrendingUp, Flame, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { apiRequest } from "@/lib/api";
 
 export default function Header() {
   const [location, navigate] = useLocation();
   const { user, logoutMutation } = useAuth();
   const [initials, setInitials] = useState("");
+  const [points, setPoints] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     if (user?.usn) {
       setInitials(user.usn.substring(0, 2).toUpperCase());
+      fetchUserStats();
     }
   }, [user]);
+
+  const fetchUserStats = async () => {
+    try {
+      const [pointsData, streakData] = await Promise.all([
+        apiRequest("/api/gamification/points").catch(() => ({ total_points: 0, level: 1 })),
+        apiRequest("/api/gamification/streak").catch(() => ({ current_streak: 0 }))
+      ]);
+      setPoints(pointsData.total_points || 0);
+      setLevel(pointsData.level || 1);
+      setStreak(streakData.current_streak || 0);
+    } catch (error) {
+      console.error("Failed to fetch user stats:", error);
+    }
+  };
 
   const handleLogout = async () => {
     await logoutMutation.mutateAsync();
@@ -63,6 +83,18 @@ export default function Header() {
                   <span className="hidden sm:inline">Analytics</span>
                 </div>
               </Link>
+              <Link href="/viral">
+                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/viral' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="hidden sm:inline">Rewards</span>
+                  {streak > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-orange-500 text-white text-xs px-1.5 py-0 h-4 flex items-center">
+                      <Flame className="h-2.5 w-2.5 mr-0.5" />
+                      {streak}
+                    </Badge>
+                  )}
+                </div>
+              </Link>
               {isAdmin && (
                 <Link href="/flagged">
                   <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/flagged' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
@@ -77,6 +109,19 @@ export default function Header() {
           {user ? (
             <div className="flex items-center space-x-2">
               <NotificationBell />
+              
+              {/* Points Display */}
+              {points > 0 && (
+                <div className="hidden md:flex items-center gap-1.5 px-2 py-1 bg-slate-800 rounded-lg border border-slate-700">
+                  <Badge variant="secondary" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-0 h-5">
+                    Lvl {level}
+                  </Badge>
+                  <div className="flex items-center gap-0.5 text-xs text-slate-300">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    <span className="font-medium">{points.toLocaleString()}</span>
+                  </div>
+                </div>
+              )}
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
