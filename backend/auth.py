@@ -51,29 +51,32 @@ def verify_token(token: str) -> Optional[TokenData]:
     """Verify and decode a JWT token"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        usn: str = payload.get("sub")
-        user_id: str = payload.get("user_id")
-        if usn is None:
+        user_id: str = payload.get("sub")  # 'sub' contains the user_id
+        if user_id is None:
             return None
-        return TokenData(usn=usn, user_id=user_id)
+        return TokenData(user_id=user_id)
     except JWTError:
         return None
 
 async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
     """Get current user ID from JWT token"""
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=status.HTTP_403_FORBIDDEN,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    token = credentials.credentials
-    token_data = verify_token(token)
-    
-    if token_data is None or token_data.user_id is None:
+    try:
+        token = credentials.credentials
+        token_data = verify_token(token)
+        
+        if token_data is None or token_data.user_id is None:
+            raise credentials_exception
+        
+        return token_data.user_id
+    except Exception as e:
+        print(f"Authentication error: {e}")
         raise credentials_exception
-    
-    return token_data.user_id
 
 # 2FA utilities
 import pyotp
