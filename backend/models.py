@@ -367,3 +367,151 @@ class ShareStats(BaseModel):
     total_shares: int
     platform_breakdown: dict
     most_shared_note: Optional[str] = None
+
+# Achievement Models
+class AchievementDefinition(BaseModel):
+    id: str
+    name: str
+    description: str
+    category: str  # "upload", "download", "social", "hidden", "rare"
+    icon: str  # emoji or icon name
+    criteria: dict  # e.g., {"uploads": 1}, {"downloads": 100}
+    rarity: str  # "common", "uncommon", "rare", "epic", "legendary"
+    points: int  # bonus points awarded
+
+class UserAchievement(BaseModel):
+    user_id: str
+    achievement_id: str
+    unlocked_at: datetime
+    progress: Optional[dict] = None
+
+class AchievementResponse(BaseModel):
+    id: str
+    name: str
+    description: str
+    category: str
+    icon: str
+    rarity: str
+    points: int
+    unlocked: bool
+    unlocked_at: Optional[datetime] = None
+    progress: Optional[dict] = None
+
+class AchievementProgress(BaseModel):
+    achievement_id: str
+    current: int
+    required: int
+    percentage: float
+
+# Study Group Models
+class StudyGroupCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    subject: Optional[str] = None
+    is_private: bool = False
+    max_members: int = 50
+
+class StudyGroupUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    subject: Optional[str] = None
+    is_private: Optional[bool] = None
+
+class StudyGroupMember(BaseModel):
+    user_id: str
+    usn: str
+    role: str  # "admin", "moderator", "member"
+    joined_at: datetime
+
+class StudyGroupResponse(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    subject: Optional[str] = None
+    created_by: str
+    created_at: datetime
+    is_private: bool
+    member_count: int
+    members: List[StudyGroupMember]
+    max_members: int
+
+class GroupChatMessage(BaseModel):
+    group_id: str
+    user_id: str
+    usn: str
+    message: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class GroupChatMessageResponse(BaseModel):
+    id: str
+    group_id: str
+    user_id: str
+    usn: str
+    message: str
+    timestamp: datetime
+
+class GroupTask(BaseModel):
+    title: str
+    description: Optional[str] = None
+    assigned_to: Optional[str] = None
+    due_date: Optional[datetime] = None
+
+class GroupTaskResponse(BaseModel):
+    id: str
+    group_id: str
+    title: str
+    description: Optional[str] = None
+    assigned_to: Optional[str] = None
+    due_date: Optional[datetime] = None
+    created_by: str
+    created_at: datetime
+    completed: bool
+
+# Follow System Models
+class FollowAction(BaseModel):
+    following_id: str  # user being followed
+
+class FollowResponse(BaseModel):
+    user_id: str
+    following_id: str
+    followed_at: datetime
+
+class FollowStats(BaseModel):
+    followers_count: int
+    following_count: int
+    is_following: bool
+
+class ActivityFeedItem(BaseModel):
+    user_id: str
+    usn: str
+    activity_type: str  # "upload", "achievement", "level_up", "streak"
+    details: dict
+    timestamp: datetime
+    profile_picture: Optional[str] = None
+
+class ActivityFeedResponse(BaseModel):
+    activities: List[ActivityFeedItem]
+    has_more: bool
+
+# Exam Schedule Models
+class ExamCreate(BaseModel):
+    subject: str
+    department: str
+    year: int
+    exam_date: datetime
+    exam_type: str  # "midterm", "final", "quiz"
+
+class ExamResponse(BaseModel):
+    id: str
+    subject: str
+    department: str
+    year: int
+    exam_date: datetime
+    exam_type: str
+    days_until: int
+    created_at: datetime
+
+class ExamCountdown(BaseModel):
+    next_exam: Optional[ExamResponse] = None
+    upcoming_exams: List[ExamResponse]
+    trending_notes: List[str] = []
