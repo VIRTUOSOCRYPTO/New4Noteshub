@@ -515,3 +515,69 @@ class ExamCountdown(BaseModel):
     next_exam: Optional[ExamResponse] = None
     upcoming_exams: List[ExamResponse]
     trending_notes: List[str] = []
+
+# Month 2: Challenges & Competitions Models
+class ChallengeCreate(BaseModel):
+    challenge_type: str
+    target: int
+    reward_points: int
+
+class ChallengeResponse(BaseModel):
+    id: str
+    type: str
+    title: str
+    description: str
+    target: int
+    current_progress: int
+    completed: bool
+    reward_points: int
+    date: str
+
+class BattleCreate(BaseModel):
+    opponent_id: str
+    challenge_type: str
+    duration_days: int = 7
+
+class BattleResponse(BaseModel):
+    id: str
+    challenger_id: str
+    opponent_id: str
+    challenge_type: str
+    status: str
+    challenger_score: int
+    opponent_score: int
+    end_date: datetime
+
+# Month 2: Contests Models
+class ContestCreate(BaseModel):
+    title: str
+    description: str
+    category: str
+    duration_days: int = 30
+
+class ContestResponse(BaseModel):
+    id: str
+    title: str
+    description: str
+    category: str
+    start_date: datetime
+    end_date: datetime
+    status: str
+    entry_count: Optional[int] = 0
+
+class ContestEntryCreate(BaseModel):
+    contest_id: str
+    note_id: str
+    description: Optional[str] = None
+
+# Month 2: FOMO & Rewards (no additional models needed - using dynamic responses)
+
+# Month 2: WhatsApp Share Models
+class WhatsAppShareRequest(BaseModel):
+    share_type: str
+    item_id: Optional[str] = None
+
+class WhatsAppShareResponse(BaseModel):
+    whatsapp_link: str
+    qr_code: Optional[str] = None
+    message_preview: str
