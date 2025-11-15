@@ -17,7 +17,7 @@ Implementation: 5/5 (100%)
 | Password Complexity Requirements | ✅ Implemented | Implemented via Zod validation schema with regex pattern |
 | Account Lockout | ✅ Implemented | 5 failed attempts results in 15-minute lockout |
 | Two-Factor Authentication (2FA) | ✅ Implemented | Using otplib with QR code generation for setup |
-| Secure Session Management | ✅ Implemented | Using express-session with PostgreSQL session store |
+| Secure Session Management | ✅ Implemented | Using JWT-based authentication with secure token management |
 | JWT-based API Authentication | ✅ Implemented | Access tokens expire in 15 minutes, refresh tokens in 7 days |
 
 
@@ -58,7 +58,7 @@ Implementation: 4/4 (100%)
 
 | Security Measure | Status | Notes |
 |------------------|--------|-------|
-| Rate Limiting | ✅ Implemented | Using express-rate-limit with different thresholds for different endpoints |
+| Rate Limiting | ✅ Implemented | Using SlowAPI with different thresholds for different endpoints |
 | Security Logging | ✅ Implemented | Comprehensive security event logging with severity levels |
 | Input Validation | ✅ Implemented | Using Zod for schema validation |
 | Error Handling | ✅ Implemented | Global error handler with appropriate information disclosure |
