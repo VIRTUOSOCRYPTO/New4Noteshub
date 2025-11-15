@@ -22,12 +22,12 @@ async def calculate_user_score(db, user_id: str) -> int:
     user_points = await db.user_points.find_one({"user_id": user_id})
     points = user_points.get("total_points", 0) if user_points else 0
     
-    # Get upload count
-    upload_count = await db.notes.count_documents({"user_id": user_id, "is_approved": True})
+    # Get upload count (notes use 'userId' field, not 'user_id')
+    upload_count = await db.notes.count_documents({"userId": user_id, "is_approved": True})
     
-    # Get total downloads of user's notes
-    user_notes = await db.notes.find({"user_id": user_id}).to_list(None)
-    total_downloads = sum(note.get("download_count", 0) for note in user_notes)
+    # Get total downloads of user's notes (use 'downloadCount' not 'download_count')
+    user_notes = await db.notes.find({"userId": user_id}).to_list(None)
+    total_downloads = sum(note.get("downloadCount", 0) for note in user_notes)
     
     # Get streak
     streak_data = await db.streaks.find_one({"user_id": user_id})
@@ -68,7 +68,12 @@ async def get_leaderboard_data(
     leaderboard_entries = []
     
     for user in users:
-        user_id = str(user["_id"])
+        # Use the 'id' field, not MongoDB's '_id'
+        user_id = user.get("id")
+        if not user_id:
+            # Skip users without proper ID
+            continue
+            
         score = await calculate_user_score(db, user_id)
         
         # Get streak
@@ -302,13 +307,13 @@ async def get_top_contributors(
     elif timeframe == "month":
         date_filter = {"uploaded_at": {"$gte": now - timedelta(days=30)}}
     
-    # Aggregate top uploaders
+    # Aggregate top uploaders (notes use 'userId' field)
     pipeline = [
         {"$match": {**date_filter, "is_approved": True}},
         {"$group": {
-            "_id": "$user_id",
+            "_id": "$userId",
             "upload_count": {"$sum": 1},
-            "total_downloads": {"$sum": "$download_count"}
+            "total_downloads": {"$sum": "$downloadCount"}
         }},
         {"$sort": {"upload_count": -1}},
         {"$limit": limit}
@@ -319,10 +324,15 @@ async def get_top_contributors(
     # Enrich with user data
     result = []
     for item in top_uploaders:
-        user = await db.users.find_one({"_id": item["_id"]})
+        # item["_id"] is the userId from the notes
+        user_id = item["_id"]
+        if not user_id:
+            continue
+            
+        user = await db.users.find_one({"id": user_id})
         if user:
             result.append({
-                "user_id": str(user["_id"]),
+                "user_id": user_id,
                 "usn": user.get("usn"),
                 "department": user.get("department"),
                 "college": user.get("college"),
