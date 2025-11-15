@@ -39,7 +39,7 @@ def serialize_doc(doc):
     return doc
 
 
-@router.get("", response_model=List[NoteResponse])
+@router.get("")
 async def get_notes(
     department: Optional[str] = None,
     subject: Optional[str] = None,
@@ -60,7 +60,7 @@ async def get_notes(
     return [serialize_doc(note) for note in notes]
 
 
-@router.post("", response_model=NoteResponse, status_code=201)
+@router.post("", status_code=201)
 async def upload_note(
     title: str = Form(...),
     subject: str = Form(...),
@@ -98,6 +98,7 @@ async def upload_note(
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
     
     # Save file
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
     with open(file_path, "wb") as f:
         f.write(contents)
     
@@ -115,7 +116,7 @@ async def upload_note(
         "userId": user_id,
         "filename": unique_filename,
         "originalFilename": file.filename,
-        "uploadedAt": datetime.utcnow(),
+        "uploadedAt": datetime.utcnow().isoformat(),
         "viewCount": 0,
         "downloadCount": 0,
         "isFlagged": False
@@ -149,10 +150,26 @@ async def download_note(
         {"$inc": {"downloadCount": 1}}
     )
     
+    # Determine proper media type based on file extension
+    file_ext = Path(note["originalFilename"]).suffix.lower()
+    media_type_map = {
+        '.pdf': 'application/pdf',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.ppt': 'application/vnd.ms-powerpoint',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.txt': 'text/plain',
+        '.md': 'text/markdown'
+    }
+    media_type = media_type_map.get(file_ext, 'application/octet-stream')
+    
     return FileResponse(
         path=file_path,
         filename=note["originalFilename"],
-        media_type="application/octet-stream"
+        media_type=media_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{note["originalFilename"]}"'
+        }
     )
 
 
