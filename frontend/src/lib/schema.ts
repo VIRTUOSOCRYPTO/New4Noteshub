@@ -75,20 +75,20 @@ export interface LoginUser {
 // Note types
 export interface Note {
   id: string;
-  user_id: string;
+  userId: string;
   usn: string;
   title: string;
   department: string;
   year: number;
   subject: string;
   filename: string;
-  original_filename: string;
-  uploaded_at: string;
-  is_flagged: boolean;
-  is_approved: boolean;
-  download_count: number;
-  view_count: number;
-  flag_reason?: string;
+  originalFilename: string;
+  uploadedAt: string;
+  isFlagged: boolean;
+  isApproved?: boolean;
+  downloadCount: number;
+  viewCount: number;
+  flagReason?: string;
 }
 
 export interface SearchNotesParams {
