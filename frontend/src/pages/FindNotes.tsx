@@ -187,8 +187,8 @@ export default function FindNotes() {
                       {note.department} • {note.subject}
                     </p>
                     <div className="flex gap-4 text-sm text-slate-500">
-                      <span>📥 {note.download_count}</span>
-                      <span>👁 {note.view_count}</span>
+                      <span>📥 {note.downloadCount}</span>
+                      <span>👁 {note.viewCount}</span>
                     </div>
                   </div>
                 ))}
