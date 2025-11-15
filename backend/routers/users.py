@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 import os
 import secrets
 from pathlib import Path
-from bson import ObjectId
+import uuid
 
 from database import get_database
 from auth import get_current_user_id, get_password_hash, verify_password
@@ -23,10 +23,12 @@ MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
 
 
 def serialize_doc(doc):
-    """Convert ObjectId to string"""
+    """Convert MongoDB document to API response format"""
     if doc and "_id" in doc:
-        doc["id"] = str(doc["_id"])
         del doc["_id"]
+    # Ensure 'id' field exists
+    if doc and "id" not in doc:
+        doc["id"] = str(uuid.uuid4())
     return doc
 
 
@@ -36,12 +38,12 @@ async def get_user(
     database=Depends(get_database)
 ):
     """Get current user information"""
-    user = await database.users.find_one({"_id": ObjectId(user_id)})
+    user = await database.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     return UserResponse(
-        id=str(user["_id"]),
+        id=user["id"],
         usn=user["usn"],
         email=user["email"],
         department=user["department"],
@@ -61,13 +63,13 @@ async def update_settings(
     update_data = settings.dict(exclude_unset=True)
     
     await database.users.update_one(
-        {"_id": ObjectId(user_id)},
+        {"id": user_id},
         {"$set": update_data}
     )
     
-    user = await database.users.find_one({"_id": ObjectId(user_id)})
+    user = await database.users.find_one({"id": user_id})
     return UserResponse(
-        id=str(user["_id"]),
+        id=user["id"],
         usn=user["usn"],
         email=user["email"],
         department=user["department"],
@@ -84,7 +86,7 @@ async def update_password(
     database=Depends(get_database)
 ):
     """Update user password"""
-    user = await database.users.find_one({"_id": ObjectId(user_id)})
+    user = await database.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -94,7 +96,7 @@ async def update_password(
     
     # Update password
     await database.users.update_one(
-        {"_id": ObjectId(user_id)},
+        {"id": user_id},
         {"$set": {"password": get_password_hash(data.newPassword)}}
     )
     
@@ -138,13 +140,13 @@ async def upload_profile_picture(
     
     # Update user record
     await database.users.update_one(
-        {"_id": ObjectId(user_id)},
+        {"id": user_id},
         {"$set": {"profilePicture": unique_filename}}
     )
     
-    user = await database.users.find_one({"_id": ObjectId(user_id)})
+    user = await database.users.find_one({"id": user_id})
     return UserResponse(
-        id=str(user["_id"]),
+        id=user["id"],
         usn=user["usn"],
         email=user["email"],
         department=user["department"],
@@ -171,11 +173,11 @@ async def get_user_stats(
     database=Depends(get_database)
 ):
     """Get user statistics"""
-    # Count user's uploaded notes
-    upload_count = await database.notes.count_documents({"userId": ObjectId(user_id)})
+    # Count user's uploaded notes using 'userId' field
+    upload_count = await database.notes.count_documents({"userId": user_id})
     
     # Get user creation date for days since joined
-    user = await database.users.find_one({"_id": ObjectId(user_id)})
+    user = await database.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
