@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert, BarChart3, Building2, TrendingUp, Flame, Star } from "lucide-react";
+import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert, BarChart3, Building2, TrendingUp, Flame, Star, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -83,8 +83,8 @@ export default function Header() {
                   <span className="hidden sm:inline">Analytics</span>
                 </div>
               </Link>
-              <Link href="/viral">
-                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/viral' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
+              <Link href="/rewards">
+                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/rewards' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
                   <TrendingUp className="h-4 w-4" />
                   <span className="hidden sm:inline">Rewards</span>
                   {streak > 0 && (
@@ -93,6 +93,12 @@ export default function Header() {
                       {streak}
                     </Badge>
                   )}
+                </div>
+              </Link>
+              <Link href="/community">
+                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/community' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">Community</span>
                 </div>
               </Link>
               {isAdmin && (
