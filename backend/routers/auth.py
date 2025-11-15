@@ -35,7 +35,7 @@ def serialize_doc(doc):
     return doc
 
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register")
 @limiter.limit("10/15minutes")
 async def register(request: Request, user_data: UserCreate, database=Depends(get_database)):
     """Register a new user"""
@@ -90,16 +90,17 @@ async def register(request: Request, user_data: UserCreate, database=Depends(get
     access_token = create_access_token({"sub": user_id})
     refresh_token = create_refresh_token({"sub": user_id})
     
-    return UserResponse(
-        id=user_id,
-        usn=user["usn"],
-        email=user["email"],
-        department=user["department"],
-        college=user["college"],
-        year=user["year"],
-        accessToken=access_token,
-        refreshToken=refresh_token
-    )
+    # Return user data with tokens separately
+    return {
+        "id": user_id,
+        "usn": user["usn"],
+        "email": user["email"],
+        "department": user["department"],
+        "college": user["college"],
+        "year": user["year"],
+        "accessToken": access_token,
+        "refreshToken": refresh_token
+    }
 
 
 @router.post("/login")
@@ -131,14 +132,14 @@ async def login(request: Request, user_data: UserLogin, database=Depends(get_dat
     refresh_token = create_refresh_token({"sub": user_id})
     
     return {
-        "user": UserResponse(
-            id=user_id,
-            usn=user["usn"],
-            email=user["email"],
-            department=user["department"],
-            college=user["college"],
-            year=user["year"]
-        ),
+        "user": {
+            "id": user_id,
+            "usn": user["usn"],
+            "email": user["email"],
+            "department": user["department"],
+            "college": user["college"],
+            "year": user["year"]
+        },
         "accessToken": access_token,
         "refreshToken": refresh_token
     }
