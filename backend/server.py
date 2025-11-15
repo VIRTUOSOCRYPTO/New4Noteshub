@@ -23,7 +23,10 @@ from routers import (
     notes as notes_router,
     admin,
     analytics,
-    search as search_router
+    search as search_router,
+    gamification,
+    leaderboards,
+    referrals
 )
 
 
@@ -60,7 +63,9 @@ async def lifespan(app: FastAPI):
     print("="*60)
     print("✅ NotesHub API started successfully!")
     print(f"✅ Database connected")
-    print(f"✅ Modular routers loaded: 7 modules")
+    print(f"✅ Modular routers loaded: 10 modules")
+    print(f"✅ Viral growth features: Leaderboards, Streaks, Referrals")
+    print(f"✅ Gamification: Points, Levels, Achievements")
     print(f"✅ Feature flags initialized")
     print(f"✅ A/B testing initialized")
     print(f"✅ Performance monitoring active")
@@ -107,6 +112,9 @@ app.include_router(notes_router.router)
 app.include_router(admin.router)
 app.include_router(analytics.router)
 app.include_router(search_router.router)
+app.include_router(gamification.router)
+app.include_router(leaderboards.router)
+app.include_router(referrals.router)
 
 
 # Global exception handler
