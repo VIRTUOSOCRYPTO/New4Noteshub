@@ -44,7 +44,7 @@ export default function NoteCard({ note }: NoteCardProps) {
       const contentDisposition = response.headers.get('content-disposition');
       const filename = contentDisposition 
         ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
-        : note.original_filename || 'download.pdf';
+        : note.originalFilename || 'download.pdf';
       
       // Create a blob from the response
       const blob = await response.blob();
