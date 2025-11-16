@@ -66,9 +66,9 @@ export function Leaderboard() {
   };
 
   const getRankBadgeColor = (rank: number) => {
-    if (rank === 1) return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white";
-    if (rank === 2) return "bg-gradient-to-r from-gray-300 to-gray-500 text-white";
-    if (rank === 3) return "bg-gradient-to-r from-amber-600 to-amber-800 text-white";
+    if (rank === 1) return "bg-slate-900 dark:bg-slate-800 text-white";
+    if (rank === 2) return "bg-slate-700 dark:bg-slate-700 text-white";
+    if (rank === 3) return "bg-slate-600 dark:bg-slate-600 text-white";
     return "bg-muted";
   };
 
