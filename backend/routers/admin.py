@@ -378,3 +378,223 @@ async def system_health(admin_id: str = Depends(require_admin)):
         "log_stats": log_stats,
         "timestamp": datetime.utcnow().isoformat()
     }
+
+
+# ============================================================================
+# USER MANAGEMENT
+# ============================================================================
+
+@router.get("/users")
+async def list_users(
+    search: Optional[str] = None,
+    department: Optional[str] = None,
+    college: Optional[str] = None,
+    year: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 50,
+    admin_id: str = Depends(require_admin),
+    database = Depends(get_database)
+):
+    """List all users with optional filters"""
+    try:
+        # Build query
+        query = {}
+        
+        if search:
+            # Search in USN, email, or name
+            query["$or"] = [
+                {"usn": {"$regex": search, "$options": "i"}},
+                {"email": {"$regex": search, "$options": "i"}}
+            ]
+        
+        if department:
+            query["department"] = department
+        
+        if college:
+            query["college"] = college
+        
+        if year:
+            query["year"] = year
+        
+        # Get total count
+        total = await database.users.count_documents(query)
+        
+        # Get users
+        cursor = database.users.find(query).skip(skip).limit(limit).sort("createdAt", -1)
+        users = await cursor.to_list(length=limit)
+        
+        # Remove sensitive data
+        for user in users:
+            user.pop("password", None)
+            user["_id"] = str(user["_id"])
+        
+        return {
+            "users": users,
+            "total": total,
+            "skip": skip,
+            "limit": limit
+        }
+    except Exception as e:
+        logger.error(f"Error listing users: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/users/stats")
+async def get_user_stats(
+    admin_id: str = Depends(require_admin),
+    database = Depends(get_database)
+):
+    """Get user statistics"""
+    try:
+        total_users = await database.users.count_documents({})
+        
+        # Users by department
+        dept_pipeline = [
+            {"$group": {"_id": "$department", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        dept_stats = await database.users.aggregate(dept_pipeline).to_list(None)
+        
+        # Users by college
+        college_pipeline = [
+            {"$group": {"_id": "$college", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        college_stats = await database.users.aggregate(college_pipeline).to_list(None)
+        
+        # Users by year
+        year_pipeline = [
+            {"$group": {"_id": "$year", "count": {"$sum": 1}}},
+            {"$sort": {"_id": 1}}
+        ]
+        year_stats = await database.users.aggregate(year_pipeline).to_list(None)
+        
+        # Recent signups (last 7 days)
+        from datetime import timedelta
+        seven_days_ago = datetime.utcnow() - timedelta(days=7)
+        recent_signups = await database.users.count_documents({
+            "createdAt": {"$gte": seven_days_ago}
+        })
+        
+        return {
+            "total_users": total_users,
+            "by_department": dept_stats,
+            "by_college": college_stats,
+            "by_year": year_stats,
+            "recent_signups_7d": recent_signups
+        }
+    except Exception as e:
+        logger.error(f"Error getting user stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/users/{user_id}")
+async def get_user_details(
+    user_id: str,
+    admin_id: str = Depends(require_admin),
+    database = Depends(get_database)
+):
+    """Get detailed user information"""
+    try:
+        user = await database.users.find_one({"id": user_id})
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get user's notes count
+        notes_count = await database.notes.count_documents({"user_id": user_id})
+        
+        # Get user's points
+        user_points = await database.user_points.find_one({"user_id": user_id})
+        
+        # Remove sensitive data
+        user.pop("password", None)
+        user["_id"] = str(user["_id"])
+        
+        return {
+            "user": user,
+            "notes_count": notes_count,
+            "points": user_points.get("total_points", 0) if user_points else 0,
+            "level": user_points.get("level", 1) if user_points else 1
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting user details: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.patch("/users/{user_id}")
+async def update_user(
+    user_id: str,
+    email: Optional[str] = None,
+    department: Optional[str] = None,
+    college: Optional[str] = None,
+    year: Optional[int] = None,
+    admin_id: str = Depends(require_admin),
+    database = Depends(get_database)
+):
+    """Update user information"""
+    try:
+        update_data = {}
+        
+        if email:
+            update_data["email"] = email
+        if department:
+            update_data["department"] = department
+        if college:
+            update_data["college"] = college
+        if year:
+            update_data["year"] = year
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        result = await database.users.update_one(
+            {"id": user_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return {"message": "User updated successfully", "updated_fields": list(update_data.keys())}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating user: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(
+    user_id: str,
+    admin_id: str = Depends(require_admin),
+    database = Depends(get_database)
+):
+    """Delete a user and all their data"""
+    try:
+        # Delete user
+        user_result = await database.users.delete_one({"id": user_id})
+        
+        if user_result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Delete user's notes
+        await database.notes.delete_many({"user_id": user_id})
+        
+        # Delete user's points
+        await database.user_points.delete_one({"user_id": user_id})
+        
+        # Delete user's bookmarks
+        await database.bookmarks.delete_many({"user_id": user_id})
+        
+        # Delete user's referrals
+        await database.referrals.delete_one({"user_id": user_id})
+        
+        return {"message": "User and all associated data deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting user: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
