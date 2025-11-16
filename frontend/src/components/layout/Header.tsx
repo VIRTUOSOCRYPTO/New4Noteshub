@@ -83,22 +83,16 @@ export default function Header() {
                   <span className="hidden sm:inline">Analytics</span>
                 </div>
               </Link>
-              <Link href="/rewards">
-                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/rewards' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
+              <Link href="/leaderboard">
+                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/leaderboard' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
                   <TrendingUp className="h-4 w-4" />
-                  <span className="hidden sm:inline">Rewards</span>
+                  <span className="hidden sm:inline">Leaderboard</span>
                   {streak > 0 && (
                     <Badge variant="secondary" className="ml-1 bg-orange-500 text-white text-xs px-1.5 py-0 h-4 flex items-center">
                       <Flame className="h-2.5 w-2.5 mr-0.5" />
                       {streak}
                     </Badge>
                   )}
-                </div>
-              </Link>
-              <Link href="/community">
-                <div className={`flex items-center space-x-1 px-3 py-2 rounded transition ${location === '/community' ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'}`}>
-                  <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">Community</span>
                 </div>
               </Link>
               {isAdmin && (
