@@ -52,7 +52,7 @@ export function StreakTracker() {
   const progress = ((streakData.next_milestone - streakData.days_until_next_milestone) / streakData.next_milestone) * 100;
 
   return (
-    <Card className="w-full bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 border-orange-200" data-testid="streak-tracker">
+    <Card className="w-full bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700" data-testid="streak-tracker">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
