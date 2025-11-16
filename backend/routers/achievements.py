@@ -20,71 +20,30 @@ from routers.gamification import update_user_points
 router = APIRouter(prefix="/api/achievements", tags=["achievements"])
 
 
-# Achievement Definitions (50+ achievements)
+# Achievement Definitions (15 Key Achievements - Simplified for clarity)
 ACHIEVEMENTS = [
-    # Upload Achievements (10)
+    # Upload Achievements (5)
     {"id": "first_note", "name": "First Note", "description": "Upload your first note", "category": "upload", "icon": "📝", "criteria": {"uploads": 1}, "rarity": "common", "points": 50},
     {"id": "generous", "name": "Generous", "description": "Upload 10 notes", "category": "upload", "icon": "🎁", "criteria": {"uploads": 10}, "rarity": "uncommon", "points": 150},
     {"id": "scholar", "name": "Scholar", "description": "Upload 50 notes", "category": "upload", "icon": "📚", "criteria": {"uploads": 50}, "rarity": "rare", "points": 500},
     {"id": "professor", "name": "Professor", "description": "Upload 100 notes", "category": "upload", "icon": "🎓", "criteria": {"uploads": 100}, "rarity": "epic", "points": 1000},
-    {"id": "legend", "name": "Legend", "description": "Upload 250 notes", "category": "upload", "icon": "👑", "criteria": {"uploads": 250}, "rarity": "legendary", "points": 2500},
-    {"id": "subject_master", "name": "Subject Master", "description": "Upload 20 notes in one subject", "category": "upload", "icon": "🏆", "criteria": {"subject_uploads": 20}, "rarity": "rare", "points": 400},
-    {"id": "multi_subject", "name": "Multi-Subject Expert", "description": "Upload notes in 5 different subjects", "category": "upload", "icon": "🎯", "criteria": {"unique_subjects": 5}, "rarity": "uncommon", "points": 200},
     {"id": "quality_contributor", "name": "Quality Contributor", "description": "Upload 10 notes with no flags", "category": "upload", "icon": "✨", "criteria": {"clean_uploads": 10}, "rarity": "rare", "points": 300},
-    {"id": "department_hero", "name": "Department Hero", "description": "Most uploads in your department", "category": "upload", "icon": "🌟", "criteria": {"department_rank": 1}, "rarity": "epic", "points": 800},
-    {"id": "year_champion", "name": "Year Champion", "description": "Upload 30 notes for your year", "category": "upload", "icon": "🏅", "criteria": {"year_uploads": 30}, "rarity": "rare", "points": 450},
     
-    # Download Achievements (8)
+    # Download Achievements (3)
     {"id": "knowledge_seeker", "name": "Knowledge Seeker", "description": "Download 20 notes", "category": "download", "icon": "🔍", "criteria": {"downloads": 20}, "rarity": "common", "points": 50},
     {"id": "bookworm", "name": "Bookworm", "description": "Download 100 notes", "category": "download", "icon": "📖", "criteria": {"downloads": 100}, "rarity": "uncommon", "points": 150},
-    {"id": "complete_collection", "name": "Complete Collection", "description": "Download all notes for a subject", "category": "download", "icon": "📦", "criteria": {"subject_complete": True}, "rarity": "rare", "points": 400},
     {"id": "exam_prep", "name": "Exam Prep Master", "description": "Download 50 notes before exam", "category": "download", "icon": "📅", "criteria": {"exam_downloads": 50}, "rarity": "uncommon", "points": 200},
-    {"id": "diverse_learner", "name": "Diverse Learner", "description": "Download notes from 10 subjects", "category": "download", "icon": "🌈", "criteria": {"diverse_downloads": 10}, "rarity": "rare", "points": 350},
-    {"id": "quick_learner", "name": "Quick Learner", "description": "Download 100 notes in a week", "category": "download", "icon": "⚡", "criteria": {"weekly_downloads": 100}, "rarity": "epic", "points": 600},
-    {"id": "resource_collector", "name": "Resource Collector", "description": "Download 500 notes", "category": "download", "icon": "💎", "criteria": {"downloads": 500}, "rarity": "epic", "points": 1000},
-    {"id": "ultimate_learner", "name": "Ultimate Learner", "description": "Download 1000 notes", "category": "download", "icon": "🚀", "criteria": {"downloads": 1000}, "rarity": "legendary", "points": 2000},
     
-    # Social Achievements (12)
+    # Social Achievements (3)
     {"id": "helper", "name": "Helper", "description": "Your notes downloaded 100 times", "category": "social", "icon": "🤝", "criteria": {"note_downloads": 100}, "rarity": "uncommon", "points": 200},
     {"id": "popular", "name": "Popular", "description": "Your notes downloaded 500 times", "category": "social", "icon": "⭐", "criteria": {"note_downloads": 500}, "rarity": "rare", "points": 500},
-    {"id": "influencer", "name": "Influencer", "description": "Your notes downloaded 1000 times", "category": "social", "icon": "💫", "criteria": {"note_downloads": 1000}, "rarity": "epic", "points": 1000},
-    {"id": "college_hero", "name": "College Hero", "description": "Most helpful in college", "category": "social", "icon": "🎖️", "criteria": {"college_rank": 1}, "rarity": "epic", "points": 800},
-    {"id": "mentor", "name": "Mentor", "description": "Help 50 students directly", "category": "social", "icon": "👨‍🏫", "criteria": {"helped_users": 50}, "rarity": "rare", "points": 400},
-    {"id": "friend_magnet", "name": "Friend Magnet", "description": "Have 50 followers", "category": "social", "icon": "🧲", "criteria": {"followers": 50}, "rarity": "rare", "points": 300},
-    {"id": "socialite", "name": "Socialite", "description": "Follow 30 users", "category": "social", "icon": "💬", "criteria": {"following": 30}, "rarity": "uncommon", "points": 150},
-    {"id": "group_leader", "name": "Group Leader", "description": "Create 5 study groups", "category": "social", "icon": "👥", "criteria": {"groups_created": 5}, "rarity": "rare", "points": 400},
-    {"id": "team_player", "name": "Team Player", "description": "Join 10 study groups", "category": "social", "icon": "🤗", "criteria": {"groups_joined": 10}, "rarity": "uncommon", "points": 200},
     {"id": "referral_master", "name": "Referral Master", "description": "Refer 10 friends", "category": "social", "icon": "🎯", "criteria": {"referrals": 10}, "rarity": "epic", "points": 800},
-    {"id": "viral_sharer", "name": "Viral Sharer", "description": "Share 50 notes", "category": "social", "icon": "📱", "criteria": {"shares": 50}, "rarity": "rare", "points": 350},
-    {"id": "community_builder", "name": "Community Builder", "description": "Invite 5 friends who upload notes", "category": "social", "icon": "🏗️", "criteria": {"active_referrals": 5}, "rarity": "epic", "points": 700},
     
-    # Streak Achievements (8)
+    # Streak Achievements (4)
     {"id": "week_warrior", "name": "Week Warrior", "description": "7-day streak", "category": "streak", "icon": "🔥", "criteria": {"streak": 7}, "rarity": "common", "points": 100},
     {"id": "month_master", "name": "Month Master", "description": "30-day streak", "category": "streak", "icon": "📆", "criteria": {"streak": 30}, "rarity": "uncommon", "points": 300},
     {"id": "hundred_days", "name": "Hundred Days", "description": "100-day streak", "category": "streak", "icon": "💯", "criteria": {"streak": 100}, "rarity": "rare", "points": 800},
     {"id": "year_champion_streak", "name": "Year Champion", "description": "365-day streak", "category": "streak", "icon": "🎉", "criteria": {"streak": 365}, "rarity": "legendary", "points": 3000},
-    {"id": "comeback", "name": "Comeback", "description": "Rebuild a 10+ day streak after breaking", "category": "streak", "icon": "💪", "criteria": {"comeback_streak": 10}, "rarity": "uncommon", "points": 200},
-    {"id": "consistent", "name": "Consistent", "description": "No streak breaks in 2 months", "category": "streak", "icon": "🎯", "criteria": {"consistency_days": 60}, "rarity": "rare", "points": 500},
-    {"id": "dedication", "name": "Dedication", "description": "500 total activities", "category": "streak", "icon": "🌟", "criteria": {"total_activities": 500}, "rarity": "epic", "points": 1000},
-    {"id": "unstoppable", "name": "Unstoppable", "description": "1000 total activities", "category": "streak", "icon": "🚀", "criteria": {"total_activities": 1000}, "rarity": "legendary", "points": 2000},
-    
-    # Hidden Achievements (8)
-    {"id": "night_owl", "name": "Night Owl", "description": "Study at 3 AM", "category": "hidden", "icon": "🦉", "criteria": {"night_activity": True}, "rarity": "uncommon", "points": 100},
-    {"id": "early_bird", "name": "Early Bird", "description": "Active before 6 AM", "category": "hidden", "icon": "🐦", "criteria": {"morning_activity": True}, "rarity": "uncommon", "points": 100},
-    {"id": "weekend_warrior_hidden", "name": "Weekend Warrior", "description": "Study on weekends", "category": "hidden", "icon": "📅", "criteria": {"weekend_activity": True}, "rarity": "uncommon", "points": 150},
-    {"id": "exam_master", "name": "Exam Master", "description": "All exams cleared with A+", "category": "hidden", "icon": "🏆", "criteria": {"all_a_plus": True}, "rarity": "legendary", "points": 5000},
-    {"id": "speed_demon", "name": "Speed Demon", "description": "Upload 10 notes in 1 hour", "category": "hidden", "icon": "⚡", "criteria": {"rapid_uploads": 10}, "rarity": "rare", "points": 400},
-    {"id": "perfectionist", "name": "Perfectionist", "description": "50 notes with 5-star ratings", "category": "hidden", "icon": "⭐", "criteria": {"five_star_notes": 50}, "rarity": "epic", "points": 800},
-    {"id": "birthday_special", "name": "Birthday Special", "description": "Active on your birthday", "category": "hidden", "icon": "🎂", "criteria": {"birthday_active": True}, "rarity": "rare", "points": 500},
-    {"id": "pioneer", "name": "Pioneer", "description": "One of first 100 users", "category": "hidden", "icon": "🎖️", "criteria": {"early_user": True}, "rarity": "legendary", "points": 1000},
-    
-    # Rare/Elite Achievements (6)
-    {"id": "platinum_contributor", "name": "Platinum Contributor", "description": "Top 10 in all-India leaderboard", "category": "rare", "icon": "💎", "criteria": {"all_india_rank": 10}, "rarity": "legendary", "points": 5000},
-    {"id": "all_india_top_10", "name": "All-India Top 10", "description": "Reach top 10 ranking", "category": "rare", "icon": "🏆", "criteria": {"all_india_rank": 10}, "rarity": "legendary", "points": 5000},
-    {"id": "perfect_semester", "name": "Perfect Semester", "description": "Complete all activities perfectly", "category": "rare", "icon": "✨", "criteria": {"perfect_semester": True}, "rarity": "legendary", "points": 3000},
-    {"id": "level_50", "name": "Level 50 Master", "description": "Reach level 50", "category": "rare", "icon": "🌟", "criteria": {"level": 50}, "rarity": "legendary", "points": 2000},
-    {"id": "jack_of_all", "name": "Jack of All Trades", "description": "Excel in all categories", "category": "rare", "icon": "🎨", "criteria": {"all_categories": True}, "rarity": "epic", "points": 1500},
-    {"id": "ultimate_legend", "name": "Ultimate Legend", "description": "Unlock 40 achievements", "category": "rare", "icon": "👑", "criteria": {"achievements_unlocked": 40}, "rarity": "legendary", "points": 10000},
 ]
 
 
