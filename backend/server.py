@@ -128,9 +128,54 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS configuration
+# Get allowed origins from environment or use defaults
+CORS_ORIGINS_ENV = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173")
+ALLOWED_ORIGINS = CORS_ORIGINS_ENV.split(",")
+
+# Function to check if origin is allowed (supports wildcard patterns for Emergent preview URLs)
+def is_allowed_origin(origin: str) -> bool:
+    # Always allow localhost origins for development
+    if origin and (origin.startswith("http://localhost:") or origin.startswith("http://127.0.0.1:")):
+        return True
+    # Allow Emergent preview URLs
+    if origin and "emergentagent.com" in origin:
+        return True
+    # Check against explicit allowed origins
+    return origin in ALLOWED_ORIGINS
+
+# Custom CORS middleware to support dynamic origin validation
+@app.middleware("http")
+async def cors_middleware(request: Request, call_next):
+    origin = request.headers.get("origin")
+    
+    # Handle preflight requests
+    if request.method == "OPTIONS":
+        if origin and is_allowed_origin(origin):
+            return Response(
+                content="",
+                status_code=200,
+                headers={
+                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Credentials": "true",
+                    "Access-Control-Allow-Methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Max-Age": "600",
+                }
+            )
+    
+    response = await call_next(request)
+    
+    # Add CORS headers to actual requests
+    if origin and is_allowed_origin(origin):
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Vary"] = "Origin"
+    
+    return response
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=ALLOWED_ORIGINS,  # Fallback for standard middleware
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
