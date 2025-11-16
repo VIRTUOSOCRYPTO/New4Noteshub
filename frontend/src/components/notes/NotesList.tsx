@@ -8,9 +8,11 @@ import { DEPARTMENTS } from "@/lib/constants";
 
 interface NotesListProps {
   filters: SearchNotesParams;
+  searchResults?: any[];
+  isSearchMode?: boolean;
 }
 
-export default function NotesList({ filters }: NotesListProps) {
+export default function NotesList({ filters, searchResults, isSearchMode = false }: NotesListProps) {
   const { user } = useAuth();
   const [effectiveFilters, setEffectiveFilters] = useState<SearchNotesParams>(filters);
   
@@ -51,6 +53,7 @@ export default function NotesList({ filters }: NotesListProps) {
     queryKey: ['/api/notes', queryString],
     // Set the full URL including query string to ensure parameters are sent
     staleTime: 10000, // 10 seconds
+    enabled: !isSearchMode, // Only fetch when not in search mode
     // Explicitly set the URL with query parameters
     queryFn: async () => {
       const token = localStorage.getItem('auth_token');
@@ -66,6 +69,9 @@ export default function NotesList({ filters }: NotesListProps) {
     }
   });
 
+  // Use search results if in search mode, otherwise use fetched notes
+  const displayNotes = isSearchMode ? searchResults : notes;
+
   if (error) {
     return (
       <div className="text-center py-8">
@@ -77,9 +83,11 @@ export default function NotesList({ filters }: NotesListProps) {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-medium text-gray-800">Available Notes</h2>
+        <h2 className="text-xl font-medium text-gray-800">
+          {isSearchMode ? 'Search Results' : 'Available Notes'}
+        </h2>
         <div className="text-sm text-gray-500">
-          Showing <span className="font-medium">{isLoading ? '...' : notes?.length || 0}</span> notes
+          Showing <span className="font-medium">{isSearchMode ? displayNotes?.length || 0 : isLoading ? '...' : displayNotes?.length || 0}</span> notes
         </div>
       </div>
       
@@ -95,7 +103,7 @@ export default function NotesList({ filters }: NotesListProps) {
         </div>
       )}
       
-      {isLoading ? (
+      {isLoading && !isSearchMode ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -115,9 +123,9 @@ export default function NotesList({ filters }: NotesListProps) {
             </div>
           ))}
         </div>
-      ) : notes && notes.length > 0 ? (
+      ) : displayNotes && displayNotes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {notes.map((note) => (
+          {displayNotes.map((note) => (
             <NoteCard key={note.id} note={note} />
           ))}
         </div>
