@@ -105,8 +105,22 @@ app = FastAPI(
     description="Academic Notes Sharing Platform - Modular & Production Ready",
     lifespan=lifespan,
     docs_url="/api/docs",
-    redoc_url="/api/redoc"
+    redoc_url="/api/redoc",
+    redirect_slashes=False  # Disable automatic slash redirects to avoid mixed content issues
 )
+
+# Middleware to handle proxy headers (for HTTPS detection behind ingress/proxy)
+@app.middleware("http")
+async def proxy_headers_middleware(request: Request, call_next):
+    """Handle X-Forwarded-Proto and other proxy headers for correct URL generation"""
+    # Check if we're behind a proxy serving HTTPS
+    forwarded_proto = request.headers.get("x-forwarded-proto", "")
+    if forwarded_proto == "https":
+        # Update the request scope to reflect HTTPS
+        request.scope["scheme"] = "https"
+    
+    response = await call_next(request)
+    return response
 
 # Rate limiter
 limiter = Limiter(key_func=get_remote_address)
