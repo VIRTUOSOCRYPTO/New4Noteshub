@@ -113,20 +113,7 @@ export default function Analytics() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 -z-10">
-        <motion.div
-          className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-20 blur-3xl"
-          animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-20 w-56 h-56 bg-gradient-to-br from-pink-400 to-orange-500 rounded-full opacity-20 blur-3xl"
-          animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
 
       <div className="container mx-auto px-4 py-12 relative z-10">
         {/* Header */}
@@ -141,12 +128,12 @@ export default function Analytics() {
               <motion.div
                 whileHover={{ rotate: 360, scale: 1.1 }}
                 transition={{ duration: 0.5 }}
-                className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg"
+                className="w-16 h-16 bg-slate-900 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg"
               >
                 <BarChart3 className="h-8 w-8 text-white" />
               </motion.div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100">
                   Analytics Dashboard
                 </h1>
                 <p className="text-gray-600 text-lg mt-1">Real-time insights and performance metrics</p>
@@ -220,13 +207,13 @@ export default function Analytics() {
                 transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
                 whileHover={{ scale: 1.05, y: -5 }}
               >
-                <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-lg hover:shadow-2xl transition-all duration-300">
+                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-2xl transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center`}>
+                      <div className="w-12 h-12 bg-slate-900 dark:bg-slate-800 rounded-xl flex items-center justify-center">
                         <stat.icon className="h-6 w-6 text-white" />
                       </div>
-                      <TrendingUp className="h-5 w-5 text-green-500" />
+                      <TrendingUp className="h-5 w-5" style={{ color: 'rgb(15 23 42)' }} />
                     </div>
                     <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
                     <div className="text-sm text-gray-600 mb-2">{stat.label}</div>
@@ -323,15 +310,10 @@ export default function Analytics() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
                         whileHover={{ scale: 1.02, x: 10 }}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-purple-50 rounded-xl border border-purple-100 hover:shadow-lg transition-all duration-300"
+                        className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300"
                       >
                         <div className="flex items-center space-x-4 flex-1">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white ${
-                            index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
-                            index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-500' :
-                            index === 2 ? 'bg-gradient-to-br from-orange-400 to-red-500' :
-                            'bg-gradient-to-br from-purple-400 to-pink-500'
-                          }`}>
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white bg-slate-900 dark:bg-slate-800">
                             {index + 1}
                           </div>
                           <div className="flex-1">
