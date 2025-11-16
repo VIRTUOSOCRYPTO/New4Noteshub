@@ -46,12 +46,19 @@ class SearchService:
         date_from: Optional[datetime] = None,
         date_to: Optional[datetime] = None,
         sort_by: str = "relevance",
-        limit: int = 50
+        limit: int = 50,
+        user_college: Optional[str] = None,
+        user_department: Optional[str] = None,
+        user_year: Optional[int] = None
     ) -> List[Dict]:
-        """Advanced search with multiple filters"""
+        """Advanced search with multiple filters - respects user's college"""
         
         # Build search query
-        search_query = {"is_approved": True}
+        search_query = {}
+        
+        # ALWAYS filter by user's college (privacy requirement)
+        if user_college:
+            search_query["college"] = user_college
         
         # Text search
         if query:
