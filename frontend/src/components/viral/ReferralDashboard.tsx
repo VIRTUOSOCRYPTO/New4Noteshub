@@ -113,7 +113,7 @@ export function ReferralDashboard() {
   return (
     <div className="space-y-6" data-testid="referral-dashboard">
       {/* Referral Code Card */}
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+      <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Gift className="h-6 w-6 text-purple-500" />
@@ -203,7 +203,7 @@ export function ReferralDashboard() {
 
           {/* Next Milestone */}
           {stats.next_milestone && (
-            <div className="space-y-2 p-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
+            <div className="space-y-2 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
               <div className="flex items-center justify-between">
                 <p className="font-semibold">Next Milestone:</p>
                 <Badge variant="outline" className="bg-white dark:bg-black">
