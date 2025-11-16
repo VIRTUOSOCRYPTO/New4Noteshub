@@ -41,7 +41,17 @@ async def search_notes(
     user_id: str = Depends(get_current_user_id),
     database = Depends(get_database)
 ):
-    """Advanced search with multiple filters"""
+    """Advanced search with multiple filters - respects user's college"""
+    
+    # Get current user to filter by college
+    user = await database.users.find_one({"id": user_id})
+    if not user:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_college = user.get("college")
+    user_department = user.get("department")
+    user_year = user.get("year")
     
     search_svc = get_search_service(database)
     
@@ -49,7 +59,7 @@ async def search_notes(
     date_from_obj = datetime.fromisoformat(date_from) if date_from else None
     date_to_obj = datetime.fromisoformat(date_to) if date_to else None
     
-    # Perform search
+    # Perform search with user context
     results = await search_svc.search_notes(
         query=q,
         department=department,
@@ -59,7 +69,10 @@ async def search_notes(
         date_from=date_from_obj,
         date_to=date_to_obj,
         sort_by=sort_by,
-        limit=limit
+        limit=limit,
+        user_college=user_college,
+        user_department=user_department,
+        user_year=user_year
     )
     
     # Save to search history
