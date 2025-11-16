@@ -1,10 +1,9 @@
 import FilterSection from "@/components/notes/FilterSection";
 import NotesList from "@/components/notes/NotesList";
 import SearchAutocomplete from "@/components/search/SearchAutocomplete";
-import SavedSearches from "@/components/search/SavedSearches";
 import { useState } from "react";
 import { SearchNotesParams } from "@/lib/schema";
-import { Search, Filter, BookOpen, TrendingUp, Building2 } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { usePageVisits } from "@/hooks/use-page-visits";
 import { apiRequest } from "@/lib/api";
 import { showToast } from "@/components/ui/toast-container";
@@ -145,35 +144,6 @@ export default function FindNotes() {
           </div>
         </div>
 
-        {/* Saved Searches */}
-        <div className="mb-6 sm:mb-8">
-          <SavedSearches 
-            onSearch={handleSearch} 
-            currentQuery={searchQuery}
-            currentFilters={filters}
-          />
-        </div>
-
-        {/* Stats Bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {[
-            { label: "Total Notes", value: "1,234", icon: BookOpen },
-            { label: "Active Users", value: "567", icon: TrendingUp },
-            { label: "Departments", value: "12", icon: Building2 },
-            { label: "Downloads", value: "8.9K", icon: TrendingUp }
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-slate-200 text-center hover:shadow-md transition-shadow"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-slate-700" />
-              </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900">{stat.value}</div>
-              <div className="text-xs sm:text-sm text-slate-600">{stat.label}</div>
-            </div>
-          ))}
-        </div>
         
         {/* Filters Section */}
         {showFilters && (
