@@ -49,7 +49,11 @@ async def get_user(
         "department": user["department"],
         "college": user["college"],
         "year": user["year"],
-        "profilePicture": user.get("profilePicture")
+        "profile_picture": user.get("profilePicture"),
+        "created_at": user.get("createdAt", user.get("created_at")),
+        "notify_new_notes": user.get("notify_new_notes", False),
+        "notify_downloads": user.get("notify_downloads", False),
+        "two_factor_enabled": user.get("two_factor_enabled", False)
     }
 
 
@@ -75,7 +79,11 @@ async def update_settings(
         "department": user["department"],
         "college": user["college"],
         "year": user["year"],
-        "profilePicture": user.get("profilePicture")
+        "profile_picture": user.get("profilePicture"),
+        "created_at": user.get("createdAt", user.get("created_at")),
+        "notify_new_notes": user.get("notify_new_notes", False),
+        "notify_downloads": user.get("notify_downloads", False),
+        "two_factor_enabled": user.get("two_factor_enabled", False)
     }
 
 
@@ -152,7 +160,11 @@ async def upload_profile_picture(
         "department": user["department"],
         "college": user["college"],
         "year": user["year"],
-        "profilePicture": user.get("profilePicture")
+        "profile_picture": user.get("profilePicture"),
+        "created_at": user.get("createdAt", user.get("created_at")),
+        "notify_new_notes": user.get("notify_new_notes", False),
+        "notify_downloads": user.get("notify_downloads", False),
+        "two_factor_enabled": user.get("two_factor_enabled", False)
     }
 
 
