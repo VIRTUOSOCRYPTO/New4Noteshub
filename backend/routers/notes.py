@@ -52,17 +52,42 @@ async def get_notes(
     department: Optional[str] = None,
     subject: Optional[str] = None,
     year: Optional[int] = None,
+    showAllDepartments: Optional[bool] = False,
+    showAllYears: Optional[bool] = False,
+    user_id: str = Depends(get_current_user_id),
     database=Depends(get_database)
 ):
-    """Get notes with optional filters"""
+    """Get notes with filters - respects user's college, department, and year"""
+    
+    # Get current user info
+    user = await database.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     query = {}
     
-    if department:
+    # ALWAYS filter by user's college (privacy requirement)
+    if user.get("college"):
+        query["college"] = user["college"]
+    
+    # Filter by department unless user wants all departments
+    if not showAllDepartments:
+        query["department"] = user["department"]
+    elif department and department != "all":
+        # If showing all departments but specific one selected
         query["department"] = department
-    if subject:
-        query["subject"] = subject
-    if year:
+    
+    # Filter by year unless user wants all years
+    if not showAllYears:
+        query["year"] = user["year"]
+    elif year:
         query["year"] = year
+    
+    # Additional filters
+    if subject and subject != "all":
+        query["subject"] = subject
+    
+    print(f"Notes query filter: {query}")  # Debug log
     
     notes = await database.notes.find(query).sort("uploadedAt", -1).to_list(100)
     return [serialize_doc(note) for note in notes]
@@ -119,6 +144,7 @@ async def upload_note(
         "title": title,
         "subject": subject,
         "department": user["department"],
+        "college": user.get("college"),  # Add college for filtering
         "year": user["year"],
         "usn": user["usn"],
         "userId": user_id,
