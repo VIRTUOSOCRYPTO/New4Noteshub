@@ -4,11 +4,20 @@
 The Admin Panel allows authorized users to manage all registered users in NotesHub.
 
 ## Access Control
-**Only users from these departments can access the Admin Panel:**
-- CSE (Computer Science Engineering)
-- ISE (Information Science Engineering)
-- AIML (Artificial Intelligence & Machine Learning)
-- ECE (Electronics & Communication Engineering)
+**Admin access is restricted to specific authorized email addresses.**
+
+Current admin email(s): `tortoor8@gmail.com`
+
+To add more admin users, update the `ADMIN_EMAILS` environment variable in `/app/backend/.env`:
+```bash
+ADMIN_EMAILS=tortoor8@gmail.com,another@email.com
+```
+
+Only users with emails in this list will have access to:
+- Admin Panel
+- Moderation features
+- System management tools
+- User management
 
 ## Features
 
@@ -54,9 +63,11 @@ View all users with the following information:
 
 ## How to Access
 
-1. **Login** with an authorized account (CSE, ISE, AIML, or ECE department)
-2. Click **"Admin Panel"** in the navigation menu
+1. **Login** with an authorized admin email address (`tortoor8@gmail.com`)
+2. Click **"Admin Panel"** in the navigation menu (only visible to admins)
 3. The panel will load automatically
+
+**Note:** If you don't see the "Admin Panel" option in the menu, your account is not configured as an admin.
 
 ## API Endpoints
 
@@ -73,9 +84,10 @@ DELETE /api/admin/users/{user_id}  - Delete user
 ## Security
 
 - **Authentication Required**: Must be logged in
-- **Department-based Authorization**: Only specific departments have access
-- **Admin Middleware**: Backend validates admin access on every request
+- **Email-based Authorization**: Only authorized email addresses have access
+- **Admin Middleware**: Backend validates admin access on every request using environment variables
 - **Confirmation Dialogs**: Delete actions require confirmation
+- **Protected Endpoints**: All admin API endpoints require valid admin authentication
 
 ## Database Collections Managed
 
