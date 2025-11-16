@@ -21,9 +21,9 @@ const getApiBaseUrl = (): string => {
                           window.location.hostname.includes('firebaseapp.com');
 
   if (isFirebaseHosting || import.meta.env.PROD) {
-    // For production with Firebase hosting + Render backend
-    console.log('Using production Render backend URL');
-    return 'https://noteshubz.onrender.com';
+    // For production, use environment variable or same-origin
+    console.warn('VITE_API_BASE_URL not configured for production. Using same-origin API.');
+    return '';
   }
 
   // For development, the default is empty string which means same-origin
