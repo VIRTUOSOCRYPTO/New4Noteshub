@@ -17,6 +17,7 @@ export default function Header() {
   const [points, setPoints] = useState(0);
   const [level, setLevel] = useState(1);
   const [streak, setStreak] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
 
@@ -24,6 +25,7 @@ export default function Header() {
     if (user?.usn) {
       setInitials(user.usn.substring(0, 2).toUpperCase());
       fetchUserStats();
+      fetchAdminStatus();
     }
   }, [user]);
 
@@ -41,13 +43,21 @@ export default function Header() {
     }
   };
 
+  const fetchAdminStatus = async () => {
+    try {
+      const data = await apiRequest("/api/user/is-admin");
+      setIsAdmin(data.is_admin || false);
+    } catch (error) {
+      console.error("Failed to fetch admin status:", error);
+      setIsAdmin(false);
+    }
+  };
+
   const handleLogout = async () => {
     await logoutMutation.mutateAsync();
     navigate("/");
     setMobileMenuOpen(false);
   };
-  
-  const isAdmin = user && ['CSE', 'ISE', 'AIML', 'ECE'].includes(user.department);
 
   const navLinks = [
     { href: "/", icon: HomeIcon, label: "Home" },
