@@ -198,7 +198,12 @@ async def login(request: Request, user_data: UserLogin, database=Depends(get_dat
             "email": user["email"],
             "department": user["department"],
             "college": user["college"],
-            "year": user["year"]
+            "year": user["year"],
+            "profile_picture": user.get("profilePicture"),
+            "created_at": user.get("createdAt", user.get("created_at")),
+            "notify_new_notes": user.get("notify_new_notes", False),
+            "notify_downloads": user.get("notify_downloads", False),
+            "two_factor_enabled": user.get("two_factor_enabled", False)
         },
         "accessToken": access_token,
         "refreshToken": refresh_token
