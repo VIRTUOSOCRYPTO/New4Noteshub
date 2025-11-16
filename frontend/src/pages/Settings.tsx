@@ -84,23 +84,36 @@ export default function Settings() {
     const file = event.target.files?.[0];
     if (!file) return;
     
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('File size must be less than 2MB', 'error');
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showToast('Please upload a valid image file (JPG, PNG, GIF, or WebP)', 'error');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('File size must be less than 5MB', 'error');
       return;
     }
     
     const formData = new FormData();
-    formData.append('profilePicture', file);
+    formData.append('file', file);
     setIsUploading(true);
     
     const token = localStorage.getItem('auth_token');
     fetch('/api/user/profile-picture', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { 
+        'Authorization': `Bearer ${token}`
+      },
       body: formData,
     })
       .then(response => {
-        if (!response.ok) throw new Error('Failed to upload profile picture');
+        if (!response.ok) {
+          return response.json().then(data => {
+            throw new Error(data.detail || 'Failed to upload profile picture');
+          });
+        }
         return response.json();
       })
       .then(() => {
@@ -108,6 +121,7 @@ export default function Settings() {
         showToast('Profile picture updated successfully', 'success');
       })
       .catch(error => {
+        console.error('Profile picture upload error:', error);
         showToast(`Error: ${error.message}`, 'error');
       })
       .finally(() => {
