@@ -27,7 +27,8 @@ class SaveSearchRequest(BaseModel):
     filters: Optional[dict] = None
 
 
-@router.get("/")
+@router.get("/", include_in_schema=True)
+@router.get("", include_in_schema=False)
 async def search_notes(
     q: str = Query(..., min_length=1),
     department: Optional[str] = None,
