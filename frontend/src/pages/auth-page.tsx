@@ -9,7 +9,7 @@ import { loginUserSchema, registerUserSchema, forgotPasswordSchema, KARNATAKA_CO
 import { useAuth } from "@/hooks/use-auth";
 import { useState, useEffect } from "react";
 import { Redirect, Link } from "wouter";
-import { Loader2, GraduationCap, BookOpen, Mail, Shield, Check, Building2, Lock } from "lucide-react";
+import { Loader2, GraduationCap, BookOpen, Mail, Shield, Check, Building2, Lock, TrendingUp } from "lucide-react";
 import { DEPARTMENTS } from "@/lib/constants";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
@@ -46,20 +46,21 @@ export default function AuthPage() {
           
           <div className="max-w-md">
             <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
-              Enterprise-Grade Note Management System
+              Your College's Digital Library
             </h1>
             <p className="text-lg text-slate-300 mb-12">
-              Secure, scalable, and efficient platform designed for academic institutions.
+              Access notes from all departments within your college. Connect with your campus 
+              community and share knowledge across departments.
             </p>
             
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
                 <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Shield className="h-5 w-5 text-blue-400" />
+                  <TrendingUp className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold mb-1">Enterprise Security</h3>
-                  <p className="text-slate-400 text-sm">Bank-level encryption and data protection</p>
+                  <h3 className="text-white font-semibold mb-1">Gamified Learning</h3>
+                  <p className="text-slate-400 text-sm">Track progress with achievements and performance leaderboards</p>
                 </div>
               </div>
               
@@ -68,8 +69,8 @@ export default function AuthPage() {
                   <BookOpen className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold mb-1">Centralized Repository</h3>
-                  <p className="text-slate-400 text-sm">Department-specific content organization</p>
+                  <h3 className="text-white font-semibold mb-1">Campus Library</h3>
+                  <p className="text-slate-400 text-sm">Access notes from all departments in your college</p>
                 </div>
               </div>
               
@@ -78,8 +79,8 @@ export default function AuthPage() {
                   <Check className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold mb-1">Quality Assurance</h3>
-                  <p className="text-slate-400 text-sm">Automated validation and review processes</p>
+                  <h3 className="text-white font-semibold mb-1">Campus Collaboration</h3>
+                  <p className="text-slate-400 text-sm">Study groups with students from your own college</p>
                 </div>
               </div>
             </div>
@@ -102,12 +103,12 @@ export default function AuthPage() {
               <span className="text-2xl font-bold text-slate-900">NotesHub</span>
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              {activeTab === "login" ? "Welcome Back" : "Create Account"}
+              {activeTab === "login" ? "Welcome Back" : "Create Your Account"}
             </h2>
             <p className="text-slate-600">
               {activeTab === "login" 
-                ? "Enter your credentials to access your account" 
-                : "Register to start sharing and accessing notes"}
+                ? "Access your college's knowledge hub" 
+                : "Connect with students from your college across all departments"}
             </p>
           </div>
 
