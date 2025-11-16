@@ -51,10 +51,30 @@ export default function AdminPanel() {
   const [limit] = useState(20);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
 
-  // Check if user has admin access
-  const allowedDepartments = ['CSE', 'ISE', 'AIML', 'ECE'];
-  const hasAdminAccess = user && allowedDepartments.includes(user.department);
+  // Check admin access from API
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setCheckingAdmin(false);
+        return;
+      }
+      
+      try {
+        const data = await apiRequest("/api/user/is-admin");
+        setHasAdminAccess(data.is_admin || false);
+      } catch (error) {
+        console.error("Failed to check admin status:", error);
+        setHasAdminAccess(false);
+      } finally {
+        setCheckingAdmin(false);
+      }
+    };
+    
+    checkAdminStatus();
+  }, [user]);
 
   useEffect(() => {
     if (hasAdminAccess) {
@@ -137,6 +157,18 @@ export default function AdminPanel() {
     setFilterYear("");
     setPage(0);
   };
+
+  if (checkingAdmin) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
+          <RefreshCw className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-spin" />
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Checking Access...</h2>
+          <p className="text-slate-600">Please wait while we verify your permissions.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasAdminAccess) {
     return (
