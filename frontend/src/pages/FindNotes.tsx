@@ -25,12 +25,23 @@ export default function FindNotes() {
 
   const handleFilter = (newFilters: SearchNotesParams) => {
     setFilters(newFilters);
-    if (searchQuery) {
-      performSearch(searchQuery, newFilters);
-    }
+    // Don't automatically re-search when filters change
+    // User needs to click search again or we'll get infinite loops
   };
 
   const performSearch = async (query: string, customFilters?: SearchNotesParams) => {
+    if (!query || !query.trim()) {
+      showToast("Please enter a search query", "error");
+      return;
+    }
+
+    // Prevent multiple simultaneous searches
+    if (isSearching) {
+      console.log("Search already in progress, skipping...");
+      return;
+    }
+
+    console.log("Starting search for:", query);
     setIsSearching(true);
     setSearchQuery(query);
     
@@ -38,10 +49,17 @@ export default function FindNotes() {
       const filtersToUse = customFilters || filters;
       const params = new URLSearchParams({ q: query });
       
-      if (filtersToUse.department) params.append('department', filtersToUse.department);
-      if (filtersToUse.subject) params.append('subject', filtersToUse.subject);
+      if (filtersToUse.department && filtersToUse.department !== 'all') {
+        params.append('department', filtersToUse.department);
+      }
+      if (filtersToUse.subject && filtersToUse.subject !== 'all') {
+        params.append('subject', filtersToUse.subject);
+      }
       
+      console.log("Fetching search results with params:", params.toString());
       const response = await apiRequest<{ results: any[] }>(`/api/search?${params.toString()}`);
+      console.log("Search results received:", response.results.length);
+      
       setSearchResults(response.results);
       
       if (response.results.length === 0) {
@@ -50,12 +68,16 @@ export default function FindNotes() {
     } catch (error) {
       console.error("Search error:", error);
       showToast("Search failed. Please try again.", "error");
+      setSearchResults([]);
     } finally {
+      console.log("Search completed");
       setIsSearching(false);
     }
   };
 
   const handleSearch = (query: string, savedFilters?: Record<string, any>) => {
+    console.log("handleSearch called with query:", query, "savedFilters:", savedFilters);
+    
     if (savedFilters) {
       const newFilters = {
         department: savedFilters.department,
@@ -65,7 +87,7 @@ export default function FindNotes() {
       setFilters(newFilters);
       performSearch(query, newFilters);
     } else {
-      performSearch(query);
+      performSearch(query, filters);
     }
   };
 
@@ -164,48 +186,22 @@ export default function FindNotes() {
         
         {/* Results */}
         <div>
-          {searchQuery && searchResults.length > 0 ? (
-            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8 border border-slate-200">
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-slate-900">
-                Search Results <span className="text-blue-600">({searchResults.length})</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {searchResults.map((note, index) => (
-                  <div
-                    key={note.id}
-                    className="bg-slate-50 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow border border-slate-200"
-                  >
-                    <div className="flex items-start justify-between mb-3 sm:mb-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-900 rounded-lg flex items-center justify-center">
-                        <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                      </div>
-                    </div>
-                    <h3 className="font-bold text-base sm:text-lg mb-2 text-slate-900 line-clamp-2">{note.title}</h3>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-3 sm:mb-4">
-                      {note.department} • {note.subject}
-                    </p>
-                    <div className="flex gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500">
-                      <span>📥 {note.downloadCount}</span>
-                      <span>👁 {note.viewCount}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : searchQuery && !isSearching ? (
-            <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 border border-slate-200 text-center">
-              <Search className="h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 text-slate-300" />
-              <p className="text-lg sm:text-xl text-slate-600">No notes found matching your search</p>
-            </div>
-          ) : (
-            <NotesList filters={filters} />
-          )}
-          
-          {isSearching && (
+          {isSearching ? (
             <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 border border-slate-200 text-center">
               <div className="inline-block w-12 h-12 sm:w-16 sm:h-16 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
               <p className="mt-4 sm:mt-6 text-slate-600 text-base sm:text-lg">Searching repository...</p>
             </div>
+          ) : searchQuery ? (
+            searchResults.length > 0 ? (
+              <NotesList filters={filters} searchResults={searchResults} isSearchMode={true} />
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 border border-slate-200 text-center">
+                <Search className="h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6 text-slate-300" />
+                <p className="text-lg sm:text-xl text-slate-600">No notes found matching your search</p>
+              </div>
+            )
+          ) : (
+            <NotesList filters={filters} />
           )}
         </div>
       </div>
