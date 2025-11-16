@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, School, Building, GraduationCap, Award, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { UserAchievements } from "@/components/badges/UserAchievements";
@@ -62,6 +62,10 @@ export default function Profile() {
               <CardHeader className="text-center pb-2">
                 <div className="flex justify-center mb-4">
                   <Avatar className="h-24 w-24 bg-slate-900 border-4 border-slate-100">
+                    <AvatarImage 
+                      src={user.profile_picture ? `/api/user/profile-picture/${user.profile_picture}` : undefined} 
+                      alt={user.usn} 
+                    />
                     <AvatarFallback className="text-2xl text-white font-bold">{initials}</AvatarFallback>
                   </Avatar>
                 </div>
