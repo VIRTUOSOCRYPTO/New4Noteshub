@@ -76,14 +76,14 @@ export function PointsDisplay({ compact = false, showProgress = true }: PointsDi
     return (
       <div className="flex items-center gap-3" data-testid="points-display-compact">
         <Badge 
-          className={`bg-gradient-to-r ${getLevelColor(pointsData.level)} text-white px-3 py-1.5`}
+          className="bg-slate-900 dark:bg-slate-800 text-white px-3 py-1.5"
           data-testid="level-badge"
         >
           <Award className="h-3 w-3 mr-1" />
           Level {pointsData.level}
         </Badge>
         <div className="flex items-center gap-1 text-sm font-medium">
-          <Star className="h-4 w-4 text-yellow-500" />
+          <Star className="h-4 w-4" style={{ color: 'rgb(15 23 42)' }} />
           <span data-testid="points-value">{pointsData.total_points.toLocaleString()}</span>
         </div>
       </div>
@@ -111,7 +111,7 @@ export function PointsDisplay({ compact = false, showProgress = true }: PointsDi
             </div>
             <Badge 
               variant="outline" 
-              className={`bg-gradient-to-r ${getLevelColor(pointsData.level)} text-white border-none px-4 py-2 text-lg font-bold`}
+              className="bg-slate-900 dark:bg-slate-800 text-white border-none px-4 py-2 text-lg font-bold"
             >
               {pointsData.total_points.toLocaleString()} pts
             </Badge>
@@ -138,8 +138,8 @@ export function PointsDisplay({ compact = false, showProgress = true }: PointsDi
           )}
 
           {pointsData.level >= 50 && (
-            <div className="p-3 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
-              <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+            <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                 🎉 Maximum level reached! You're a NotesHub Legend!
               </p>
             </div>
