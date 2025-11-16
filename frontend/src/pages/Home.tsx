@@ -39,58 +39,58 @@ export default function Home() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
         }} />
         
-        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
+        <div className="container mx-auto px-4 py-12 sm:py-16 md:py-24 lg:py-32 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-2 mb-8">
-              <Shield className="h-4 w-4" />
-              <span className="text-sm font-medium">Enterprise-Grade Academic Platform</span>
+            <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-4 sm:px-6 py-2 mb-6 sm:mb-8">
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm font-medium">Enterprise-Grade Academic Platform</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
               Knowledge Management
               <br />
               <span className="text-blue-400">For Modern Education</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
               Streamline academic content sharing with enterprise security, 
               structured organization, and institutional-grade reliability.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
               <Button
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg h-auto"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto"
                 onClick={() => navigate("/find")}
               >
-                <Search className="mr-2 h-5 w-5" />
+                <Search className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Browse Repository
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               
               <Button
                 size="lg"
-                className="bg-slate-700 hover:bg-slate-600 text-white px-8 py-6 text-lg h-auto"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto"
                 onClick={() => navigate("/upload")}
               >
-                <Upload className="mr-2 h-5 w-5" />
+                <Upload className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Contribute Content
               </Button>
             </div>
 
             {/* Stats Bar */}
-            <div className="grid grid-cols-3 gap-8 mt-16 pt-12 border-t border-white/10">
+            <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-white/10">
               <div className="text-center">
-                <div className="text-4xl font-bold mb-2">10,000+</div>
-                <div className="text-slate-400 text-sm uppercase tracking-wide">Active Users</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">10K+</div>
+                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Active Users</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold mb-2">50,000+</div>
-                <div className="text-slate-400 text-sm uppercase tracking-wide">Resources</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">50K+</div>
+                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Resources</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold mb-2">98%</div>
-                <div className="text-slate-400 text-sm uppercase tracking-wide">Satisfaction</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">98%</div>
+                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Satisfaction</div>
               </div>
             </div>
           </div>
@@ -98,18 +98,18 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-3 sm:mb-4">
               Enterprise Features
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
               Built for institutions that demand reliability, security, and scalability
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
               {
                 icon: Shield,
@@ -138,13 +138,13 @@ export default function Home() {
             ].map((feature, index) => (
               <div 
                 key={index} 
-                className="bg-slate-50 rounded-lg p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200"
+                className="bg-slate-50 rounded-lg p-6 sm:p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200"
               >
-                <div className={`w-14 h-14 ${feature.color} bg-slate-100 rounded-lg flex items-center justify-center mb-6`}>
-                  <feature.icon className="h-7 w-7" />
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 ${feature.color} bg-slate-100 rounded-lg flex items-center justify-center mb-4 sm:mb-6`}>
+                  <feature.icon className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">{feature.title}</h3>
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -152,18 +152,18 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-12 sm:py-16 md:py-20 bg-slate-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-3 sm:mb-4">
               Streamlined Workflow
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 px-4">
               Three simple steps to knowledge sharing
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 max-w-5xl mx-auto">
             {[
               { 
                 step: "01", 
@@ -185,13 +185,13 @@ export default function Home() {
               }
             ].map((item, index) => (
               <div key={index} className="relative">
-                <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                  <div className="text-6xl font-bold text-slate-200 mb-4">{item.step}</div>
-                  <div className="w-14 h-14 bg-slate-900 rounded-lg flex items-center justify-center mb-6">
-                    <item.icon className="h-7 w-7 text-white" />
+                <div className="bg-white rounded-lg p-6 sm:p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-200 mb-3 sm:mb-4">{item.step}</div>
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                    <item.icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-                  <p className="text-slate-600">{item.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">{item.title}</h3>
+                  <p className="text-sm sm:text-base text-slate-600">{item.description}</p>
                 </div>
                 {index < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-6 transform -translate-y-1/2">
@@ -205,19 +205,19 @@ export default function Home() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 sm:mb-6">
                   Trusted by Leading Institutions
                 </h2>
-                <p className="text-lg text-slate-600 mb-8">
+                <p className="text-base sm:text-lg text-slate-600 mb-6 sm:mb-8">
                   NotesHub provides the infrastructure and security that educational institutions 
                   need to manage academic content at scale.
                 </p>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {[
                     "ISO 27001 Certified Security",
                     "99.9% Uptime SLA",
@@ -225,34 +225,34 @@ export default function Home() {
                     "GDPR Compliant"
                   ].map((item, index) => (
                     <div key={index} className="flex items-center space-x-3">
-                      <CheckCircle className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                      <span className="text-slate-700">{item}</span>
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                      <span className="text-sm sm:text-base text-slate-700">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
               
-              <div className="bg-slate-50 rounded-lg p-12 border-2 border-slate-200">
-                <div className="grid grid-cols-2 gap-8">
+              <div className="bg-slate-50 rounded-lg p-8 sm:p-12 border-2 border-slate-200">
+                <div className="grid grid-cols-2 gap-6 sm:gap-8">
                   <div className="text-center">
-                    <Users className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-                    <div className="text-3xl font-bold text-slate-900 mb-1">10K+</div>
-                    <div className="text-sm text-slate-600">Active Users</div>
+                    <Users className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
+                    <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">10K+</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Active Users</div>
                   </div>
                   <div className="text-center">
-                    <BookOpen className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-                    <div className="text-3xl font-bold text-slate-900 mb-1">50K+</div>
-                    <div className="text-sm text-slate-600">Resources</div>
+                    <BookOpen className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
+                    <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">50K+</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Resources</div>
                   </div>
                   <div className="text-center">
-                    <Building2 className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-                    <div className="text-3xl font-bold text-slate-900 mb-1">12+</div>
-                    <div className="text-sm text-slate-600">Departments</div>
+                    <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
+                    <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">12+</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Departments</div>
                   </div>
                   <div className="text-center">
-                    <TrendingUp className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-                    <div className="text-3xl font-bold text-slate-900 mb-1">98%</div>
-                    <div className="text-sm text-slate-600">Satisfaction</div>
+                    <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
+                    <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">98%</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Satisfaction</div>
                   </div>
                 </div>
               </div>
@@ -262,27 +262,27 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-20 bg-slate-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
         }} />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
               Ready to Get Started?
             </h2>
-            <p className="text-xl text-slate-300 mb-12">
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 sm:mb-12 px-4">
               Join thousands of users leveraging enterprise-grade knowledge management
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
               <Button
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg h-auto"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto"
                 onClick={() => navigate("/upload")}
               >
                 Start Contributing
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <HomeShareOptions />
             </div>
