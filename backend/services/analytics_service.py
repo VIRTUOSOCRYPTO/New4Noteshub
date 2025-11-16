@@ -52,50 +52,50 @@ class AnalyticsService:
         total_notes = await self.db.notes.count_documents(query_filter)
         total_users = await self.db.users.count_documents({}) if not user_id else 1
         
-        # Upload statistics
+        # Upload statistics - using camelCase field names to match MongoDB
         uploads_24h = await self.db.notes.count_documents({
             **query_filter,
-            "uploaded_at": {"$gte": last_24h}
+            "uploadedAt": {"$gte": last_24h.isoformat()}
         })
         uploads_7d = await self.db.notes.count_documents({
             **query_filter,
-            "uploaded_at": {"$gte": last_7d}
+            "uploadedAt": {"$gte": last_7d.isoformat()}
         })
         uploads_30d = await self.db.notes.count_documents({
             **query_filter,
-            "uploaded_at": {"$gte": last_30d}
+            "uploadedAt": {"$gte": last_30d.isoformat()}
         })
         
-        # Download statistics
+        # Download statistics - using camelCase field names
         download_stats = await self.db.notes.aggregate([
             {"$match": query_filter},
             {"$group": {
                 "_id": None,
-                "total_downloads": {"$sum": "$download_count"},
-                "avg_downloads": {"$avg": "$download_count"}
+                "total_downloads": {"$sum": {"$ifNull": ["$downloadCount", 0]}},
+                "avg_downloads": {"$avg": {"$ifNull": ["$downloadCount", 0]}}
             }}
         ]).to_list(length=1)
         
         total_downloads = download_stats[0]["total_downloads"] if download_stats else 0
         avg_downloads = download_stats[0]["avg_downloads"] if (download_stats and download_stats[0]["avg_downloads"] is not None) else 0
         
-        # View statistics
+        # View statistics - using camelCase field names
         view_stats = await self.db.notes.aggregate([
             {"$match": query_filter},
             {"$group": {
                 "_id": None,
-                "total_views": {"$sum": "$view_count"},
-                "avg_views": {"$avg": "$view_count"}
+                "total_views": {"$sum": {"$ifNull": ["$viewCount", 0]}},
+                "avg_views": {"$avg": {"$ifNull": ["$viewCount", 0]}}
             }}
         ]).to_list(length=1)
         
         total_views = view_stats[0]["total_views"] if view_stats else 0
         avg_views = view_stats[0]["avg_views"] if (view_stats and view_stats[0]["avg_views"] is not None) else 0
         
-        # Active users (users who uploaded in last 7 days)
+        # Active users (users who uploaded in last 7 days) - using camelCase
         active_users_pipeline = [
-            {"$match": {"uploaded_at": {"$gte": last_7d}}},
-            {"$group": {"_id": "$user_id"}},
+            {"$match": {"uploadedAt": {"$gte": last_7d.isoformat()}}},
+            {"$group": {"_id": "$userId"}},
             {"$count": "count"}
         ]
         
@@ -128,20 +128,18 @@ class AnalyticsService:
         if department:
             query["department"] = department
         
-        # Calculate popularity score: downloads * 2 + views (handle null values)
+        # Calculate popularity score: downloads * 2 + views (handle null values, use camelCase)
         pipeline = [
             {"$match": query},
             {"$addFields": {
-                "download_count": {"$ifNull": ["$download_count", 0]},
-                "view_count": {"$ifNull": ["$view_count", 0]},
                 "popularity_score": {
                     "$add": [
-                        {"$multiply": [{"$ifNull": ["$download_count", 0]}, 2]},
-                        {"$ifNull": ["$view_count", 0]}
+                        {"$multiply": [{"$ifNull": ["$downloadCount", 0]}, 2]},
+                        {"$ifNull": ["$viewCount", 0]}
                     ]
                 }
             }},
-            {"$sort": {"popularity_score": -1, "uploaded_at": -1}},
+            {"$sort": {"popularity_score": -1, "uploadedAt": -1}},
             {"$limit": limit}
         ]
         
@@ -161,10 +159,10 @@ class AnalyticsService:
             {"$group": {
                 "_id": "$department",
                 "total_notes": {"$sum": 1},
-                "total_downloads": {"$sum": "$download_count"},
-                "total_views": {"$sum": "$view_count"},
-                "avg_downloads": {"$avg": "$download_count"},
-                "avg_views": {"$avg": "$view_count"}
+                "total_downloads": {"$sum": {"$ifNull": ["$downloadCount", 0]}},
+                "total_views": {"$sum": {"$ifNull": ["$viewCount", 0]}},
+                "avg_downloads": {"$avg": {"$ifNull": ["$downloadCount", 0]}},
+                "avg_views": {"$avg": {"$ifNull": ["$viewCount", 0]}}
             }},
             {"$sort": {"total_notes": -1}}
         ]
@@ -195,8 +193,8 @@ class AnalyticsService:
             {"$group": {
                 "_id": "$subject",
                 "total_notes": {"$sum": 1},
-                "total_downloads": {"$sum": "$download_count"},
-                "total_views": {"$sum": "$view_count"}
+                "total_downloads": {"$sum": {"$ifNull": ["$downloadCount", 0]}},
+                "total_views": {"$sum": {"$ifNull": ["$viewCount", 0]}}
             }},
             {"$sort": {"total_notes": -1}},
             {"$limit": 20}
@@ -218,17 +216,30 @@ class AnalyticsService:
         """Get upload trends over time"""
         
         start_date = datetime.utcnow() - timedelta(days=days)
+        start_date_str = start_date.isoformat()
         
-        # Get trends only for notes with valid uploaded_at dates
+        # Get trends only for notes with valid uploadedAt dates (camelCase)
+        # Convert string dates to datetime for aggregation
         pipeline = [
             {"$match": {
-                "uploaded_at": {"$ne": None, "$gte": start_date}
+                "uploadedAt": {"$ne": None, "$gte": start_date_str}
+            }},
+            {"$addFields": {
+                "uploadedAtDate": {
+                    "$dateFromString": {
+                        "dateString": "$uploadedAt",
+                        "onError": None
+                    }
+                }
+            }},
+            {"$match": {
+                "uploadedAtDate": {"$ne": None}
             }},
             {"$group": {
                 "_id": {
-                    "year": {"$year": "$uploaded_at"},
-                    "month": {"$month": "$uploaded_at"},
-                    "day": {"$dayOfMonth": "$uploaded_at"}
+                    "year": {"$year": "$uploadedAtDate"},
+                    "month": {"$month": "$uploadedAtDate"},
+                    "day": {"$dayOfMonth": "$uploadedAtDate"}
                 },
                 "count": {"$sum": 1}
             }},
@@ -262,16 +273,26 @@ class AnalyticsService:
         """Get user engagement metrics"""
         
         start_date = datetime.utcnow() - timedelta(days=days)
+        start_date_str = start_date.isoformat()
         
-        # Active users per day
+        # Active users per day - using camelCase field names
         daily_active_pipeline = [
-            {"$match": {"uploaded_at": {"$gte": start_date}}},
+            {"$match": {"uploadedAt": {"$gte": start_date_str}}},
+            {"$addFields": {
+                "uploadedAtDate": {
+                    "$dateFromString": {
+                        "dateString": "$uploadedAt",
+                        "onError": None
+                    }
+                }
+            }},
+            {"$match": {"uploadedAtDate": {"$ne": None}}},
             {"$group": {
                 "_id": {
-                    "year": {"$year": "$uploaded_at"},
-                    "month": {"$month": "$uploaded_at"},
-                    "day": {"$dayOfMonth": "$uploaded_at"},
-                    "user_id": "$user_id"
+                    "year": {"$year": "$uploadedAtDate"},
+                    "month": {"$month": "$uploadedAtDate"},
+                    "day": {"$dayOfMonth": "$uploadedAtDate"},
+                    "user_id": "$userId"
                 }
             }},
             {"$group": {
@@ -339,25 +360,40 @@ class AnalyticsService:
         if not user:
             return {}
         
-        # User's notes
-        user_notes = await self.db.notes.find({"user_id": user_id}).to_list(length=None)
+        # User's notes - using camelCase field names
+        user_notes = await self.db.notes.find({"userId": user_id}).to_list(length=None)
         
         # Calculate statistics
         total_uploads = len(user_notes)
-        total_downloads = sum(note.get("download_count", 0) for note in user_notes)
-        total_views = sum(note.get("view_count", 0) for note in user_notes)
+        total_downloads = sum(note.get("downloadCount", 0) for note in user_notes)
+        total_views = sum(note.get("viewCount", 0) for note in user_notes)
         
         # Most popular note
-        most_popular = max(user_notes, key=lambda n: n.get("download_count", 0)) if user_notes else None
+        most_popular = max(user_notes, key=lambda n: n.get("downloadCount", 0)) if user_notes else None
         
         # Subjects covered
         subjects = list(set(note["subject"] for note in user_notes))
         
         # Upload frequency (uploads per week)
         if user_notes:
-            oldest_upload = min(note["uploaded_at"] for note in user_notes)
-            weeks_active = max(1, (datetime.utcnow() - oldest_upload).days / 7)
-            upload_frequency = total_uploads / weeks_active
+            # Handle string dates
+            upload_dates = []
+            for note in user_notes:
+                if "uploadedAt" in note:
+                    try:
+                        if isinstance(note["uploadedAt"], str):
+                            upload_dates.append(datetime.fromisoformat(note["uploadedAt"].replace('Z', '+00:00')))
+                        else:
+                            upload_dates.append(note["uploadedAt"])
+                    except:
+                        pass
+            
+            if upload_dates:
+                oldest_upload = min(upload_dates)
+                weeks_active = max(1, (datetime.utcnow() - oldest_upload).days / 7)
+                upload_frequency = total_uploads / weeks_active
+            else:
+                upload_frequency = 0
         else:
             upload_frequency = 0
         
@@ -373,7 +409,7 @@ class AnalyticsService:
             "most_popular_note": {
                 "id": str(most_popular["_id"]),
                 "title": most_popular["title"],
-                "downloads": most_popular.get("download_count", 0)
+                "downloads": most_popular.get("downloadCount", 0)
             } if most_popular else None
         }
 
