@@ -42,39 +42,39 @@ export default function Home() {
         <div className="container mx-auto px-4 py-12 sm:py-16 md:py-24 lg:py-32 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-4 sm:px-6 py-2 mb-6 sm:mb-8">
-              <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="text-xs sm:text-sm font-medium">Enterprise-Grade Academic Platform</span>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm font-medium">Trusted by 10,000+ Students</span>
             </div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
-              Knowledge Management
+              Your College's Academic Hub
               <br />
-              <span className="text-blue-400">For Modern Education</span>
+              <span className="text-blue-400">Notes from Your Campus</span>
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
-              Streamline academic content sharing with enterprise security, 
-              structured organization, and institutional-grade reliability.
+              Access notes shared by students from your own college, across all departments. 
+              Collaborate with your campus community and excel together.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
               <Button
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow"
                 onClick={() => navigate("/find")}
               >
                 <Search className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                Browse Repository
+                Explore Notes
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               
               <Button
                 size="lg"
-                className="bg-slate-700 hover:bg-slate-600 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow"
                 onClick={() => navigate("/upload")}
               >
                 <Upload className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                Contribute Content
+                Start Contributing
               </Button>
             </div>
 
@@ -82,15 +82,15 @@ export default function Home() {
             <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-white/10">
               <div className="text-center">
                 <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">10K+</div>
-                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Active Users</div>
+                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Active Students</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">50K+</div>
-                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Resources</div>
+                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Study Materials</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">98%</div>
-                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Satisfaction</div>
+                <div className="text-slate-400 text-xs sm:text-sm uppercase tracking-wide">Success Rate</div>
               </div>
             </div>
           </div>
@@ -102,37 +102,37 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-3 sm:mb-4">
-              Enterprise Features
+              Comprehensive Features for Success
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
-              Built for institutions that demand reliability, security, and scalability
+              Everything you need to excel academically, all in one platform
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
               {
-                icon: Shield,
-                title: "Secure Infrastructure",
-                description: "Bank-level encryption and data protection protocols",
+                icon: TrendingUp,
+                title: "Gamified Learning",
+                description: "Earn points, unlock achievements, and track your progress on the leaderboard",
                 color: "text-blue-600"
               },
               {
-                icon: Building2,
-                title: "Department Management",
-                description: "Organized by departments with role-based access",
+                icon: Users,
+                title: "Collaborative Study",
+                description: "Join study groups, share knowledge, and learn together with peers",
                 color: "text-slate-600"
               },
               {
                 icon: BarChart3,
-                title: "Analytics Dashboard",
-                description: "Track engagement and content performance metrics",
+                title: "Progress Analytics",
+                description: "Monitor your learning journey with detailed insights and performance metrics",
                 color: "text-blue-600"
               },
               {
-                icon: CheckCircle,
-                title: "Quality Assurance",
-                description: "Automated validation and content review systems",
+                icon: BookOpen,
+                title: "College-Specific Content",
+                description: "Access notes from all departments within your own college campus",
                 color: "text-slate-600"
               }
             ].map((feature, index) => (
@@ -156,10 +156,10 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-3 sm:mb-4">
-              Streamlined Workflow
+              How It Works
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-slate-600 px-4">
-              Three simple steps to knowledge sharing
+              Three simple steps to transform your study experience
             </p>
           </div>
 
@@ -168,20 +168,20 @@ export default function Home() {
               { 
                 step: "01", 
                 icon: BookOpen, 
-                title: "Access Repository", 
-                description: "Browse organized collections by department and subject matter"
+                title: "Discover Campus Notes", 
+                description: "Browse notes from your college, organized by department and subject"
               },
               { 
                 step: "02", 
                 icon: Upload, 
-                title: "Contribute Content", 
-                description: "Upload and share your academic resources with validation"
+                title: "Contribute & Collaborate", 
+                description: "Share your study materials and earn recognition for your contributions"
               },
               { 
                 step: "03", 
                 icon: TrendingUp, 
-                title: "Track Performance", 
-                description: "Monitor engagement and impact through analytics"
+                title: "Track Your Progress", 
+                description: "Monitor your learning journey and compete on performance leaderboards"
               }
             ].map((item, index) => (
               <div key={index} className="relative">
@@ -211,18 +211,18 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center">
               <div>
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 sm:mb-6">
-                  Trusted by Leading Institutions
+                  Your Campus, Your Community
                 </h2>
                 <p className="text-base sm:text-lg text-slate-600 mb-6 sm:mb-8">
-                  NotesHub provides the infrastructure and security that educational institutions 
-                  need to manage academic content at scale.
+                  Connect with students from your own college across all departments. 
+                  Share knowledge within your campus and grow together.
                 </p>
                 <div className="space-y-3 sm:space-y-4">
                   {[
-                    "ISO 27001 Certified Security",
-                    "99.9% Uptime SLA",
-                    "24/7 Technical Support",
-                    "GDPR Compliant"
+                    "Notes from all departments in your college",
+                    "Connect with classmates and seniors",
+                    "50+ achievements and milestones",
+                    "Active study groups per college"
                   ].map((item, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
@@ -237,12 +237,12 @@ export default function Home() {
                   <div className="text-center">
                     <Users className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
                     <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">10K+</div>
-                    <div className="text-xs sm:text-sm text-slate-600">Active Users</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Active Students</div>
                   </div>
                   <div className="text-center">
                     <BookOpen className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
                     <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">50K+</div>
-                    <div className="text-xs sm:text-sm text-slate-600">Resources</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Study Materials</div>
                   </div>
                   <div className="text-center">
                     <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
@@ -252,7 +252,7 @@ export default function Home() {
                   <div className="text-center">
                     <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-slate-600 mx-auto mb-2 sm:mb-3" />
                     <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">98%</div>
-                    <div className="text-xs sm:text-sm text-slate-600">Satisfaction</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Success Rate</div>
                   </div>
                 </div>
               </div>
@@ -270,18 +270,19 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
-              Ready to Get Started?
+              Join Your College Community Today
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 sm:mb-12 px-4">
-              Join thousands of users leveraging enterprise-grade knowledge management
+              Connect with students from your campus, access department-specific notes, 
+              and collaborate with your college peers for academic success.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
               <Button
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg h-auto w-full sm:w-auto"
-                onClick={() => navigate("/upload")}
+                onClick={() => navigate("/auth")}
               >
-                Start Contributing
+                Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <HomeShareOptions />
