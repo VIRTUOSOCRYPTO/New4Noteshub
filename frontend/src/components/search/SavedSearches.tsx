@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Bookmark, Trash2, Search as SearchIcon } from "lucide-react";
-import { apiRequest } from "@/lib/api";
+import { Bookmark, Trash2, Search as SearchIcon, AlertCircle } from "lucide-react";
+import { apiGet, apiPost, apiDelete, getAuthToken } from "@/lib/api";
 import { showToast } from "@/components/ui/toast-container";
+import { useAuth } from "@/hooks/use-auth";
 
 interface SavedSearch {
   id: string;
@@ -23,25 +24,42 @@ interface SavedSearchesProps {
 }
 
 export default function SavedSearches({ onSearch, currentQuery, currentFilters }: SavedSearchesProps) {
+  const { user } = useAuth();
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [searchName, setSearchName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadSavedSearches();
-  }, []);
+    if (user) {
+      loadSavedSearches();
+    }
+  }, [user]);
 
   const loadSavedSearches = async () => {
+    if (!user) {
+      console.log("User not authenticated, skipping saved searches load");
+      return;
+    }
+    
     try {
-      const data = await apiRequest<{ searches: SavedSearch[] }>("/api/search/saved");
+      const data = await apiGet<{ searches: SavedSearch[] }>("/api/search/saved");
       setSavedSearches(data.searches);
     } catch (error) {
       console.error("Failed to load saved searches:", error);
+      // Don't show error toast for auth errors
+      if (error instanceof Error && !error.message.includes("403") && !error.message.includes("401")) {
+        showToast("Failed to load saved searches", "error");
+      }
     }
   };
 
   const handleSaveSearch = async () => {
+    if (!user) {
+      showToast("Please log in to save searches", "error");
+      return;
+    }
+
     if (!searchName.trim()) {
       showToast("Please enter a name for this search", "error");
       return;
@@ -52,16 +70,19 @@ export default function SavedSearches({ onSearch, currentQuery, currentFilters }
       return;
     }
 
+    // Debug: Check if token exists
+    const token = getAuthToken();
+    if (!token) {
+      showToast("Authentication token missing. Please log in again.", "error");
+      return;
+    }
+
     setLoading(true);
     try {
-      await apiRequest("/api/search/saved", {
-        method: "POST",
-        body: JSON.stringify({
-          name: searchName,
-          query: currentQuery,
-          filters: currentFilters || {}
-        }),
-        headers: { "Content-Type": "application/json" }
+      await apiPost("/api/search/saved", {
+        name: searchName,
+        query: currentQuery,
+        filters: currentFilters || {}
       });
 
       showToast("Search saved successfully", "success");
@@ -69,29 +90,68 @@ export default function SavedSearches({ onSearch, currentQuery, currentFilters }
       setSearchName("");
       loadSavedSearches();
     } catch (error) {
-      showToast("Failed to save search", "error");
+      console.error("Failed to save search:", error);
+      if (error instanceof Error && (error.message.includes("403") || error.message.includes("401"))) {
+        showToast("Authentication error. Please log in again.", "error");
+      } else {
+        showToast("Failed to save search", "error");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteSearch = async (searchId: string) => {
+    if (!user) {
+      showToast("Please log in to delete searches", "error");
+      return;
+    }
+
     if (!confirm("Are you sure you want to delete this saved search?")) {
       return;
     }
 
     try {
-      await apiRequest(`/api/search/saved/${searchId}`, { method: "DELETE" });
+      await apiDelete(`/api/search/saved/${searchId}`);
       showToast("Search deleted", "success");
       loadSavedSearches();
     } catch (error) {
-      showToast("Failed to delete search", "error");
+      console.error("Failed to delete search:", error);
+      if (error instanceof Error && (error.message.includes("403") || error.message.includes("401"))) {
+        showToast("Authentication error. Please log in again.", "error");
+      } else {
+        showToast("Failed to delete search", "error");
+      }
     }
   };
 
   const handleUseSearch = (search: SavedSearch) => {
     onSearch(search.query, search.filters);
   };
+
+  // Show login prompt if user is not authenticated
+  if (!user) {
+    return (
+      <Card data-testid="saved-searches">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bookmark className="h-5 w-5" aria-hidden="true" />
+            Saved Searches
+          </CardTitle>
+          <CardDescription>Quick access to your favorite searches</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <AlertCircle className="h-12 w-12 mx-auto mb-4 text-yellow-500" aria-hidden="true" />
+            <p className="text-gray-700 font-medium mb-2">Login Required</p>
+            <p className="text-sm text-gray-600">
+              Please log in to save and access your favorite searches
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card data-testid="saved-searches">
