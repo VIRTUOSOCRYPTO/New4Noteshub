@@ -59,6 +59,7 @@ export default function Header() {
 
   if (isAdmin) {
     navLinks.push({ href: "/flagged", icon: ShieldAlert, label: "Moderation", badge: null });
+    navLinks.push({ href: "/admin", icon: Users, label: "Admin Panel", badge: null });
   }
 
   const handleNavClick = () => {
