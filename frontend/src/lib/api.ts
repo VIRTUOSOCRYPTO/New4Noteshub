@@ -9,6 +9,16 @@ import { pinnedFetch } from "./certificate-pinning";
 
 // Determine the environment-specific API base URL
 const getApiBaseUrl = (): string => {
+  // Check if we're running on Emergent preview URL
+  const isEmergentPreview = window.location.hostname.includes('emergentagent.com') ||
+                           window.location.hostname.includes('preview.emergent');
+  
+  // If on Emergent preview, use same-origin (backend routes through /api via Kubernetes ingress)
+  if (isEmergentPreview) {
+    console.log('Using same-origin API URL (Emergent preview environment)');
+    return '';
+  }
+
   const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
   if (envApiBaseUrl) {
