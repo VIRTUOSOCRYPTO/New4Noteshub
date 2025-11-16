@@ -207,3 +207,20 @@ async def get_user_stats(
         "uniqueSubjectsCount": 0,  # Would calculate in production
         "pagesVisited": 0  # Would track in production
     }
+
+
+
+@router.get("/is-admin")
+async def check_admin_status(
+    user_id: str = Depends(get_current_user_id),
+    database=Depends(get_database)
+):
+    """Check if current user has admin privileges"""
+    from middleware.admin_auth import get_admin_status
+    
+    is_admin = await get_admin_status(user_id, database)
+    
+    return {
+        "is_admin": is_admin
+    }
+
