@@ -1,0 +1,58 @@
+# Render Blueprint Configuration for NotesHub
+# This file allows you to deploy both frontend and backend with one click
+
+services:
+  # Backend API Service (FastAPI + Python)
+  - type: web
+    name: noteshub-backend
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: MONGO_URL
+        sync: false  # You'll add this manually in Render dashboard
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: 7
+      - key: EMERGENT_LLM_KEY
+        sync: false  # You'll add this manually
+      - key: EMAIL_ENABLED
+        value: false
+      - key: VIRUS_SCAN_ENABLED
+        value: false
+      - key: PERFORMANCE_MONITORING_ENABLED
+        value: true
+      - key: CORS_ORIGINS
+        value: https://noteshub-frontend.onrender.com  # Update with your actual frontend URL
+      - key: ADMIN_EMAILS
+        sync: false  # Add your admin email
+
+  # Frontend Service (React + Vite)
+  - type: web
+    name: noteshub-frontend
+    runtime: node
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: frontend
+    buildCommand: yarn install && yarn build
+    startCommand: yarn preview --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: VITE_REACT_APP_BACKEND_URL
+        value: https://noteshub-backend.onrender.com  # Update with your actual backend URL
+      - key: VITE_API_BASE_URL
+        value: https://noteshub-backend.onrender.com  # Update with your actual backend URL
