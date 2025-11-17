@@ -328,3 +328,73 @@ async def get_countdown(
         "hours": time_remaining.seconds // 3600,
         "minutes": (time_remaining.seconds % 3600) // 60
     }
+
+
+
+@router.get("/live-activity-feed")
+async def get_live_activity_feed(db = Depends(get_database)):
+    """Get live activity feed for floating ticker"""
+    
+    # Recent uploads (last 30 minutes)
+    recent_uploads = await db.notes.find(
+        {"created_at": {"$gte": datetime.utcnow() - timedelta(minutes=30)}}
+    ).sort("created_at", -1).limit(5).to_list(5)
+    
+    # Recent achievements
+    recent_achievements = await db.user_achievements.find(
+        {"unlocked_at": {"$gte": datetime.utcnow() - timedelta(minutes=30)}}
+    ).sort("unlocked_at", -1).limit(5).to_list(5)
+    
+    # Recent referrals
+    recent_referrals = await db.referrals.find(
+        {"created_at": {"$gte": datetime.utcnow() - timedelta(minutes=30)}}
+    ).sort("created_at", -1).limit(5).to_list(5)
+    
+    activities = []
+    
+    # Process uploads
+    for upload in recent_uploads:
+        user = await db.users.find_one({"id": upload.get("user_id")})
+        if user:
+            activities.append({
+                "type": "upload",
+                "message": f"{user.get('usn', 'User')[:4]}*** uploaded {upload.get('subject', 'notes')}",
+                "icon": "📚",
+                "timestamp": upload.get("created_at", datetime.utcnow()).isoformat()
+            })
+    
+    # Process achievements
+    for achievement in recent_achievements:
+        user = await db.users.find_one({"id": achievement.get("user_id")})
+        if user:
+            # Find achievement name
+            from routers.achievements import ACHIEVEMENTS
+            ach_data = None
+            for ach in ACHIEVEMENTS:
+                if ach["id"] == achievement.get("achievement_id"):
+                    ach_data = ach
+                    break
+            
+            if ach_data:
+                activities.append({
+                    "type": "achievement",
+                    "message": f"{user.get('usn', 'User')[:4]}*** unlocked {ach_data['name']}",
+                    "icon": ach_data["icon"],
+                    "timestamp": achievement.get("unlocked_at", datetime.utcnow()).isoformat()
+                })
+    
+    # Process referrals
+    for referral in recent_referrals:
+        user = await db.users.find_one({"id": referral.get("user_id")})
+        if user:
+            activities.append({
+                "type": "referral",
+                "message": f"{user.get('usn', 'User')[:4]}*** referred a new student",
+                "icon": "🎯",
+                "timestamp": referral.get("created_at", datetime.utcnow()).isoformat()
+            })
+    
+    # Sort by timestamp and return latest 10
+    activities.sort(key=lambda x: x["timestamp"], reverse=True)
+    
+    return {"activities": activities[:10]}
