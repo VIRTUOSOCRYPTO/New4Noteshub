@@ -38,7 +38,8 @@ from routers import (
     whatsapp_share,
     instagram_stories,
     ai_personalization,
-    forced_virality
+    forced_virality,
+    feedback
 )
 
 
@@ -75,7 +76,7 @@ async def lifespan(app: FastAPI):
     print("="*60)
     print("✅ NotesHub API started successfully!")
     print(f"✅ Database connected")
-    print(f"✅ Modular routers loaded: 17 modules")
+    print(f"✅ Modular routers loaded: 18 modules")
     print(f"✅ Viral growth features: Leaderboards, Streaks, Referrals")
     print(f"✅ Gamification: Points, Levels, 50+ Achievements")
     print(f"✅ Social: Follow system, Activity feed")
@@ -84,6 +85,7 @@ async def lifespan(app: FastAPI):
     print(f"✅ NEW: Instagram Story Templates (10+ templates)")
     print(f"✅ NEW: AI Personalization (Emergent LLM)")
     print(f"✅ NEW: Forced Virality (Ethical unlock mechanics)")
+    print(f"✅ NEW: Beta Feedback System (User feedback collection)")
     print(f"✅ Feature flags initialized")
     print(f"✅ A/B testing initialized")
     print(f"✅ Performance monitoring active")
@@ -204,6 +206,7 @@ app.include_router(whatsapp_share.router)
 app.include_router(instagram_stories.router)
 app.include_router(ai_personalization.router)
 app.include_router(forced_virality.router)
+app.include_router(feedback.router)
 
 
 # Global exception handler
