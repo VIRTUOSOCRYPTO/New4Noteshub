@@ -22,12 +22,12 @@ export default function RewardsHub() {
         </p>
       </div>
 
-      {/* 4 Tabs for Rewards - Unique Features Only */}
-      <Tabs defaultValue="mystery" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-2">
-          <TabsTrigger value="mystery" className="flex items-center gap-2" data-testid="tab-mystery">
+      {/* 3 Tabs for Rewards */}
+      <Tabs defaultValue="rewards" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-1 lg:grid-cols-3 gap-2">
+          <TabsTrigger value="rewards" className="flex items-center gap-2" data-testid="tab-rewards">
             <Gift className="h-4 w-4" />
-            <span>Mystery Rewards</span>
+            <span>Rewards</span>
           </TabsTrigger>
           <TabsTrigger value="challenges" className="flex items-center gap-2" data-testid="tab-challenges">
             <Target className="h-4 w-4" />
@@ -37,14 +37,10 @@ export default function RewardsHub() {
             <Trophy className="h-4 w-4" />
             <span>Contests</span>
           </TabsTrigger>
-          <TabsTrigger value="alerts" className="flex items-center gap-2" data-testid="tab-alerts">
-            <Zap className="h-4 w-4" />
-            <span>Live Alerts</span>
-          </TabsTrigger>
         </TabsList>
 
-        {/* Tab 1: Mystery Rewards */}
-        <TabsContent value="mystery" className="space-y-6">
+        {/* Tab 1: Rewards - Mystery Rewards */}
+        <TabsContent value="rewards" className="space-y-6">
           <SurpriseRewards />
           
           {/* Quick Links to Other Features */}
@@ -63,7 +59,7 @@ export default function RewardsHub() {
               </div>
             </Link>
             
-            <Link href="/leaderboard?tab=referrals">
+            <Link href="/profile">
               <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 rounded-lg border border-purple-200 cursor-pointer hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
@@ -77,7 +73,7 @@ export default function RewardsHub() {
               </div>
             </Link>
             
-            <Link href="/leaderboard?tab=overview">
+            <Link href="/leaderboard?tab=rankings">
               <div className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 rounded-lg border border-blue-200 cursor-pointer hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
@@ -101,11 +97,6 @@ export default function RewardsHub() {
         {/* Tab 3: Contests */}
         <TabsContent value="contests">
           <ContestsGallery />
-        </TabsContent>
-
-        {/* Tab 4: Live Alerts */}
-        <TabsContent value="alerts">
-          <FOMOTriggers />
         </TabsContent>
       </Tabs>
     </div>
