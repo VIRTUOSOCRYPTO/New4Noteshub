@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Lock, Star, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AchievementCelebration } from "./AchievementCelebration";
+import { useToast } from "@/hooks/use-toast";
 
 interface Achievement {
   id: string;
@@ -42,6 +44,8 @@ const rarityTextColors = {
 
 export function AchievementShowcase() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [celebratingAchievement, setCelebratingAchievement] = useState<Achievement | null>(null);
+  const { toast } = useToast();
 
   // Fetch all achievements
   const { data: achievementsData, isLoading } = useQuery({
@@ -69,6 +73,25 @@ export function AchievementShowcase() {
       return await res.json();
     },
   });
+
+  // Poll for newly unlocked achievements
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await apiRequest("GET", "/api/achievements/recent-unlock");
+        const data = await res.json();
+        if (data.achievement && !data.shown) {
+          setCelebratingAchievement(data.achievement);
+          // Mark as shown
+          await apiRequest("POST", `/api/achievements/${data.achievement.id}/mark-shown`);
+        }
+      } catch (error) {
+        console.error("Failed to check for new achievements:", error);
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (isLoading) {
     return <div className="flex justify-center p-8">Loading achievements...</div>;
@@ -198,6 +221,24 @@ export function AchievementShowcase() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Achievement Celebration Modal */}
+      <AchievementCelebration
+        achievement={celebratingAchievement}
+        onClose={() => setCelebratingAchievement(null)}
+        onShare={async () => {
+          // Award bonus points for sharing
+          try {
+            await apiRequest("POST", "/api/achievements/share-bonus");
+            toast({
+              title: "🎉 Bonus Points Earned!",
+              description: "+50 points for sharing your achievement!",
+            });
+          } catch (error) {
+            console.error("Failed to award share bonus:", error);
+          }
+        }}
+      />
     </div>
   );
 }
