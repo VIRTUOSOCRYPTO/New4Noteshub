@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface ReferralData {
   referral_code: string;
@@ -36,11 +38,63 @@ export function ReferralDashboard() {
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState("");
   const { toast } = useToast();
+
+  // Fetch recent activity
+  const { data: recentActivity } = useQuery({
+    queryKey: ["/api/referrals/recent-activity"],
+    queryFn: async () => {
+      const res = await apiRequest("/api/referrals/recent-activity");
+      return res;
+    },
+    refetchInterval: 15000, // Refresh every 15 seconds
+  });
+
+  // Fetch ranking data
+  const { data: rankingData } = useQuery({
+    queryKey: ["/api/referrals/my-ranking"],
+    queryFn: async () => {
+      const res = await apiRequest("/api/referrals/my-ranking");
+      return res;
+    },
+  });
+
+  // Fetch active bonus
+  const { data: bonusData } = useQuery({
+    queryKey: ["/api/referrals/active-bonus"],
+    queryFn: async () => {
+      const res = await apiRequest("/api/referrals/active-bonus");
+      return res;
+    },
+    refetchInterval: 60000, // Refresh every minute
+  });
 
   useEffect(() => {
     fetchReferralData();
   }, []);
+
+  // Countdown timer for flash bonus
+  useEffect(() => {
+    if (bonusData?.expires_at) {
+      const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const end = new Date(bonusData.expires_at).getTime();
+        const diff = end - now;
+        
+        if (diff > 0) {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+        } else {
+          setTimeLeft("EXPIRED");
+        }
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [bonusData]);
 
   const fetchReferralData = async () => {
     try {
@@ -112,6 +166,28 @@ export function ReferralDashboard() {
 
   return (
     <div className="space-y-6" data-testid="referral-dashboard">
+      {/* Flash Bonus Alert */}
+      {bonusData?.active && (
+        <Card className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-2 border-red-500 animate-pulse">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Badge className="bg-red-500 text-white mb-2 animate-bounce">⚡ FLASH BONUS</Badge>
+              <h3 className="text-2xl font-bold mb-2">{bonusData.title}</h3>
+              <p className="text-lg mb-4">{bonusData.description}</p>
+              <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-4">
+                ⏰ {timeLeft}
+              </div>
+              <Button size="lg" className="bg-red-600 hover:bg-red-700" onClick={shareWhatsApp}>
+                Share Now & Get {bonusData.bonus_multiplier}x Points! 🔥
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                {bonusData.participants_count} students already participating!
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Referral Code Card */}
       <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700">
         <CardHeader>
@@ -162,6 +238,66 @@ export function ReferralDashboard() {
               Copy Link
             </Button>
           </div>
+
+          {/* Live Activity Feed */}
+          <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 mt-4">
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                Live Referral Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-32">
+                <div className="space-y-2">
+                  {recentActivity?.activities?.map((activity: any, idx: number) => (
+                    <div key={idx} className="text-xs p-2 bg-white dark:bg-black rounded flex items-center gap-2">
+                      <Users className="h-3 w-3 text-blue-500" />
+                      <span className="flex-1">
+                        <strong>{activity.user_name}</strong> just got {activity.count} referrals
+                      </span>
+                      <span className="text-muted-foreground">{activity.time_ago}</span>
+                    </div>
+                  ))}
+                  {(!recentActivity?.activities || recentActivity.activities.length === 0) && (
+                    <p className="text-xs text-muted-foreground text-center py-4">No recent activity</p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* Competitive Ranking */}
+          <Card className="border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 mt-4">
+            <CardContent className="pt-6">
+              <div className="text-center mb-4">
+                <p className="text-sm text-muted-foreground mb-1">Your Referral Rank</p>
+                <p className="text-4xl font-bold text-amber-600">
+                  #{rankingData?.rank || "--"}
+                </p>
+              </div>
+              
+              {rankingData?.behind && (
+                <div className="p-3 bg-white dark:bg-black rounded-lg text-sm">
+                  <p className="text-muted-foreground mb-1">
+                    🎯 You're <strong>{rankingData.behind.difference}</strong> referrals behind
+                  </p>
+                  <p className="font-semibold">{rankingData.behind.user_name} (Rank #{rankingData.behind.rank})</p>
+                  <Button size="sm" className="w-full mt-2" onClick={shareWhatsApp}>
+                    Catch Up Now! 🚀
+                  </Button>
+                </div>
+              )}
+              
+              {rankingData?.ahead && (
+                <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg text-sm mt-2">
+                  <p className="text-green-600 dark:text-green-400">
+                    🔥 You're ahead of {rankingData.ahead.count} students!
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
 
