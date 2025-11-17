@@ -95,19 +95,11 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Tabs for different sections */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 gap-2">
-          <TabsTrigger value="overview" className="flex items-center gap-2" data-testid="tab-overview">
-            <Star className="h-4 w-4" />
-            <span>Overview</span>
-          </TabsTrigger>
-          <TabsTrigger value="leaderboard" className="flex items-center gap-2" data-testid="tab-leaderboard">
+      <Tabs defaultValue="rankings" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-1 lg:grid-cols-3 gap-2">
+          <TabsTrigger value="rankings" className="flex items-center gap-2" data-testid="tab-rankings">
             <Trophy className="h-4 w-4" />
             <span>Rankings</span>
-          </TabsTrigger>
-          <TabsTrigger value="referrals" className="flex items-center gap-2" data-testid="tab-referrals">
-            <Users className="h-4 w-4" />
-            <span>Referrals</span>
           </TabsTrigger>
           <TabsTrigger value="achievements" className="flex items-center gap-2" data-testid="tab-achievements">
             <Award className="h-4 w-4" />
@@ -119,12 +111,16 @@ export default function LeaderboardPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
+        {/* Rankings Tab - Merged with Overview */}
+        <TabsContent value="rankings" className="space-y-6">
+          {/* Overview Stats Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <StreakTracker />
             <PointsDisplay showProgress={true} />
           </div>
+
+          {/* Leaderboard */}
+          <Leaderboard />
 
           {/* Tips Section */}
           <div className="p-6 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -152,16 +148,6 @@ export default function LeaderboardPage() {
               </li>
             </ul>
           </div>
-        </TabsContent>
-
-        {/* Leaderboard Tab */}
-        <TabsContent value="leaderboard">
-          <Leaderboard />
-        </TabsContent>
-
-        {/* Referrals Tab */}
-        <TabsContent value="referrals">
-          <ReferralDashboard />
         </TabsContent>
 
         {/* Achievements Tab */}
