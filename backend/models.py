@@ -581,3 +581,57 @@ class WhatsAppShareResponse(BaseModel):
     whatsapp_link: str
     qr_code: Optional[str] = None
     message_preview: str
+
+# Feedback Models
+class FeedbackType(str, Enum):
+    BUG = "bug"
+    FEATURE = "feature"
+    GENERAL = "general"
+
+class FeedbackStatus(str, Enum):
+    NEW = "new"
+    REVIEWING = "reviewing"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CLOSED = "closed"
+
+class FeedbackCreate(BaseModel):
+    type: FeedbackType
+    title: str
+    description: str
+    rating: Optional[int] = Field(None, ge=1, le=5)
+    
+    @field_validator('title')
+    @classmethod
+    def validate_title(cls, v):
+        if len(v) < 3:
+            raise ValueError('Title must be at least 3 characters')
+        if len(v) > 200:
+            raise ValueError('Title must be less than 200 characters')
+        return v
+    
+    @field_validator('description')
+    @classmethod
+    def validate_description(cls, v):
+        if len(v) < 10:
+            raise ValueError('Description must be at least 10 characters')
+        if len(v) > 2000:
+            raise ValueError('Description must be less than 2000 characters')
+        return v
+
+class FeedbackResponse(BaseModel):
+    id: str
+    user_id: str
+    usn: str
+    type: FeedbackType
+    title: str
+    description: str
+    rating: Optional[int] = None
+    status: FeedbackStatus
+    created_at: datetime
+    updated_at: datetime
+    admin_response: Optional[str] = None
+
+class FeedbackStatusUpdate(BaseModel):
+    status: FeedbackStatus
+    admin_response: Optional[str] = None
