@@ -20,30 +20,74 @@ from routers.gamification import update_user_points
 router = APIRouter(prefix="/api/achievements", tags=["achievements"])
 
 
-# Achievement Definitions (15 Key Achievements - Simplified for clarity)
+# Achievement Definitions (50+ Achievements for Maximum Engagement)
 ACHIEVEMENTS = [
-    # Upload Achievements (5)
+    # Upload Achievements (10)
     {"id": "first_note", "name": "First Note", "description": "Upload your first note", "category": "upload", "icon": "📝", "criteria": {"uploads": 1}, "rarity": "common", "points": 50},
+    {"id": "getting_started", "name": "Getting Started", "description": "Upload 5 notes", "category": "upload", "icon": "🚀", "criteria": {"uploads": 5}, "rarity": "common", "points": 100},
     {"id": "generous", "name": "Generous", "description": "Upload 10 notes", "category": "upload", "icon": "🎁", "criteria": {"uploads": 10}, "rarity": "uncommon", "points": 150},
-    {"id": "scholar", "name": "Scholar", "description": "Upload 50 notes", "category": "upload", "icon": "📚", "criteria": {"uploads": 50}, "rarity": "rare", "points": 500},
-    {"id": "professor", "name": "Professor", "description": "Upload 100 notes", "category": "upload", "icon": "🎓", "criteria": {"uploads": 100}, "rarity": "epic", "points": 1000},
+    {"id": "contributor", "name": "Contributor", "description": "Upload 25 notes", "category": "upload", "icon": "📚", "criteria": {"uploads": 25}, "rarity": "uncommon", "points": 300},
+    {"id": "scholar", "name": "Scholar", "description": "Upload 50 notes", "category": "upload", "icon": "🎓", "criteria": {"uploads": 50}, "rarity": "rare", "points": 500},
+    {"id": "educator", "name": "Educator", "description": "Upload 75 notes", "category": "upload", "icon": "👨‍🏫", "criteria": {"uploads": 75}, "rarity": "rare", "points": 750},
+    {"id": "professor", "name": "Professor", "description": "Upload 100 notes", "category": "upload", "icon": "🎯", "criteria": {"uploads": 100}, "rarity": "epic", "points": 1000},
+    {"id": "master_educator", "name": "Master Educator", "description": "Upload 200 notes", "category": "upload", "icon": "👑", "criteria": {"uploads": 200}, "rarity": "epic", "points": 2000},
+    {"id": "legendary_contributor", "name": "Legendary Contributor", "description": "Upload 500 notes", "category": "upload", "icon": "💎", "criteria": {"uploads": 500}, "rarity": "legendary", "points": 5000},
     {"id": "quality_contributor", "name": "Quality Contributor", "description": "Upload 10 notes with no flags", "category": "upload", "icon": "✨", "criteria": {"clean_uploads": 10}, "rarity": "rare", "points": 300},
     
-    # Download Achievements (3)
+    # Download Achievements (8)
+    {"id": "curious_learner", "name": "Curious Learner", "description": "Download 5 notes", "category": "download", "icon": "👀", "criteria": {"downloads": 5}, "rarity": "common", "points": 25},
     {"id": "knowledge_seeker", "name": "Knowledge Seeker", "description": "Download 20 notes", "category": "download", "icon": "🔍", "criteria": {"downloads": 20}, "rarity": "common", "points": 50},
-    {"id": "bookworm", "name": "Bookworm", "description": "Download 100 notes", "category": "download", "icon": "📖", "criteria": {"downloads": 100}, "rarity": "uncommon", "points": 150},
-    {"id": "exam_prep", "name": "Exam Prep Master", "description": "Download 50 notes before exam", "category": "download", "icon": "📅", "criteria": {"exam_downloads": 50}, "rarity": "uncommon", "points": 200},
+    {"id": "bookworm", "name": "Bookworm", "description": "Download 50 notes", "category": "download", "icon": "📖", "criteria": {"downloads": 50}, "rarity": "uncommon", "points": 100},
+    {"id": "study_enthusiast", "name": "Study Enthusiast", "description": "Download 100 notes", "category": "download", "icon": "📚", "criteria": {"downloads": 100}, "rarity": "uncommon", "points": 150},
+    {"id": "knowledge_collector", "name": "Knowledge Collector", "description": "Download 250 notes", "category": "download", "icon": "🗂️", "criteria": {"downloads": 250}, "rarity": "rare", "points": 300},
+    {"id": "exam_prep", "name": "Exam Prep Master", "description": "Download 500 notes", "category": "download", "icon": "📅", "criteria": {"downloads": 500}, "rarity": "rare", "points": 500},
+    {"id": "knowledge_hoarder", "name": "Knowledge Hoarder", "description": "Download 1000 notes", "category": "download", "icon": "🏆", "criteria": {"downloads": 1000}, "rarity": "epic", "points": 1000},
+    {"id": "ultimate_learner", "name": "Ultimate Learner", "description": "Download 2500 notes", "category": "download", "icon": "🌟", "criteria": {"downloads": 2500}, "rarity": "legendary", "points": 2500},
     
-    # Social Achievements (3)
-    {"id": "helper", "name": "Helper", "description": "Your notes downloaded 100 times", "category": "social", "icon": "🤝", "criteria": {"note_downloads": 100}, "rarity": "uncommon", "points": 200},
-    {"id": "popular", "name": "Popular", "description": "Your notes downloaded 500 times", "category": "social", "icon": "⭐", "criteria": {"note_downloads": 500}, "rarity": "rare", "points": 500},
-    {"id": "referral_master", "name": "Referral Master", "description": "Refer 10 friends", "category": "social", "icon": "🎯", "criteria": {"referrals": 10}, "rarity": "epic", "points": 800},
+    # Social Achievements (10)
+    {"id": "helper", "name": "Helper", "description": "Your notes downloaded 50 times", "category": "social", "icon": "🤝", "criteria": {"note_downloads": 50}, "rarity": "uncommon", "points": 100},
+    {"id": "popular", "name": "Popular", "description": "Your notes downloaded 200 times", "category": "social", "icon": "⭐", "criteria": {"note_downloads": 200}, "rarity": "rare", "points": 300},
+    {"id": "influencer", "name": "Influencer", "description": "Your notes downloaded 500 times", "category": "social", "icon": "💫", "criteria": {"note_downloads": 500}, "rarity": "rare", "points": 500},
+    {"id": "celebrity", "name": "Celebrity", "description": "Your notes downloaded 1000 times", "category": "social", "icon": "🌠", "criteria": {"note_downloads": 1000}, "rarity": "epic", "points": 1000},
+    {"id": "legend", "name": "Legend", "description": "Your notes downloaded 5000 times", "category": "social", "icon": "🔥", "criteria": {"note_downloads": 5000}, "rarity": "legendary", "points": 5000},
+    {"id": "first_follower", "name": "First Follower", "description": "Get your first follower", "category": "social", "icon": "👥", "criteria": {"followers": 1}, "rarity": "common", "points": 50},
+    {"id": "social_butterfly", "name": "Social Butterfly", "description": "Get 10 followers", "category": "social", "icon": "🦋", "criteria": {"followers": 10}, "rarity": "uncommon", "points": 150},
+    {"id": "crowd_favorite", "name": "Crowd Favorite", "description": "Get 50 followers", "category": "social", "icon": "👑", "criteria": {"followers": 50}, "rarity": "rare", "points": 500},
+    {"id": "referral_starter", "name": "Referral Starter", "description": "Refer 3 friends", "category": "social", "icon": "🎯", "criteria": {"referrals": 3}, "rarity": "common", "points": 150},
+    {"id": "referral_master", "name": "Referral Master", "description": "Refer 10 friends", "category": "social", "icon": "🏅", "criteria": {"referrals": 10}, "rarity": "epic", "points": 800},
     
-    # Streak Achievements (4)
-    {"id": "week_warrior", "name": "Week Warrior", "description": "7-day streak", "category": "streak", "icon": "🔥", "criteria": {"streak": 7}, "rarity": "common", "points": 100},
+    # Streak Achievements (8)
+    {"id": "day_three", "name": "Three Days Strong", "description": "3-day streak", "category": "streak", "icon": "🔥", "criteria": {"streak": 3}, "rarity": "common", "points": 30},
+    {"id": "week_warrior", "name": "Week Warrior", "description": "7-day streak", "category": "streak", "icon": "💪", "criteria": {"streak": 7}, "rarity": "common", "points": 100},
+    {"id": "fortnight_fighter", "name": "Fortnight Fighter", "description": "14-day streak", "category": "streak", "icon": "⚔️", "criteria": {"streak": 14}, "rarity": "uncommon", "points": 200},
     {"id": "month_master", "name": "Month Master", "description": "30-day streak", "category": "streak", "icon": "📆", "criteria": {"streak": 30}, "rarity": "uncommon", "points": 300},
+    {"id": "quarter_champion", "name": "Quarter Champion", "description": "90-day streak", "category": "streak", "icon": "🏆", "criteria": {"streak": 90}, "rarity": "rare", "points": 600},
     {"id": "hundred_days", "name": "Hundred Days", "description": "100-day streak", "category": "streak", "icon": "💯", "criteria": {"streak": 100}, "rarity": "rare", "points": 800},
+    {"id": "half_year", "name": "Half Year Hero", "description": "180-day streak", "category": "streak", "icon": "🌟", "criteria": {"streak": 180}, "rarity": "epic", "points": 1500},
     {"id": "year_champion_streak", "name": "Year Champion", "description": "365-day streak", "category": "streak", "icon": "🎉", "criteria": {"streak": 365}, "rarity": "legendary", "points": 3000},
+    
+    # Level Achievements (6)
+    {"id": "level_5", "name": "Level 5 Warrior", "description": "Reach Level 5", "category": "level", "icon": "🎖️", "criteria": {"level": 5}, "rarity": "common", "points": 100},
+    {"id": "level_10", "name": "Level 10 Master", "description": "Reach Level 10", "category": "level", "icon": "🏅", "criteria": {"level": 10}, "rarity": "uncommon", "points": 200},
+    {"id": "level_25", "name": "Level 25 Expert", "description": "Reach Level 25", "category": "level", "icon": "🏆", "criteria": {"level": 25}, "rarity": "rare", "points": 500},
+    {"id": "level_50", "name": "Level 50 Champion", "description": "Reach Level 50", "category": "level", "icon": "👑", "criteria": {"level": 50}, "rarity": "epic", "points": 1000},
+    {"id": "level_75", "name": "Level 75 Legend", "description": "Reach Level 75", "category": "level", "icon": "💎", "criteria": {"level": 75}, "rarity": "epic", "points": 2000},
+    {"id": "level_100", "name": "Level 100 God", "description": "Reach Level 100", "category": "level", "icon": "⚡", "criteria": {"level": 100}, "rarity": "legendary", "points": 5000},
+    
+    # Study Group Achievements (6)
+    {"id": "group_starter", "name": "Group Starter", "description": "Create your first study group", "category": "groups", "icon": "👥", "criteria": {"groups_created": 1}, "rarity": "common", "points": 100},
+    {"id": "community_builder", "name": "Community Builder", "description": "Create 3 study groups", "category": "groups", "icon": "🏗️", "criteria": {"groups_created": 3}, "rarity": "uncommon", "points": 300},
+    {"id": "group_joiner", "name": "Group Joiner", "description": "Join 3 study groups", "category": "groups", "icon": "🤗", "criteria": {"groups_joined": 3}, "rarity": "common", "points": 75},
+    {"id": "social_learner", "name": "Social Learner", "description": "Join 10 study groups", "category": "groups", "icon": "📚", "criteria": {"groups_joined": 10}, "rarity": "uncommon", "points": 200},
+    {"id": "group_leader", "name": "Group Leader", "description": "Create 5 study groups", "category": "groups", "icon": "👨‍🏫", "criteria": {"groups_created": 5}, "rarity": "rare", "points": 500},
+    {"id": "super_connector", "name": "Super Connector", "description": "Join 25 study groups", "category": "groups", "icon": "🌐", "criteria": {"groups_joined": 25}, "rarity": "epic", "points": 1000},
+    
+    # Special Achievements (5)
+    {"id": "early_bird", "name": "Early Bird", "description": "Upload before 8 AM", "category": "special", "icon": "🌅", "criteria": {"early_upload": 1}, "rarity": "common", "points": 50},
+    {"id": "night_owl", "name": "Night Owl", "description": "Upload after 11 PM", "category": "special", "icon": "🦉", "criteria": {"late_upload": 1}, "rarity": "common", "points": 50},
+    {"id": "weekend_warrior", "name": "Weekend Warrior", "description": "Upload 5 notes on weekends", "category": "special", "icon": "🎉", "criteria": {"weekend_uploads": 5}, "rarity": "uncommon", "points": 100},
+    {"id": "diversity_champion", "name": "Diversity Champion", "description": "Upload notes from 5 different subjects", "category": "special", "icon": "🌈", "criteria": {"diverse_subjects": 5}, "rarity": "rare", "points": 300},
+    {"id": "feedback_hero", "name": "Feedback Hero", "description": "Submit 10 feedback reports", "category": "special", "icon": "💬", "criteria": {"feedback_count": 10}, "rarity": "uncommon", "points": 200},
 ]
 
 
