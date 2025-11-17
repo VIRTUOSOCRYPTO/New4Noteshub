@@ -385,3 +385,88 @@ async def get_achievement_stats(
         "completion_percentage": round(completion_percentage, 1),
         "rarity_breakdown": rarity_counts
     }
+
+
+
+@router.get("/recent-unlock")
+async def get_recent_achievement_unlock(
+    user_id: str = Depends(get_current_user_id),
+    db = Depends(get_database)
+):
+    """Check if user has unlocked achievement that hasn't been shown yet"""
+    from datetime import timedelta
+    
+    recent = await db.user_achievements.find_one({
+        "user_id": user_id,
+        "celebration_shown": {"$ne": True},
+        "unlocked_at": {"$gte": datetime.utcnow() - timedelta(minutes=5)}
+    })
+    
+    if not recent:
+        return {"achievement": None, "shown": True}
+    
+    # Find achievement details
+    achievement = None
+    for ach in ACHIEVEMENTS:
+        if ach["id"] == recent["achievement_id"]:
+            achievement = ach
+            break
+    
+    if not achievement:
+        return {"achievement": None, "shown": True}
+    
+    return {
+        "achievement": {
+            "id": achievement["id"],
+            "name": achievement["name"],
+            "description": achievement["description"],
+            "icon": achievement["icon"],
+            "rarity": achievement["rarity"],
+            "points": achievement["points"]
+        },
+        "shown": False
+    }
+
+
+@router.post("/{achievement_id}/mark-shown")
+async def mark_achievement_shown(
+    achievement_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db = Depends(get_database)
+):
+    """Mark achievement celebration as shown"""
+    
+    await db.user_achievements.update_one(
+        {
+            "user_id": user_id,
+            "achievement_id": achievement_id
+        },
+        {"$set": {"celebration_shown": True}}
+    )
+    
+    return {"success": True}
+
+
+@router.post("/share-bonus")
+async def award_share_bonus(
+    user_id: str = Depends(get_current_user_id),
+    db = Depends(get_database)
+):
+    """Award bonus points for sharing achievement"""
+    
+    bonus_points = 50
+    
+    await db.users.update_one(
+        {"id": user_id},
+        {"$inc": {"total_points": bonus_points}}
+    )
+    
+    # Log the bonus
+    await db.point_history.insert_one({
+        "user_id": user_id,
+        "points": bonus_points,
+        "action": "achievement_share",
+        "created_at": datetime.utcnow()
+    })
+    
+    return {"success": True, "bonus_points": bonus_points}
