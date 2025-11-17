@@ -63,11 +63,9 @@ export default function Header() {
     { href: "/", icon: HomeIcon, label: "Home" },
     { href: "/find", icon: Search, label: "Find Notes" },
     { href: "/upload", icon: Upload, label: "Upload" },
-    { href: "/analytics", icon: BarChart3, label: "Analytics" },
     { href: "/leaderboard", icon: TrendingUp, label: "Leaderboard", badge: streak > 0 ? streak : null },
     { href: "/community", icon: Users, label: "Community" },
     { href: "/rewards", icon: Gift, label: "Rewards" },
-    { href: "/viral", icon: Sparkles, label: "Growth" },
   ];
 
   if (isAdmin) {
@@ -157,6 +155,10 @@ export default function Header() {
                     <DropdownMenuItem onClick={() => navigate("/profile")}>
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/analytics")}>
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      <span>Analytics</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/settings")}>
                       <Settings className="mr-2 h-4 w-4" />
