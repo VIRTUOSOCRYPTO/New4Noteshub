@@ -18,6 +18,17 @@ interface FOMOTrigger {
 }
 
 export function FOMOTriggers() {
+  // Sound notification function
+  const playNotificationSound = () => {
+    try {
+      const audio = new Audio('/notification.mp3');
+      audio.volume = 0.3;
+      audio.play().catch(() => {}); // Ignore errors if user hasn't interacted
+    } catch (error) {
+      // Silently fail if sound doesn't exist
+    }
+  };
+
   // Fetch FOMO triggers
   const { data: triggersData } = useQuery({
     queryKey: ["/api/fomo/triggers"],
@@ -27,6 +38,16 @@ export function FOMOTriggers() {
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  // Play sound for high urgency triggers
+  useEffect(() => {
+    if (triggersData?.triggers?.length > 0) {
+      const hasHighUrgency = triggersData.triggers.some((t: FOMOTrigger) => t.urgency_level === 'high');
+      if (hasHighUrgency) {
+        playNotificationSound();
+      }
+    }
+  }, [triggersData]);
 
   // Fetch live stats
   const { data: liveStats } = useQuery({
@@ -123,43 +144,70 @@ export function FOMOTriggers() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {triggers.map((trigger, index) => (
-              <Card 
-                key={index} 
-                className={`border-2 ${getUrgencyColor(trigger.urgency_level)}`}
-                data-testid={`fomo-trigger-${trigger.type}`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    {getUrgencyIcon(trigger.urgency_level)}
-                    
-                    <div className="flex-1">
-                      <h4 className="font-semibold mb-1">{trigger.title}</h4>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {trigger.message}
-                      </p>
-                      
-                      {trigger.expires_at && (
-                        <p className="text-xs text-red-600 dark:text-red-400 mb-2">
-                          ⏰ Expires: {new Date(trigger.expires_at).toLocaleString()}
-                        </p>
-                      )}
-                      
-                      {trigger.action_url && (
-                        <Button 
-                          size="sm" 
-                          variant={trigger.urgency_level === "high" ? "default" : "outline"}
-                          onClick={() => window.location.href = trigger.action_url!}
-                          data-testid={`fomo-action-${trigger.type}`}
-                        >
-                          {trigger.action_text || "Take Action"}
-                        </Button>
-                      )}
+            {triggers.map((trigger, index) => {
+              const isHighPriority = trigger.urgency_level === 'high';
+              
+              return (
+                <Card 
+                  key={index} 
+                  className={`border-2 ${getUrgencyColor(trigger.urgency_level)} ${
+                    isHighPriority ? 'animate-bounce shadow-2xl' : ''
+                  } relative`}
+                  data-testid={`fomo-trigger-${trigger.type}`}
+                >
+                  {isHighPriority && (
+                    <div className="absolute -top-2 -right-2">
+                      <Badge className="bg-red-600 text-white animate-pulse">
+                        URGENT
+                      </Badge>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  )}
+                  
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      {getUrgencyIcon(trigger.urgency_level)}
+                      
+                      <div className="flex-1">
+                        <h4 className="font-semibold mb-1">{trigger.title}</h4>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {trigger.message}
+                        </p>
+                        
+                        {trigger.expires_at && (
+                          <p className="text-xs text-red-600 dark:text-red-400 mb-2">
+                            ⏰ Expires: {new Date(trigger.expires_at).toLocaleString()}
+                          </p>
+                        )}
+                        
+                        {trigger.action_url && (
+                          <Button 
+                            size="sm" 
+                            variant={trigger.urgency_level === "high" ? "default" : "outline"}
+                            onClick={() => window.location.href = trigger.action_url!}
+                            data-testid={`fomo-action-${trigger.type}`}
+                          >
+                            {trigger.action_text || "Take Action"}
+                          </Button>
+                        )}
+                        
+                        {/* High priority additional info */}
+                        {isHighPriority && (
+                          <div className="mt-4 p-3 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200">
+                            <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-2">
+                              ⚠️ This offer expires soon! Act now to avoid missing out.
+                            </p>
+                            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                              <Users className="h-3 w-3" />
+                              <span>{trigger.data?.participants_count || 0} students already participating</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
