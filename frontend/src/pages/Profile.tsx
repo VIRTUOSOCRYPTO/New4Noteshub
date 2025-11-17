@@ -9,6 +9,7 @@ import { UserAchievements } from "@/components/badges/UserAchievements";
 import { usePageVisits } from "@/hooks/use-page-visits";
 import { StreakTracker } from "@/components/viral/StreakTracker";
 import { PointsDisplay } from "@/components/viral/PointsDisplay";
+import { ReferralDashboard } from "@/components/viral";
 
 export default function Profile() {
   usePageVisits('profile');
@@ -132,6 +133,11 @@ export default function Profile() {
                 </div>
               </CardContent>
             </Card>
+            
+            {/* Referral Dashboard */}
+            <div className="mb-6">
+              <ReferralDashboard />
+            </div>
             
             <Card className="border-slate-200 shadow-sm">
               <CardHeader>
