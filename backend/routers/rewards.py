@@ -459,3 +459,39 @@ async def claim_milestone_reward(
         "message": f"🎉 Milestone reached! +{reward_points} points!",
         "points_awarded": reward_points
     }
+
+
+
+@router.get("/recent-winners")
+async def get_recent_winners(db = Depends(get_database)):
+    """Get recent big reward winners"""
+    
+    # Get recent mystery box winners with good rewards
+    winners = await db.mystery_box_history.find(
+        {
+            "reward_tier": {"$in": ["rare", "epic", "legendary"]},
+            "opened_at": {"$gte": datetime.utcnow() - timedelta(days=7)}
+        }
+    ).sort("opened_at", -1).limit(10).to_list(10)
+    
+    formatted_winners = []
+    for winner in winners:
+        user = await db.users.find_one({"id": winner.get("user_id")})
+        if user:
+            time_diff = datetime.utcnow() - winner.get("opened_at", datetime.utcnow())
+            
+            if time_diff.days > 0:
+                time_ago = f"{time_diff.days}d ago"
+            elif time_diff.seconds >= 3600:
+                time_ago = f"{time_diff.seconds // 3600}h ago"
+            else:
+                time_ago = f"{time_diff.seconds // 60}m ago"
+            
+            formatted_winners.append({
+                "user_name": user.get("usn", "User")[:4] + "***",
+                "reward_name": winner.get("reward_name", "Mystery Reward"),
+                "reward_icon": winner.get("reward_icon", "🎁"),
+                "time_ago": time_ago
+            })
+    
+    return {"winners": formatted_winners}
