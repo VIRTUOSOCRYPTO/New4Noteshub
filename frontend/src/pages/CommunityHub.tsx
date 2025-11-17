@@ -1,12 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Leaderboard,
   StudyGroups,
   SocialFeed,
-  ExamCountdown,
   AIRecommendations
 } from "@/components/viral";
-import { User, Trophy, Users, MessageCircle, Calendar, Brain, UserPlus } from "lucide-react";
+import { User, Users, MessageCircle, Brain, UserPlus, TrendingUp } from "lucide-react";
+import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -57,16 +56,12 @@ export default function CommunityHub() {
         </p>
       </div>
 
-      {/* 7 Tabs for Community */}
+      {/* 5 Tabs for Community - Unique Features Only */}
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 gap-2">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 gap-2">
           <TabsTrigger value="profile" className="flex items-center gap-2" data-testid="tab-profile">
             <User className="h-4 w-4" />
             <span>Profile</span>
-          </TabsTrigger>
-          <TabsTrigger value="leaderboards" className="flex items-center gap-2" data-testid="tab-leaderboards">
-            <Trophy className="h-4 w-4" />
-            <span>Rankings</span>
           </TabsTrigger>
           <TabsTrigger value="feed" className="flex items-center gap-2" data-testid="tab-feed">
             <MessageCircle className="h-4 w-4" />
@@ -79,10 +74,6 @@ export default function CommunityHub() {
           <TabsTrigger value="following" className="flex items-center gap-2" data-testid="tab-following">
             <UserPlus className="h-4 w-4" />
             <span>Following</span>
-          </TabsTrigger>
-          <TabsTrigger value="exams" className="flex items-center gap-2" data-testid="tab-exams">
-            <Calendar className="h-4 w-4" />
-            <span>Exams</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 text-white" data-testid="tab-ai">
             <Brain className="h-4 w-4" />
@@ -121,10 +112,15 @@ export default function CommunityHub() {
                       <p className="text-xs text-muted-foreground mb-1">Points</p>
                       <p className="text-2xl font-bold">{userStats?.total_points?.toLocaleString() || 0}</p>
                     </div>
-                    <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg">
-                      <p className="text-xs text-muted-foreground mb-1">Rank</p>
-                      <p className="text-2xl font-bold">#{leaderboardData?.user_rank || "--"}</p>
-                    </div>
+                    <Link href="/leaderboard">
+                      <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg cursor-pointer hover:shadow-md transition-shadow">
+                        <p className="text-xs text-muted-foreground mb-1">Rank</p>
+                        <p className="text-2xl font-bold flex items-center gap-2">
+                          #{leaderboardData?.user_rank || "--"}
+                          <TrendingUp className="h-4 w-4 text-green-500" />
+                        </p>
+                      </div>
+                    </Link>
                     <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 rounded-lg">
                       <p className="text-xs text-muted-foreground mb-1">Following</p>
                       <p className="text-2xl font-bold">{followingData?.following?.length || 0}</p>
@@ -144,22 +140,17 @@ export default function CommunityHub() {
           </div>
         </TabsContent>
 
-        {/* Tab 2: Leaderboards */}
-        <TabsContent value="leaderboards">
-          <Leaderboard />
-        </TabsContent>
-
-        {/* Tab 3: Social Feed */}
+        {/* Tab 2: Social Feed */}
         <TabsContent value="feed">
           <SocialFeed />
         </TabsContent>
 
-        {/* Tab 4: Study Groups */}
+        {/* Tab 3: Study Groups */}
         <TabsContent value="groups">
           <StudyGroups />
         </TabsContent>
 
-        {/* Tab 5: Following */}
+        {/* Tab 4: Following */}
         <TabsContent value="following" className="space-y-6">
           <Card>
             <CardHeader>
@@ -206,12 +197,7 @@ export default function CommunityHub() {
           </Card>
         </TabsContent>
 
-        {/* Tab 6: Exams */}
-        <TabsContent value="exams">
-          <ExamCountdown />
-        </TabsContent>
-
-        {/* Tab 7: AI Recommendations */}
+        {/* Tab 5: AI Recommendations */}
         <TabsContent value="ai">
           <AIRecommendations />
         </TabsContent>
