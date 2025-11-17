@@ -25,6 +25,7 @@ const Header = lazy(() => import("@/components/layout/Header"));
 const Footer = lazy(() => import("@/components/layout/Footer"));
 const ToastContainer = lazy(() => import("@/components/ui/toast-container"));
 const NoteBuddy = lazy(() => import("@/components/NoteBuddy"));
+const FeedbackButton = lazy(() => import("@/components/FeedbackButton"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -133,6 +134,7 @@ function App() {
               </Switch>
               <ToastContainer />
               <NoteBuddy />
+              <FeedbackButton />
             </Suspense>
           </div>
           <Toaster />
