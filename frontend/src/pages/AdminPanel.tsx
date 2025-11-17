@@ -13,8 +13,10 @@ import {
   RefreshCw,
   BarChart3,
   Shield,
-  X
+  X,
+  MessageSquare
 } from "lucide-react";
+import FeedbackManagement from "@/components/admin/FeedbackManagement";
 
 interface User {
   id: string;
@@ -53,6 +55,7 @@ export default function AdminPanel() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [activeTab, setActiveTab] = useState<'users' | 'feedback'>('users');
 
   // Check admin access from API
   useEffect(() => {
@@ -196,7 +199,7 @@ export default function AdminPanel() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold text-slate-900">Admin Panel</h1>
-                <p className="text-slate-600 text-lg">User Management Dashboard</p>
+                <p className="text-slate-600 text-lg">Management Dashboard</p>
               </div>
             </div>
             <Button onClick={fetchUsers} variant="outline" size="lg">
@@ -205,9 +208,38 @@ export default function AdminPanel() {
             </Button>
           </div>
 
-          {/* Stats Cards */}
-          {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* Tabs */}
+          <div className="flex gap-4 mb-6 border-b border-slate-200">
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-6 py-3 font-semibold transition-colors flex items-center gap-2 ${
+                activeTab === 'users'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Users className="w-5 h-5" />
+              User Management
+            </button>
+            <button
+              onClick={() => setActiveTab('feedback')}
+              className={`px-6 py-3 font-semibold transition-colors flex items-center gap-2 ${
+                activeTab === 'feedback'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <MessageSquare className="w-5 h-5" />
+              Beta Feedback
+            </button>
+          </div>
+
+          {/* User Management Tab */}
+          {activeTab === 'users' && (
+            <>
+              {/* Stats Cards */}
+              {stats && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
                 <div className="flex items-center justify-between">
                   <div>
@@ -245,10 +277,10 @@ export default function AdminPanel() {
                 </div>
               </div>
             </div>
-          )}
+              )}
 
-          {/* Search and Filters */}
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+              {/* Search and Filters */}
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="md:col-span-2 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -304,12 +336,11 @@ export default function AdminPanel() {
                 </Button>
               </div>
             </div>
-          </div>
-        </div>
+              </div>
 
-        {/* Users Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
+              {/* Users Table */}
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
@@ -364,12 +395,12 @@ export default function AdminPanel() {
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+                </table>
+                </div>
 
-          {/* Pagination */}
-          {total > limit && (
-            <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+                {/* Pagination */}
+                {total > limit && (
+                  <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
               <div className="text-sm text-slate-600">
                 Showing {page * limit + 1} to {Math.min((page + 1) * limit, total)} of {total} users
               </div>
@@ -390,8 +421,16 @@ export default function AdminPanel() {
                 >
                   Next
                 </Button>
+                  </div>
+                  </div>
+                )}
               </div>
-            </div>
+            </>
+          )}
+
+          {/* Feedback Management Tab */}
+          {activeTab === 'feedback' && (
+            <FeedbackManagement />
           )}
         </div>
       </div>
