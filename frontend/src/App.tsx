@@ -21,6 +21,10 @@ const CorsDebug = lazy(() => import("@/pages/CorsDebug"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const LeaderboardPage = lazy(() => import("@/pages/LeaderboardPage"));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
+const CommunityHub = lazy(() => import("@/pages/CommunityHub"));
+const RewardsHub = lazy(() => import("@/pages/RewardsHub"));
+const ViralHub = lazy(() => import("@/pages/viral/ViralHub"));
+const InstagramStories = lazy(() => import("@/pages/InstagramStories"));
 const Header = lazy(() => import("@/components/layout/Header"));
 const Footer = lazy(() => import("@/components/layout/Footer"));
 const ToastContainer = lazy(() => import("@/components/ui/toast-container"));
@@ -98,6 +102,10 @@ function Router() {
         <ProtectedRoute path="/analytics" component={Analytics} />
         <ProtectedRoute path="/leaderboard" component={LeaderboardPage} />
         <ProtectedRoute path="/admin" component={AdminPanel} />
+        <ProtectedRoute path="/community" component={CommunityHub} />
+        <ProtectedRoute path="/rewards" component={RewardsHub} />
+        <ProtectedRoute path="/viral" component={ViralHub} />
+        <ProtectedRoute path="/instagram-stories" component={InstagramStories} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/reset-password" component={ResetPassword} />
         <Route path="/cors-debug" component={CorsDebug} />
