@@ -321,3 +321,125 @@ async def get_referral_leaderboard(
     return {
         "top_referrers": result
     }
+
+
+
+@router.get("/recent-activity")
+async def get_recent_referral_activity(
+    user_id: str = Depends(get_current_user_id),
+    db = Depends(get_database)
+):
+    """Get recent referral activity for FOMO"""
+    activities = await db.referrals.aggregate([
+        {
+            "$match": {
+                "created_at": {
+                    "$gte": datetime.utcnow() - timedelta(hours=24)
+                }
+            }
+        },
+        {
+            "$group": {
+                "_id": "$user_id",
+                "count": {"$sum": 1},
+                "latest": {"$max": "$created_at"}
+            }
+        },
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "_id",
+                "foreignField": "id",
+                "as": "user"
+            }
+        },
+        {"$unwind": "$user"},
+        {"$sort": {"latest": -1}},
+        {"$limit": 10}
+    ]).to_list(10)
+    
+    formatted_activities = []
+    for activity in activities:
+        time_diff = datetime.utcnow() - activity["latest"]
+        if time_diff.seconds < 3600:
+            time_ago = f"{time_diff.seconds // 60}m ago"
+        else:
+            time_ago = f"{time_diff.seconds // 3600}h ago"
+            
+        formatted_activities.append({
+            "user_name": activity["user"].get("usn", "USER")[:4] + "***",  # Partially hide for privacy
+            "count": activity["count"],
+            "time_ago": time_ago
+        })
+    
+    return {"activities": formatted_activities}
+
+
+@router.get("/my-ranking")
+async def get_my_referral_ranking(
+    user_id: str = Depends(get_current_user_id),
+    db = Depends(get_database)
+):
+    """Get user's ranking among referrers"""
+    # Get all users sorted by referral count
+    rankings = await db.referrals.aggregate([
+        {
+            "$group": {
+                "_id": "$user_id",
+                "total_referrals": {"$sum": 1}
+            }
+        },
+        {"$sort": {"total_referrals": -1}}
+    ]).to_list(None)
+    
+    # Find user's position
+    user_rank = None
+    user_referrals = 0
+    for idx, item in enumerate(rankings, 1):
+        if item["_id"] == user_id:
+            user_rank = idx
+            user_referrals = item["total_referrals"]
+            break
+    
+    if not user_rank:
+        return {"rank": None, "ahead": None, "behind": None}
+    
+    # Get person ahead
+    ahead = None
+    if user_rank < len(rankings):
+        ahead_count = sum(1 for r in rankings if r["total_referrals"] > user_referrals)
+        ahead = {"count": ahead_count}
+    
+    # Get person behind
+    behind = None
+    if user_rank > 1:
+        behind_user = rankings[user_rank - 2]
+        behind_user_data = await db.users.find_one({"id": behind_user["_id"]})
+        if behind_user_data:
+            behind = {
+                "rank": user_rank - 1,
+                "user_name": behind_user_data.get("usn", "USER")[:4] + "***",
+                "difference": behind_user["total_referrals"] - user_referrals
+            }
+    
+    return {
+        "rank": user_rank,
+        "ahead": ahead,
+        "behind": behind
+    }
+
+
+@router.get("/active-bonus")
+async def get_active_referral_bonus():
+    """Get currently active time-limited bonus"""
+    # This can be configured in database or hardcoded for now
+    active_bonus = {
+        "active": True,
+        "title": "2X Referral Points!",
+        "description": "Get double points for each referral during this flash bonus",
+        "bonus_multiplier": 2,
+        "expires_at": (datetime.utcnow() + timedelta(hours=6)).isoformat(),
+        "participants_count": 47  # Can be real count from database
+    }
+    
+    return active_bonus
