@@ -22,6 +22,16 @@ export function SurpriseRewards() {
     },
   });
 
+  // Fetch recent winners
+  const { data: recentWinnersData } = useQuery({
+    queryKey: ["/api/rewards/recent-winners"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/rewards/recent-winners");
+      return await res.json();
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   // Fetch lucky draw status
   const { data: luckyDrawData } = useQuery({
     queryKey: ["/api/rewards/lucky-draw"],
@@ -84,6 +94,34 @@ export function SurpriseRewards() {
 
   return (
     <div className="space-y-6" data-testid="surprise-rewards">
+      {/* Recent Winners Showcase */}
+      {recentWinnersData?.winners?.length > 0 && (
+        <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950 border-2 border-amber-300">
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-amber-600" />
+              🔥 Recent Big Winners
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {recentWinnersData.winners.slice(0, 5).map((winner: any, idx: number) => (
+                <div key={idx} className="flex items-center justify-between text-sm p-2 bg-white dark:bg-black rounded">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{winner.reward_icon}</span>
+                    <span className="font-semibold">{winner.user_name}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-amber-600">{winner.reward_name}</p>
+                    <p className="text-xs text-muted-foreground">{winner.time_ago}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs defaultValue="mystery-box" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="mystery-box">Mystery Box</TabsTrigger>
@@ -105,17 +143,31 @@ export function SurpriseRewards() {
               <div className="text-center">
                 {mysteryBoxData?.can_open ? (
                   <>
-                    <div className={`relative inline-block ${isOpening ? "animate-bounce" : ""}`}>
-                      <Gift className="h-32 w-32 text-primary mx-auto" />
-                      {isOpening && (
-                        <Sparkles className="h-16 w-16 text-amber-500 absolute top-0 right-0 animate-spin" />
-                      )}
-                    </div>
+                    {isOpening ? (
+                      <div className="relative inline-block">
+                        <Gift className="h-32 w-32 text-primary mx-auto animate-bounce" />
+                        <Sparkles className="h-16 w-16 text-amber-500 absolute -top-4 -right-4 animate-spin" />
+                        <Sparkles className="h-12 w-12 text-pink-500 absolute -bottom-2 -left-2 animate-pulse" />
+                      </div>
+                    ) : (
+                      <div className="relative inline-block">
+                        <Gift className="h-32 w-32 text-primary mx-auto" />
+                      </div>
+                    )}
                     
-                    <h3 className="text-2xl font-bold mt-4 mb-2">Ready to Open!</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Open your daily mystery box and get random rewards!
-                    </p>
+                    {isOpening ? (
+                      <div>
+                        <p className="text-xl font-bold mt-4 animate-pulse">Opening your reward...</p>
+                        <p className="text-sm text-muted-foreground">🎉 Get ready for a surprise!</p>
+                      </div>
+                    ) : (
+                      <>
+                        <h3 className="text-2xl font-bold mt-4 mb-2">Ready to Open!</h3>
+                        <p className="text-muted-foreground mb-6">
+                          Open your daily mystery box and get random rewards!
+                        </p>
+                      </>
+                    )}
                     
                     <Button 
                       size="lg" 
