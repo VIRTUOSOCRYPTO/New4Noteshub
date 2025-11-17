@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert, BarChart3, Building2, TrendingUp, Flame, Star, Users, Menu, X } from "lucide-react";
+import { School, Search, Upload, Home as HomeIcon, User, Settings, LogOut, ShieldAlert, BarChart3, Building2, TrendingUp, Flame, Star, Users, Menu, X, Gift, Sparkles, Brain } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -65,11 +65,14 @@ export default function Header() {
     { href: "/upload", icon: Upload, label: "Upload" },
     { href: "/analytics", icon: BarChart3, label: "Analytics" },
     { href: "/leaderboard", icon: TrendingUp, label: "Leaderboard", badge: streak > 0 ? streak : null },
+    { href: "/community", icon: Users, label: "Community" },
+    { href: "/rewards", icon: Gift, label: "Rewards" },
+    { href: "/viral", icon: Sparkles, label: "Growth" },
   ];
 
   if (isAdmin) {
     navLinks.push({ href: "/flagged", icon: ShieldAlert, label: "Moderation", badge: null });
-    navLinks.push({ href: "/admin", icon: Users, label: "Admin Panel", badge: null });
+    navLinks.push({ href: "/admin", icon: Brain, label: "Admin Panel", badge: null });
   }
 
   const handleNavClick = () => {
